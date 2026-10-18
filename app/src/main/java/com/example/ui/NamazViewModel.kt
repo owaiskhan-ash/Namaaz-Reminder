@@ -265,7 +265,8 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             offsetMinutes = current.settings.reminderOffsetMinutes,
             soundEnabled = current.settings.soundEnabled,
             vibrateEnabled = current.settings.vibrationEnabled,
-            isTest = true
+            isTest = true,
+            prayerEpochMillis = current.nextPrayer?.targetEpochMillis ?: 0L
         )
 
         _uiState.update { it.copy(toastMessage = "Test notification sent! Check notification tray.") }

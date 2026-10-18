@@ -14,10 +14,34 @@ import com.example.MainActivity
 import com.example.R
 import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerScheduleData
+import com.example.data.model.PrayerType
 import com.example.data.model.UserSettings
+import java.util.Calendar
 
+/**
+ * Owns the prayer reminders: the notification channels, the exact alarms and
+ * the notification content.
+ *
+ * Design notes:
+ *  * **Every prayer gets its own notification id and its own group key.**
+ *    Android auto-bundles notifications of the same app as soon as four of
+ *    them are active (Android 7.0+), which made the daily reminders collapse
+ *    into one merged, indistinguishable group. An explicit group per prayer
+ *    keeps each reminder on its own.
+ *  * **Stale reminders are pruned.** Reminders posted on an earlier day are
+ *    removed, so the shade does not fill up with old, identical looking
+ *    reminders (which is also what triggered the auto-bundling above).
+ *  * **Sound and vibration are channel properties** from Android 8.0 onwards —
+ *    a per-notification `setSound()`/`setVibrate()` is ignored there. Separate
+ *    channels are therefore the only way to honour the sound / vibration
+ *    toggles in the settings sheet.
+ */
 object PrayerNotificationManager {
     const val CHANNEL_ID = "namaz_prayer_reminders_channel"
+    const val CHANNEL_ID_SOUND_ONLY = "namaz_prayer_reminders_sound_only_channel"
+    const val CHANNEL_ID_VIBRATE_ONLY = "namaz_prayer_reminders_vibrate_only_channel"
+    const val CHANNEL_ID_SILENT = "namaz_prayer_reminders_silent_channel"
+
     const val ACTION_PRAYER_REMINDER = "com.example.namaztimes.ACTION_PRAYER_REMINDER"
 
     const val EXTRA_PRAYER_NAME = "extra_prayer_name"
@@ -26,28 +50,145 @@ object PrayerNotificationManager {
     const val EXTRA_OFFSET = "extra_offset"
     const val EXTRA_SOUND = "extra_sound"
     const val EXTRA_VIBRATE = "extra_vibrate"
+    const val EXTRA_PRAYER_EPOCH = "extra_prayer_epoch"
+    const val EXTRA_NEXT_PRAYER = "extra_next_prayer"
+    const val EXTRA_NEXT_PRAYER_TIME = "extra_next_prayer_time"
+
+    /** First id used by the per-prayer reminder notifications. */
+    private const val NOTIFICATION_ID_BASE = 2100
+
+    /**
+     * Number of id slots reserved for prayer reminders. A reminder is
+     * identified by its prayer (not by the day), so the same prayer always
+     * updates the same notification instead of stacking up a new one per day.
+     */
+    private const val PRAYER_ID_SLOTS = 32
+
+    /** Id of the notification posted by the "Send test notification" action. */
+    const val TEST_NOTIFICATION_ID = 9999
+
+    private const val REQUEST_CODE_CONTENT = 0
+
+    /** Ids reserved for prayer reminders. */
+    private val PRAYER_NOTIFICATION_IDS = NOTIFICATION_ID_BASE until (NOTIFICATION_ID_BASE + PRAYER_ID_SLOTS)
 
     fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = context.getString(R.string.channel_name)
-            val descriptionText = context.getString(R.string.channel_description)
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-                enableVibration(true)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .build()
+
+        // One channel per sound/vibration combination: the system reads both
+        // from the channel, so a single channel cannot honour the toggles.
+        createChannel(
+            context = context,
+            notificationManager = notificationManager,
+            channelId = CHANNEL_ID,
+            nameRes = R.string.channel_name,
+            descriptionRes = R.string.channel_description,
+            soundUri = defaultSoundUri,
+            audioAttributes = audioAttributes,
+            vibrate = true
+        )
+        createChannel(
+            context = context,
+            notificationManager = notificationManager,
+            channelId = CHANNEL_ID_SOUND_ONLY,
+            nameRes = R.string.channel_name_sound_only,
+            descriptionRes = R.string.channel_description_sound_only,
+            soundUri = defaultSoundUri,
+            audioAttributes = audioAttributes,
+            vibrate = false
+        )
+        createChannel(
+            context = context,
+            notificationManager = notificationManager,
+            channelId = CHANNEL_ID_VIBRATE_ONLY,
+            nameRes = R.string.channel_name_vibrate_only,
+            descriptionRes = R.string.channel_description_vibrate_only,
+            soundUri = null,
+            audioAttributes = null,
+            vibrate = true
+        )
+        createChannel(
+            context = context,
+            notificationManager = notificationManager,
+            channelId = CHANNEL_ID_SILENT,
+            nameRes = R.string.channel_name_silent,
+            descriptionRes = R.string.channel_description_silent,
+            soundUri = null,
+            audioAttributes = null,
+            vibrate = false
+        )
+    }
+
+    private fun createChannel(
+        context: Context,
+        notificationManager: NotificationManager,
+        channelId: String,
+        nameRes: Int,
+        descriptionRes: Int,
+        soundUri: android.net.Uri?,
+        audioAttributes: AudioAttributes?,
+        vibrate: Boolean
+    ) {
+        val channel = NotificationChannel(
+            channelId,
+            context.getString(nameRes),
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = context.getString(descriptionRes)
+            enableVibration(vibrate)
+            if (vibrate) {
                 vibrationPattern = longArrayOf(0, 400, 200, 400)
-                val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-                val audioAttributes = AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                    .build()
-                setSound(defaultSoundUri, audioAttributes)
             }
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            if (soundUri != null && audioAttributes != null) {
+                setSound(soundUri, audioAttributes)
+            } else {
+                setSound(null, null)
+                enableVibration(vibrate)
+            }
+        }
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    /**
+     * The channel that matches the user's sound / vibration preferences.
+     */
+    fun channelIdFor(soundEnabled: Boolean, vibrateEnabled: Boolean): String = when {
+        soundEnabled && vibrateEnabled -> CHANNEL_ID
+        soundEnabled -> CHANNEL_ID_SOUND_ONLY
+        vibrateEnabled -> CHANNEL_ID_VIBRATE_ONLY
+        else -> CHANNEL_ID_SILENT
+    }
+
+    /**
+     * A stable notification id per prayer, so a reminder updates the previous
+     * reminder for the same prayer instead of piling up duplicates.
+     */
+    fun notificationIdFor(prayerName: String): Int {
+        val index = PrayerType.entries.indexOfFirst { it.englishName.equals(prayerName, ignoreCase = true) }
+        return if (index >= 0) {
+            NOTIFICATION_ID_BASE + index
+        } else {
+            // Unknown prayer name: keep it inside the reserved id range so it is
+            // still pruned and cancelled with the other reminders.
+            NOTIFICATION_ID_BASE + PRAYER_ID_SLOTS - 1
         }
     }
+
+    /**
+     * A group key that is unique per prayer. Notifications that carry an
+     * explicit group are never auto-bundled by the system, so each prayer
+     * reminder stays a separate notification instead of being merged into one.
+     */
+    fun groupKeyFor(prayerName: String): String = "namaz_prayer_${notificationIdFor(prayerName)}"
 
     /**
      * Whether the app is currently allowed to schedule exact alarms.
@@ -68,6 +209,9 @@ object PrayerNotificationManager {
     ) {
         if (!settings.notificationsEnabled) {
             cancelAllAlarms(context, schedule.prayers)
+            // Reminders that are already in the shade would otherwise stay
+            // there even after the user turns reminders off.
+            cancelAllPrayerNotifications(context)
             return
         }
 
@@ -78,9 +222,15 @@ object PrayerNotificationManager {
 
         createNotificationChannel(context)
 
-        schedule.prayers.filter { it.type.isPrimaryPrayer }.forEachIndexed { index, prayer ->
+        // Reminders from earlier days are removed whenever the schedule is
+        // (re)armed, so only the current day's reminders remain in the shade.
+        pruneStaleNotifications(context)
+
+        val primaryPrayers = schedule.prayers.filter { it.type.isPrimaryPrayer }
+        primaryPrayers.forEachIndexed { index, prayer ->
             if (!settings.mutedPrayerNames.contains(prayer.type.name)) {
                 val triggerAt = prayer.targetEpochMillis + offsetMillis
+                val nextPrayer = primaryPrayers.getOrNull(index + 1)
 
                 if (triggerAt > now) {
                     val intent = Intent(context, com.example.receiver.PrayerAlarmReceiver::class.java).apply {
@@ -91,6 +241,12 @@ object PrayerNotificationManager {
                         putExtra(EXTRA_OFFSET, settings.reminderOffsetMinutes)
                         putExtra(EXTRA_SOUND, settings.soundEnabled)
                         putExtra(EXTRA_VIBRATE, settings.vibrationEnabled)
+                        putExtra(EXTRA_PRAYER_EPOCH, prayer.targetEpochMillis)
+                        putExtra(EXTRA_NEXT_PRAYER, nextPrayer?.type?.englishName)
+                        putExtra(
+                            EXTRA_NEXT_PRAYER_TIME,
+                            nextPrayer?.displayTime(settings.is24HourFormat)
+                        )
                     }
 
                     val pendingIntent = PendingIntent.getBroadcast(
@@ -155,6 +311,54 @@ object PrayerNotificationManager {
         }
     }
 
+    /**
+     * Removes every prayer reminder (and the test notification) from the shade.
+     */
+    fun cancelAllPrayerNotifications(context: Context) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+        PRAYER_NOTIFICATION_IDS.forEach { notificationManager.cancel(it) }
+        notificationManager.cancel(TEST_NOTIFICATION_ID)
+    }
+
+    /**
+     * Removes reminders that were posted on an earlier day. The current day's
+     * reminders are kept — they still carry useful information — but the pile
+     * of yesterday's reminders is what made the shade look merged.
+     */
+    fun pruneStaleNotifications(context: Context) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+
+        val activeNotifications = runCatching { notificationManager.activeNotifications }.getOrNull()
+            ?: return
+        val dayStart = startOfTodayMillis()
+        activeNotifications
+            .filter { shouldPruneNotification(it.id, it.postTime, dayStart) }
+            .forEach { notificationManager.cancel(it.id) }
+    }
+
+    /**
+     * Pure helper so the pruning rule can be unit tested: only reminder ids
+     * that were posted before the start of today are stale.
+     */
+    internal fun shouldPruneNotification(id: Int, postTime: Long, dayStart: Long): Boolean =
+        id in PRAYER_NOTIFICATION_IDS && postTime < dayStart
+
+    /**
+     * Midnight of the current day, used as the cut-off for stale reminders.
+     */
+    fun startOfTodayMillis(now: Long = System.currentTimeMillis()): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = now
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
     fun showPrayerNotification(
         context: Context,
         prayerName: String,
@@ -163,63 +367,126 @@ object PrayerNotificationManager {
         offsetMinutes: Int,
         soundEnabled: Boolean = true,
         vibrateEnabled: Boolean = true,
-        isTest: Boolean = false
+        isTest: Boolean = false,
+        prayerEpochMillis: Long = 0L,
+        nextPrayerLabel: String? = null
     ) {
-        createNotificationChannel(context)
-
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+
+        val notification = buildPrayerNotification(
+            context = context,
+            prayerName = prayerName,
+            prayerTime = prayerTime,
+            city = city,
+            offsetMinutes = offsetMinutes,
+            soundEnabled = soundEnabled,
+            vibrateEnabled = vibrateEnabled,
+            isTest = isTest,
+            prayerEpochMillis = prayerEpochMillis,
+            nextPrayerLabel = nextPrayerLabel
+        )
+
+        val notificationId = if (isTest) TEST_NOTIFICATION_ID else notificationIdFor(prayerName)
+        notificationManager.notify(notificationId, notification)
+
+        if (!isTest) {
+            pruneStaleNotifications(context)
+        }
+    }
+
+    /**
+     * Builds the prayer reminder notification.
+     *
+     * Every reminder gets its own group, its own id and a timestamp that points
+     * at the prayer time rather than at the moment the reminder was posted, so
+     * the daily reminders stay separate, identifiable notifications instead of
+     * being merged into one bundle.
+     */
+    fun buildPrayerNotification(
+        context: Context,
+        prayerName: String,
+        prayerTime: String,
+        city: String,
+        offsetMinutes: Int,
+        soundEnabled: Boolean = true,
+        vibrateEnabled: Boolean = true,
+        isTest: Boolean = false,
+        prayerEpochMillis: Long = 0L,
+        nextPrayerLabel: String? = null
+    ): android.app.Notification {
+        createNotificationChannel(context)
 
         val launchIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val contentPendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            REQUEST_CODE_CONTENT,
             launchIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val title = if (isTest) {
-            "Test Reminder: $prayerName Prayer"
-        } else if (offsetMinutes > 0) {
-            "$prayerName Reminder ($offsetMinutes min after)"
-        } else {
-            "Time for $prayerName Prayer"
+        val title = when {
+            isTest -> "Test reminder - $prayerName"
+            offsetMinutes > 0 -> "$prayerName prayer - ${offsetMinutes}m after adhan"
+            else -> "Time for $prayerName prayer"
         }
 
-        val message = if (isTest) {
-            "Notification & sound are working properly. Scheduled time: $prayerTime in $city."
-        } else if (offsetMinutes > 0) {
-            "$prayerName prayer in $city started $offsetMinutes minutes ago ($prayerTime). It is time for your Salah."
-        } else {
-            "It is now time for $prayerName prayer in $city ($prayerTime)."
+        val message = buildString {
+            if (isTest) {
+                append("Notification and sound are working properly. ")
+                append("$prayerName is scheduled for $prayerTime in $city.")
+            } else if (offsetMinutes > 0) {
+                append("$prayerName prayer started $offsetMinutes minute(s) ago in $city ($prayerTime).")
+            } else {
+                append("It is now time for $prayerName prayer in $city ($prayerTime).")
+            }
+            if (!isTest && !nextPrayerLabel.isNullOrBlank()) {
+                append("\nNext: $nextPrayerLabel")
+            }
         }
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(
+            context,
+            channelIdFor(soundEnabled = soundEnabled, vibrateEnabled = vibrateEnabled)
+        )
             // Small icons are rendered using only the alpha channel; the app logo PNG
             // (opaque RGB) would show as a solid white square, so use the dedicated
             // monochrome mosque silhouette vector instead.
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
+            .setSubText(city)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setContentIntent(contentPendingIntent)
             .setAutoCancel(true)
+            // Its own group, so the system never merges the daily reminders into
+            // a single bundled notification.
+            .setGroup(groupKeyFor(prayerName))
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_ALL)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
 
-        if (soundEnabled) {
-            val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            builder.setSound(defaultSoundUri)
-        } else {
-            builder.setSilent(true)
+        if (prayerEpochMillis > 0L) {
+            // Show the prayer time as the notification timestamp instead of the
+            // moment the reminder happened to be posted.
+            builder.setWhen(prayerEpochMillis).setShowWhen(true)
         }
 
-        if (vibrateEnabled) {
-            builder.setVibrate(longArrayOf(0, 400, 200, 400))
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // From Android 8.0 onwards the channel decides; see createNotificationChannel.
+            if (soundEnabled) {
+                builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            } else {
+                builder.setSilent(true)
+            }
+            if (vibrateEnabled) {
+                builder.setVibrate(longArrayOf(0, 400, 200, 400))
+            }
         }
 
-        val notifId = if (isTest) 9999 else prayerName.hashCode()
-        notificationManager.notify(notifId, builder.build())
+        return builder.build()
     }
 }

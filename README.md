@@ -75,6 +75,23 @@ app/src/main/java/com/example/
 └── ui/                              # Screen, view model, components, theme
 ```
 
+## Notifications
+
+Each prayer reminder stays a separate notification — the system never bundles the daily
+reminders into one merged group:
+
+- every prayer gets its own notification id **and** its own group, so a Fajr reminder never
+  disappears into a stack of "5 notifications",
+- the reminder carries the prayer time as its timestamp (not the moment it happened to be
+  posted), the city as its subtitle and mentions the next prayer,
+- reminders posted on an earlier day are pruned automatically, so the shade does not fill up
+  with stale, identical looking reminders,
+- turning **Enable Reminders** off also clears the reminders that are already in the shade,
+- sound and vibration live in separate channels (`Prayer Reminders`, `Prayer Reminders (Sound
+  only)`, `Prayer Reminders (Vibration only)`, `Prayer Reminders (Silent)`) — from Android 8.0
+  the system reads both from the channel, not from the individual notification, so a single
+  channel cannot honour the sound / vibration toggles.
+
 ## Permissions
 
 `INTERNET`, `ACCESS_NETWORK_STATE` (schedule fetch), `POST_NOTIFICATIONS` (Android 13+ reminders),
