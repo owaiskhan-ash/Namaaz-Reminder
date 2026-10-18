@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Monochrome mosque silhouette used as the notification small icon and as the
+    adaptive-icon monochrome (themed icon) layer.
+
+    Notification small icons are drawn using ONLY the alpha channel of the
+    drawable (the system tints them), so this must remain a solid white shape
+    on a fully transparent background. Do not replace it with the colorful
+    app logo PNG (ic_app_icon.png) - an opaque bitmap renders as a blank
+    white square in the status bar and notification shade.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Dome finial -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2.1C12.7,3.2 13.2,3.8 13.2,4.5C13.2,5.2 12.7,5.7 12,5.7C11.3,5.7 10.8,5.2 10.8,4.5C10.8,3.8 11.3,3.2 12,2.1Z" />
+    <!-- Main dome -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,6.2C14.6,7.1 16.4,9.2 16.4,11.6L7.6,11.6C7.6,9.2 9.4,7.1 12,6.2Z" />
+    <!-- Prayer hall body with arched entrance -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6.6,12.4L17.4,12.4L17.4,19.6L14.1,19.6L14.1,16.2C14.1,14.9 13.2,13.9 12,13.9C10.8,13.9 9.9,14.9 9.9,16.2L9.9,19.6L6.6,19.6Z" />
+    <!-- Left minaret with finial -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3.6,5.9C4,5.9 4.3,6.2 4.3,6.6C4.3,7 4,7.3 3.6,7.3C3.2,7.3 2.9,7 2.9,6.6C2.9,6.2 3.2,5.9 3.6,5.9Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3.6,7.6C4.4,7.6 5,8.3 5,9.1L5,19.6L2.2,19.6L2.2,9.1C2.2,8.3 2.8,7.6 3.6,7.6Z" />
+    <!-- Right minaret with finial -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M20.4,5.9C20.8,5.9 21.1,6.2 21.1,6.6C21.1,7 20.8,7.3 20.4,7.3C20,7.3 19.7,7 19.7,6.6C19.7,6.2 20,5.9 20.4,5.9Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M20.4,7.6C21.2,7.6 21.8,8.3 21.8,9.1L21.8,19.6L19,19.6L19,9.1C19,8.3 19.6,7.6 20.4,7.6Z" />
+    <!-- Base plinth -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M1.6,20.3L22.4,20.3L22.4,21.8L1.6,21.8Z" />
+</vector>

@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Required on Android 12+ (API 31+) for exact prayer-time alarms.
+         Granted by default on Android 12; on Android 13/14+ the user approves it
+         via Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM (prompted in-app). -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:allowBackup="true"

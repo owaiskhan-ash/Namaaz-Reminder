@@ -1,8 +1,13 @@
 package com.example.ui
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
+import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -32,6 +37,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +48,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +63,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.notification.PrayerNotificationManager
 import com.example.ui.components.CitySelectionSheet
 import com.example.ui.components.HeroCountdownCard
 import com.example.ui.components.NamazTopBar
@@ -73,16 +84,10 @@ fun NamazScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var hasNotificationPermission by remember {
-        mutableStateOf(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            } else {
-                true
-            }
-        )
+        mutableStateOf(checkNotificationPermission(context))
+    }
+    var canScheduleExactAlarms by remember {
+        mutableStateOf(PrayerNotificationManager.canScheduleExactAlarms(context))
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -98,6 +103,26 @@ fun NamazScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+    }
+
+    // Re-check permission states every time the app returns to the foreground.
+    // This keeps the banners honest when permission was granted (or revoked)
+    // from system settings, and upgrades pending inexact alarms to exact ones
+    // as soon as SCHEDULE_EXACT_ALARM becomes available.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasNotificationPermission = checkNotificationPermission(context)
+                val exactAlarmsNow = PrayerNotificationManager.canScheduleExactAlarms(context)
+                if (exactAlarmsNow && !canScheduleExactAlarms) {
+                    viewModel.rescheduleAlarms()
+                }
+                canScheduleExactAlarms = exactAlarmsNow
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     // Handle toast messages
@@ -189,6 +214,57 @@ fun NamazScreen(
                     }
                 }
 
+                // Exact-Alarm Permission Banner (Android 12+; without it reminders
+                // fall back to inexact alarms that can fire minutes-to-hours late)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    !canScheduleExactAlarms &&
+                    uiState.settings.notificationsEnabled
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                            .clickable { openExactAlarmSettings(context) }
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                            .testTag("exact_alarm_banner")
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Allow alarms & reminders for on-time prayer alerts",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                            Text(
+                                text = "ALLOW",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                }
+
                 // Offline Cache Banner (if serving from offline cache)
                 val schedule = uiState.schedule
                 if (schedule?.isOfflineCache == true) {
@@ -211,7 +287,17 @@ fun NamazScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Offline Mode • Displaying cached prayer times",
+                                text = buildString {
+                                    append("Offline Mode • Displaying cached prayer times")
+                                    if (schedule.cachedAtMillis > 0L) {
+                                        val age = DateUtils.getRelativeTimeSpanString(
+                                            schedule.cachedAtMillis,
+                                            System.currentTimeMillis(),
+                                            DateUtils.MINUTE_IN_MILLIS
+                                        )
+                                        append(" (cached ").append(age).append(")")
+                                    }
+                                },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -505,6 +591,38 @@ private fun DateHeader(
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
+        }
+    }
+}
+
+private fun checkNotificationPermission(context: Context): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+/**
+ * Opens the system page where the user grants SCHEDULE_EXACT_ALARM
+ * ("Alarms & reminders"). Falls back to the app details page on builds
+ * where the dedicated settings action is unavailable.
+ */
+private fun openExactAlarmSettings(context: Context) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+    val packageUri = Uri.parse("package:${context.packageName}")
+    try {
+        context.startActivity(
+            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, packageUri)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
+    } catch (e: Exception) {
+        try {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        } catch (ignored: Exception) {
+            // No settings page available on this device; nothing else to do.
         }
     }
 }
