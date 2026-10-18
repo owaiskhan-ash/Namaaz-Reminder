@@ -296,10 +296,10 @@ def main() -> None:
 
     # Bitmaps live in a density bucket, never in the densityless drawable/
     # folder: there they would be treated as mdpi and decoded far larger than
-    # needed. 34dp header badge at xxxhdpi is 136px; 192px keeps it crisp.
+    # needed. The header badge is 34dp, i.e. 136px at xxxhdpi.
     xxxhdpi = os.path.join(RES, "drawable-xxxhdpi")
     os.makedirs(xxxhdpi, exist_ok=True)
-    art.resize((192, 192), Image.LANCZOS).save(os.path.join(xxxhdpi, "ic_app_icon.png"))
+    art.resize((144, 144), Image.LANCZOS).save(os.path.join(xxxhdpi, "ic_app_icon.png"))
     # Adaptive foreground is 108dp: 432px at xxxhdpi.
     extend_plate(art, 432).save(
         os.path.join(xxxhdpi, "ic_launcher_foreground_mark.png")

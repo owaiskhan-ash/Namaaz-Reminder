@@ -136,12 +136,13 @@ jobs:
           fi
           keytool -list -keystore "$KS" -storepass "$APK_STORE_PASSWORD" -alias upload
 
-      - name: Build debug and release APKs
+      - name: Build debug and release APKs, and the Play bundle
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/my-upload-key.jks
           STORE_PASSWORD: ${{ env.APK_STORE_PASSWORD }}
           KEY_PASSWORD: ${{ env.APK_KEY_PASSWORD }}
-        run: ./gradlew assembleDebug assembleRelease --stacktrace
+        # The .aab is what Google Play accepts; the APKs stay for side-loading.
+        run: ./gradlew assembleDebug assembleRelease bundleRelease --stacktrace
 
       - name: Collect APKs
         run: |
@@ -150,13 +151,14 @@ jobs:
           mkdir -p dist
           cp app/build/outputs/apk/debug/app-debug.apk "dist/NamaazReminder-${VERSION}-debug.apk"
           cp app/build/outputs/apk/release/app-release.apk "dist/NamaazReminder-${VERSION}-release.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "dist/NamaazReminder-${VERSION}-release.aab"
           ls -lh dist
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
           name: NamaazReminder-apks
-          path: dist/*.apk
+          path: dist/*
           if-no-files-found: error
 
   publish:
@@ -222,9 +224,9 @@ jobs:
 
           if [ "$HAS_APK" = "1" ]; then
             if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-              gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
+              gh release upload apk-latest apk/*.apk apk/*.aab --clobber --repo "${GITHUB_REPOSITORY}"
             else
-              gh release create apk-latest apk/*.apk \
+              gh release create apk-latest apk/*.apk apk/*.aab \
                 --repo "${GITHUB_REPOSITORY}" \
                 --title "Namaaz Reminder (latest APK build)" \
                 --notes-file notes.md \
@@ -250,6 +252,9 @@ jobs:
           mkdir -p apk-build
           if ls apk/*.apk >/dev/null 2>&1; then
             cp apk/*.apk apk-build/
+          fi
+          if ls apk/*.aab >/dev/null 2>&1; then
+            cp apk/*.aab apk-build/
           fi
           if [ -f summary/test-summary.md ]; then
             cp summary/test-summary.md apk-build/test-summary.md

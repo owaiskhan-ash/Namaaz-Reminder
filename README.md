@@ -22,6 +22,7 @@ signed APKs:
 | --- | --- | --- |
 | `NamaazReminder-<version>-debug.apk` | Debug build | Includes Compose tooling; signed with the standard Android debug key. |
 | `NamaazReminder-<version>-release.apk` | Release build | Release variant, minification off, signed with the same certificate, so it upgrades the debug build in place. |
+| `NamaazReminder-<version>-release.aab` | Play bundle | Upload this to the Play Console; Play does not accept new APK uploads. |
 
 They are available in three places:
 
