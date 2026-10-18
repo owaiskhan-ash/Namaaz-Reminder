@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Adaptive-icon background: the same near-black, gently top-lit box the
-    legacy PNG icons use, so the launcher mark looks identical on every
-    Android version. Keep in sync with design/nr_monogram.py (BOX_TOP/BOX_BOTTOM).
+    Adaptive-icon background: the artwork's plate lighting. The foreground uses
+    the real tile, so this only shows in the narrow margin around it.
+    Tones sampled from design/source/NR-icon.png by design/build_icons.py.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -18,8 +18,8 @@
                 android:startY="0"
                 android:endX="0"
                 android:endY="108"
-                android:startColor="#FF1E1E1E"
-                android:endColor="#FF121212" />
+                android:startColor="#FF505151"
+                android:endColor="#FF0E0F0F" />
         </aapt:attr>
     </path>
 </vector>

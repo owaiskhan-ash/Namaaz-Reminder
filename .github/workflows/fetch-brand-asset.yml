@@ -5,11 +5,6 @@ name: Fetch brand asset
 # icon generator can work from the real source artwork.
 
 on:
-  # A push to the trigger file is an alternative to workflow_dispatch, for the
-  # case where the workflow is new and not yet registered for dispatch.
-  push:
-    paths:
-      - 'design/source/fetch-trigger.txt'
   workflow_dispatch:
     inputs:
       url:

@@ -10,7 +10,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Light / dark / system theme, and a settings sheet for muted prayers, reminder lead time and
   calculation method.
 
-Current version: **1.3** (`versionCode` 4).
+Current version: **1.3.1** (`versionCode` 5).
 
 ## Getting the APKs
 
@@ -33,7 +33,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.3-release.apk
+adb install -r NamaazReminder-1.3.1-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
@@ -63,25 +63,30 @@ own upload key instead.
 
 ## Brand
 
-The app mark is an **NR** monogram debossed into a black box — the same
-monochrome language as the rest of the app.
+The app icon is the original **NR** artwork — a heavy block monogram debossed
+into a dark, top-lit tile (`design/source/NR-icon.png`).
 
-- `design/nr_monogram.py` generates every icon asset from geometry (no font
-  dependency, so the letterforms never shift between machines):
-  `mipmap-*/ic_launcher(.png|_round.png)`, `drawable/ic_app_icon.png`,
-  `drawable/ic_launcher_foreground_mark.png` and the themed-icon vector
-  `drawable/ic_launcher_monochrome.xml`.
-- The recess is built the way light actually behaves: the tile is a subtly
-  top-lit `#1E1E1E → #121212` box, the letters sit in pure black below it, the
-  upper inner wall stays in shadow and the lower one catches a thin highlight.
-- The in-app header shows the same tile (`ic_app_icon`), not the old mosque mark.
+`design/build_icons.py` derives every icon from that one file, so the launcher
+icon, the themed icon and the in-app header can never drift apart:
 
-Regenerate after changing any metric:
+| Asset | How it is made |
+| --- | --- |
+| `mipmap-*/ic_launcher.png` | the artwork, tightly cropped to the plate |
+| `mipmap-*/ic_launcher_round.png` | circular crop of the artwork |
+| `drawable/ic_app_icon.png` | the header badge |
+| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon — the monogram's furthest corner sits at ~47% of the tile, inside every launcher mask |
+| `drawable/ic_launcher_background.xml` | the plate edge tone, for the margin a wide mask exposes |
+| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons — the launcher tints this layer, so the artwork's 3D shading cannot be used |
+
+Regenerate after replacing the source artwork:
 
 ```bash
-pip install pillow
-python3 design/nr_monogram.py    # rewrites the res/ assets + design/preview/
+pip install pillow numpy
+python3 design/build_icons.py     # rewrites the res/ assets + design/preview/
 ```
+
+The source artwork can be refreshed from its public URL with the *Fetch brand
+asset* workflow (GitHub runners can reach hosts that some sandboxes cannot).
 
 ## Project layout
 
