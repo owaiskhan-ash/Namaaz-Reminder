@@ -40,6 +40,7 @@ fun HeroCountdownCard(
     reminderOffsetMinutes: Int,
     use24Hour: Boolean,
     onToggleReminder: (String) -> Unit,
+    onOpenCityPicker: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     // Inverted high contrast styling for maximum focal hierarchy
@@ -91,7 +92,10 @@ fun HeroCountdownCard(
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 1.sp
                     ),
-                    color = subtleTextColor
+                    color = subtleTextColor,
+                    modifier = Modifier.clickable(enabled = onOpenCityPicker != null) {
+                        onOpenCityPicker?.invoke()
+                    }
                 )
             }
 

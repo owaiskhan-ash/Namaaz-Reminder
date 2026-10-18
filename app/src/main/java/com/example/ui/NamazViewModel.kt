@@ -32,6 +32,7 @@ data class NamazUiState(
     val suggestedCities: List<String> = POPULAR_INDIAN_CITIES,
     val errorMessage: String? = null,
     val isSettingsOpen: Boolean = false,
+    val isCityPickerOpen: Boolean = false,
     val toastMessage: String? = null
 )
 
@@ -125,10 +126,21 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 settings = newSettings,
                 searchQuery = "",
-                suggestedCities = POPULAR_INDIAN_CITIES
+                suggestedCities = POPULAR_INDIAN_CITIES,
+                isCityPickerOpen = false
             )
         }
         loadTimings(clean, newSettings.methodId)
+    }
+
+    fun openCityPicker(open: Boolean) {
+        _uiState.update {
+            it.copy(
+                isCityPickerOpen = open,
+                searchQuery = "",
+                suggestedCities = POPULAR_INDIAN_CITIES
+            )
+        }
     }
 
     fun selectMethod(methodId: Int) {

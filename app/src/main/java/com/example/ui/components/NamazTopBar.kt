@@ -3,19 +3,20 @@ package com.example.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,16 +37,17 @@ import com.example.R
 @Composable
 fun NamazTopBar(
     isLoading: Boolean,
+    currentCity: String,
     currentTheme: String,
     onToggleTheme: () -> Unit,
-    onRefresh: () -> Unit,
+    onOpenCityPicker: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // App icon badge
@@ -70,22 +72,35 @@ fun NamazTopBar(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text(
-            text = "NAMAZ TIMES",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp
-            ),
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.weight(1f)
-        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onOpenCityPicker() }
+        ) {
+            Text(
+                text = "NAMAZ TIMES",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp
+                ),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "${currentCity.uppercase()}, INDIA",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.5.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
-        // Refresh Button
+        // Location Icon Button (replaced refresh button as requested)
         IconButton(
-            onClick = onRefresh,
+            onClick = onOpenCityPicker,
             modifier = Modifier
                 .size(40.dp)
-                .testTag("refresh_button")
+                .testTag("location_button")
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -95,8 +110,8 @@ fun NamazTopBar(
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refresh Timings",
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = "Select City",
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }

@@ -28,12 +28,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -56,8 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.data.model.PrayerType
-import com.example.ui.components.CitySelector
+import com.example.ui.components.CitySelectionSheet
 import com.example.ui.components.HeroCountdownCard
 import com.example.ui.components.NamazTopBar
 import com.example.ui.components.PrayerTimeCard
@@ -113,6 +110,7 @@ fun NamazScreen(
         topBar = {
             NamazTopBar(
                 isLoading = uiState.isLoading,
+                currentCity = uiState.settings.selectedCity,
                 currentTheme = uiState.settings.themeMode,
                 onToggleTheme = {
                     val nextMode = when (uiState.settings.themeMode) {
@@ -122,7 +120,7 @@ fun NamazScreen(
                     }
                     viewModel.setThemeMode(nextMode)
                 },
-                onRefresh = { viewModel.refresh() },
+                onOpenCityPicker = { viewModel.openCityPicker(true) },
                 onOpenSettings = { viewModel.openSettings(true) }
             )
         }
@@ -139,17 +137,6 @@ fun NamazScreen(
                     .widthIn(max = 640.dp)
                     .align(Alignment.TopCenter)
             ) {
-                // City Search & Quick Indian City Chips
-                CitySelector(
-                    selectedCity = uiState.settings.selectedCity,
-                    searchQuery = uiState.searchQuery,
-                    suggestedCities = uiState.suggestedCities,
-                    onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
-                    onCitySelected = { viewModel.selectCity(it) }
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
                 // Notification Permission Banner (if not granted on API 33+)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
                     Box(
@@ -272,14 +259,15 @@ fun NamazScreen(
                             .weight(1f),
                         contentPadding = PaddingValues(bottom = 32.dp)
                     ) {
-                        // Date & Method Header
+                        // Date & Method Header with clickable location selection shortcut
                         item {
                             schedule?.let { data ->
                                 DateHeader(
                                     city = data.city,
                                     dateGregorian = data.dateGregorian,
                                     dateHijri = data.dateHijri,
-                                    methodName = data.methodName
+                                    methodName = data.methodName,
+                                    onOpenCityPicker = { viewModel.openCityPicker(true) }
                                 )
                             }
                         }
@@ -294,7 +282,8 @@ fun NamazScreen(
                                 use24Hour = uiState.settings.is24HourFormat,
                                 onToggleReminder = { prayerName ->
                                     viewModel.togglePrayerNotification(prayerName)
-                                }
+                                },
+                                onOpenCityPicker = { viewModel.openCityPicker(true) }
                             )
                         }
 
@@ -342,7 +331,7 @@ fun NamazScreen(
                             }
                         }
 
-                        // Secondary Times (Sunrise & Sunset)
+                        // Secondary Astronomical Times (Sunrise & Sunset)
                         val secondaryPrayers = schedule?.prayers?.filter { !it.type.isPrimaryPrayer } ?: emptyList()
                         if (secondaryPrayers.isNotEmpty()) {
                             item {
@@ -395,6 +384,17 @@ fun NamazScreen(
         }
     }
 
+    // City Selection Bottom Sheet
+    CitySelectionSheet(
+        isOpen = uiState.isCityPickerOpen,
+        selectedCity = uiState.settings.selectedCity,
+        searchQuery = uiState.searchQuery,
+        suggestedCities = uiState.suggestedCities,
+        onDismiss = { viewModel.openCityPicker(false) },
+        onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+        onCitySelected = { viewModel.selectCity(it) }
+    )
+
     // Settings Bottom Sheet
     SettingsSheet(
         isOpen = uiState.isSettingsOpen,
@@ -418,7 +418,8 @@ private fun DateHeader(
     city: String,
     dateGregorian: String,
     dateHijri: String,
-    methodName: String
+    methodName: String,
+    onOpenCityPicker: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -427,7 +428,9 @@ private fun DateHeader(
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+            .clickable { onOpenCityPicker() }
             .padding(14.dp)
+            .testTag("date_header_city_card")
     ) {
         Column {
             Row(
@@ -435,14 +438,23 @@ private fun DateHeader(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = city.uppercase() + ", INDIA",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Change City",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "${city.uppercase()}, INDIA",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
 
                 if (dateHijri.isNotBlank()) {
                     Text(
