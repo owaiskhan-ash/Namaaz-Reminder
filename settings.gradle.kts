@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Namaz Times"
+rootProject.name = "Namaaz Reminder"
 
 include(":app")

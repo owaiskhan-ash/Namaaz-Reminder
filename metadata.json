@@ -1,5 +1,5 @@
 {
-  "name": "Namaz Times",
+  "name": "Namaaz Reminder",
   "description": "Clean, minimal monochrome prayer times & reminder app for India with live countdown, offline cache, and notifications.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -28,8 +28,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -87,6 +90,8 @@ fun NamazScreen(
     ) { isGranted ->
         hasNotificationPermission = isGranted
     }
+
+    var isAstronomicalExpanded by remember { mutableStateOf(false) }
 
     // Ask for notification permission on load as required by user prompt
     LaunchedEffect(Unit) {
@@ -331,51 +336,65 @@ fun NamazScreen(
                             }
                         }
 
-                        // Secondary Astronomical Times (Sunrise & Sunset)
+                        // Secondary Astronomical Times (Sunrise & Sunset) - Collapsed by default
                         val secondaryPrayers = schedule?.prayers?.filter { !it.type.isPrimaryPrayer } ?: emptyList()
                         if (secondaryPrayers.isNotEmpty()) {
                             item {
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = "ASTRONOMICAL TIMES",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        letterSpacing = 1.2.sp
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp)
-                                )
-                            }
-
-                            items(secondaryPrayers) { prayer ->
-                                Box(
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 3.dp)
+                                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                                        .clickable { isAstronomicalExpanded = !isAstronomicalExpanded }
+                                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                                        .testTag("astronomical_dropdown_header"),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    PrayerTimeCard(
-                                        prayer = prayer,
-                                        use24Hour = uiState.settings.is24HourFormat,
-                                        onToggleReminder = {}
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.WbSunny,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text(
+                                            text = "ASTRONOMICAL TIMES (SUNRISE & SUNSET)",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                letterSpacing = 1.sp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                    }
+
+                                    Icon(
+                                        imageVector = if (isAstronomicalExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                        contentDescription = if (isAstronomicalExpanded) "Collapse" else "Expand",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
-                        }
 
-                        // Footer note
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 24.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Aladhan API (Method ${uiState.settings.methodId}) • Tap any bell icon to toggle reminder",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                )
+                            if (isAstronomicalExpanded) {
+                                items(secondaryPrayers) { prayer ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 3.dp)
+                                    ) {
+                                        PrayerTimeCard(
+                                            prayer = prayer,
+                                            use24Hour = uiState.settings.is24HourFormat,
+                                            onToggleReminder = {}
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

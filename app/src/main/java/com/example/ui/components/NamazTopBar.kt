@@ -78,7 +78,7 @@ fun NamazTopBar(
                 .clickable { onOpenCityPicker() }
         ) {
             Text(
-                text = "NAMAZ TIMES",
+                text = "NAMAAZ REMINDER",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.2.sp
