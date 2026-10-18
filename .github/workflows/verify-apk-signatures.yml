@@ -1,6 +1,11 @@
 name: Verify APK signatures
 
 on:
+  push:
+    branches:
+      - 'arena/**'
+    paths:
+      - '.github/workflows/verify-apk-signatures.yml'
   workflow_dispatch:
 
 permissions:
