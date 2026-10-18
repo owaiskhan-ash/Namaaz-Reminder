@@ -22,9 +22,42 @@ data class PrayerItem(
     val targetEpochMillis: Long,
     val isNext: Boolean = false,
     val isPassed: Boolean = false,
-    val notificationEnabled: Boolean = true
+    val notificationEnabled: Boolean = true,
+    /** User defined time ("HH:mm") that overrides the calculated one. */
+    val customRawTime: String? = null,
+    val customFormattedTime12: String? = null,
+    val customFormattedTime24: String? = null,
+    val customEpochMillis: Long? = null
 ) {
     fun displayTime(use24Hour: Boolean): String = if (use24Hour) formattedTime24 else formattedTime12
+
+    /** The calculated time, shown next to the custom one. */
+    fun defaultTime(use24Hour: Boolean): String = displayTime(use24Hour)
+
+    /** The time the app works with: the custom one when the user set it. */
+    fun effectiveTime(use24Hour: Boolean): String = when {
+        !hasCustomTime -> displayTime(use24Hour)
+        use24Hour -> customFormattedTime24 ?: formattedTime24
+        else -> customFormattedTime12 ?: formattedTime12
+    }
+
+    val hasCustomTime: Boolean
+        get() = customEpochMillis != null
+
+    /** Epoch used for the countdown and for the reminder alarms. */
+    val effectiveEpochMillis: Long
+        get() = customEpochMillis ?: targetEpochMillis
+
+    /** The hour and minute of the time that is in use ("HH:mm"). */
+    fun effectiveHourMinute(): Pair<Int, Int> {
+        val raw = customRawTime ?: rawTime
+        return try {
+            val parts = raw.split(":")
+            parts[0].trim().toInt() to parts[1].trim().toInt()
+        } catch (e: Exception) {
+            0 to 0
+        }
+    }
 }
 
 data class CalculationMethod(
@@ -58,7 +91,11 @@ data class UserSettings(
     val soundEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
     val is24HourFormat: Boolean = false,
-    val mutedPrayerNames: Set<String> = emptySet()
+    val mutedPrayerNames: Set<String> = emptySet(),
+    /** Prayer name -> user defined time ("HH:mm"), overriding the calculation. */
+    val customPrayerTimes: Map<String, String> = emptyMap(),
+    /** Id of the selected azaan, or null for the default notification sound. */
+    val selectedAzaanId: String? = AzaanCatalogue.DEFAULT_AZAAN_ID
 )
 
 val POPULAR_INDIAN_CITIES = listOf(

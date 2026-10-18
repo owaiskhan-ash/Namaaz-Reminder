@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +39,7 @@ import com.example.R
 fun NamazTopBar(
     isLoading: Boolean,
     currentCity: String,
-    currentTheme: String,
+    isDarkTheme: Boolean,
     onToggleTheme: () -> Unit,
     onOpenCityPicker: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -50,12 +51,13 @@ fun NamazTopBar(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // App icon badge
+        // App icon badge. The logo is a dark plate, so it always sits on a
+        // light badge to stay readable in both the light and the dark theme.
         Box(
             modifier = Modifier
                 .size(36.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(Color.White)
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.outline,
@@ -66,7 +68,7 @@ fun NamazTopBar(
             Image(
                 painter = painterResource(id = R.drawable.ic_app_icon),
                 contentDescription = "App Logo",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
 
@@ -125,8 +127,8 @@ fun NamazTopBar(
                 .testTag("theme_toggle_button")
         ) {
             Icon(
-                imageVector = if (currentTheme == "DARK") Icons.Default.LightMode else Icons.Default.DarkMode,
-                contentDescription = "Toggle Theme",
+                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                contentDescription = if (isDarkTheme) "Switch to light theme" else "Switch to dark theme",
                 tint = MaterialTheme.colorScheme.onBackground
             )
         }

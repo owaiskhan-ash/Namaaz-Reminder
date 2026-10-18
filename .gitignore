@@ -17,3 +17,6 @@ local.properties
 .env
 # NOTE: debug.keystore is intentionally committed. It is the standard,
 # publicly-known Android debug signing key required by the debug build type.
+
+# Fetched by CI from the Supabase asset bucket (see scripts/fetch_assets.py)
+assets/

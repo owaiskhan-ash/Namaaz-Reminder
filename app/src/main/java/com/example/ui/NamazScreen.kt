@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -67,12 +68,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.model.PrayerItem
 import com.example.notification.PrayerNotificationManager
 import com.example.ui.components.CitySelectionSheet
+import com.example.ui.components.CustomPrayerTimeDialog
 import com.example.ui.components.HeroCountdownCard
 import com.example.ui.components.NamazTopBar
 import com.example.ui.components.PrayerTimeCard
 import com.example.ui.components.SettingsSheet
+import com.example.ui.theme.isDarkThemeActive
+import com.example.ui.theme.nextThemeMode
 
 @Composable
 fun NamazScreen(
@@ -97,6 +102,17 @@ fun NamazScreen(
     }
 
     var isAstronomicalExpanded by remember { mutableStateOf(false) }
+
+    // Long pressing a prayer card lets the user set its time by hand.
+    var customTimePrayer by remember { mutableStateOf<PrayerItem?>(null) }
+
+    // The theme that is actually on screen. The header switch toggles between
+    // light and dark based on this value, so it always does what it shows -
+    // even when the app follows the system theme.
+    val isDarkTheme = isDarkThemeActive(
+        themeMode = uiState.settings.themeMode,
+        systemInDarkTheme = isSystemInDarkTheme()
+    )
 
     // Ask for notification permission on load as required by user prompt
     LaunchedEffect(Unit) {
@@ -141,14 +157,9 @@ fun NamazScreen(
             NamazTopBar(
                 isLoading = uiState.isLoading,
                 currentCity = uiState.settings.selectedCity,
-                currentTheme = uiState.settings.themeMode,
+                isDarkTheme = isDarkTheme,
                 onToggleTheme = {
-                    val nextMode = when (uiState.settings.themeMode) {
-                        "DARK" -> "LIGHT"
-                        "LIGHT" -> "SYSTEM"
-                        else -> "DARK"
-                    }
-                    viewModel.setThemeMode(nextMode)
+                    viewModel.setThemeMode(nextThemeMode(isDarkTheme))
                 },
                 onOpenCityPicker = { viewModel.openCityPicker(true) },
                 onOpenSettings = { viewModel.openSettings(true) }
@@ -417,7 +428,8 @@ fun NamazScreen(
                                     use24Hour = uiState.settings.is24HourFormat,
                                     onToggleReminder = {
                                         viewModel.togglePrayerNotification(prayer.type.name)
-                                    }
+                                    },
+                                    onLongClick = { customTimePrayer = prayer }
                                 )
                             }
                         }
@@ -489,6 +501,27 @@ fun NamazScreen(
         }
     }
 
+    // Custom prayer time dialog (opened by long pressing a prayer card)
+    customTimePrayer?.let { prayer ->
+        val (initialHour, initialMinute) = prayer.effectiveHourMinute()
+        CustomPrayerTimeDialog(
+            prayerName = prayer.type.englishName,
+            calculatedTime = prayer.defaultTime(uiState.settings.is24HourFormat),
+            initialHour = initialHour,
+            initialMinute = initialMinute,
+            hasCustomTime = prayer.hasCustomTime,
+            onDismiss = { customTimePrayer = null },
+            onSave = { hour, minute ->
+                viewModel.setCustomPrayerTime(prayer.type.name, hour, minute)
+                customTimePrayer = null
+            },
+            onReset = {
+                viewModel.clearCustomPrayerTime(prayer.type.name)
+                customTimePrayer = null
+            }
+        )
+    }
+
     // City Selection Bottom Sheet
     CitySelectionSheet(
         isOpen = uiState.isCityPickerOpen,
@@ -513,6 +546,10 @@ fun NamazScreen(
         onToggleVibration = { viewModel.toggleVibration(it) },
         onToggle24Hour = { viewModel.toggle24HourFormat(it) },
         onSelectTheme = { viewModel.setThemeMode(it) },
+        azaans = uiState.azaans,
+        onSelectAzaan = { viewModel.selectAzaan(it) },
+        onDownloadAzaan = { viewModel.downloadAzaan(it) },
+        onPreviewAzaan = { viewModel.previewAzaan(it) },
         onSendTestNotification = { viewModel.sendTestNotification() },
         onClearCache = { viewModel.clearCache() }
     )

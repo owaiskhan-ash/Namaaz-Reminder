@@ -4,12 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.PreferencesManager
+import com.example.data.model.AzaanCatalogue
+import com.example.data.model.AzaanSound
 import com.example.data.model.CALCULATION_METHODS
 import com.example.data.model.POPULAR_INDIAN_CITIES
 import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerScheduleData
 import com.example.data.model.UserSettings
 import com.example.data.repository.PrayerRepository
+import com.example.notification.AzaanManager
 import com.example.notification.PrayerNotificationManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +36,9 @@ data class NamazUiState(
     val errorMessage: String? = null,
     val isSettingsOpen: Boolean = false,
     val isCityPickerOpen: Boolean = false,
-    val toastMessage: String? = null
+    val toastMessage: String? = null,
+    /** The azaans the user can pick as the reminder sound. */
+    val azaans: List<AzaanSound> = emptyList()
 )
 
 class NamazViewModel(application: Application) : AndroidViewModel(application) {
@@ -46,12 +51,24 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
 
     private var countdownJob: Job? = null
     private var lastExpiredPrayerRefreshMillis: Long? = null
+    private var downloadingAzaanId: String? = null
+    private val failedAzaanIds = mutableSetOf<String>()
 
     init {
         val initialSettings = preferencesManager.loadSettings()
         _uiState.update { it.copy(settings = initialSettings) }
         loadTimings(initialSettings.selectedCity, initialSettings.methodId)
         startCountdownTicker()
+        refreshAzaans()
+
+        // The azaan is saved on the device automatically, so the reminder can
+        // play it even when the phone is offline.
+        initialSettings.selectedAzaanId?.let { azaanId ->
+            val azaan = AzaanCatalogue.byId(azaanId)
+            if (azaan != null && !AzaanManager.isDownloaded(getApplication(), azaan)) {
+                downloadAzaan(azaanId)
+            }
+        }
     }
 
     fun loadTimings(city: String, methodId: Int) {
@@ -61,7 +78,8 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             val result = repository.getPrayerSchedule(
                 city = city,
                 methodId = methodId,
-                mutedPrayers = currentSettings.mutedPrayerNames
+                mutedPrayers = currentSettings.mutedPrayerNames,
+                customTimes = currentSettings.customPrayerTimes
             )
 
             result.fold(
@@ -257,6 +275,11 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         val prayerName = current.nextPrayer?.type?.englishName ?: "Fajr"
         val prayerTime = current.nextPrayer?.displayTime(current.settings.is24HourFormat) ?: "05:00 AM"
 
+        // The test reminder plays the azaan the user picked, if there is one.
+        val azaanUri = current.settings.selectedAzaanId
+            ?.let { AzaanCatalogue.byId(it) }
+            ?.let { AzaanManager.notificationUri(getApplication(), it) }
+
         PrayerNotificationManager.showPrayerNotification(
             context = getApplication(),
             prayerName = prayerName,
@@ -265,10 +288,108 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             offsetMinutes = current.settings.reminderOffsetMinutes,
             soundEnabled = current.settings.soundEnabled,
             vibrateEnabled = current.settings.vibrationEnabled,
-            isTest = true
+            isTest = true,
+            prayerEpochMillis = current.nextPrayer?.effectiveEpochMillis ?: 0L,
+            azaanUri = azaanUri
         )
 
         _uiState.update { it.copy(toastMessage = "Test notification sent! Check notification tray.") }
+    }
+
+    /**
+     * Sets a prayer time by hand. The custom time is shown next to the
+     * calculated one and is used for the countdown and the reminder.
+     */
+    fun setCustomPrayerTime(prayerName: String, hour: Int, minute: Int) {
+        val customTimes = _uiState.value.settings.customPrayerTimes.toMutableMap()
+        customTimes[prayerName] = String.format(Locale.US, "%02d:%02d", hour, minute)
+        val newSettings = _uiState.value.settings.copy(customPrayerTimes = customTimes)
+        preferencesManager.saveSettings(newSettings)
+        _uiState.update { it.copy(settings = newSettings) }
+        applyCustomTimesToSchedule()
+        _uiState.update {
+            it.copy(toastMessage = "Custom time saved for $prayerName.")
+        }
+    }
+
+    /** Removes the hand set time of a prayer again. */
+    fun clearCustomPrayerTime(prayerName: String) {
+        val customTimes = _uiState.value.settings.customPrayerTimes.toMutableMap()
+        if (customTimes.remove(prayerName) == null) return
+        val newSettings = _uiState.value.settings.copy(customPrayerTimes = customTimes)
+        preferencesManager.saveSettings(newSettings)
+        _uiState.update { it.copy(settings = newSettings) }
+        applyCustomTimesToSchedule()
+        _uiState.update {
+            it.copy(toastMessage = "Custom time removed for $prayerName.")
+        }
+    }
+
+    /** Re-applies the hand set times to the schedule that is already loaded. */
+    private fun applyCustomTimesToSchedule() {
+        val schedule = _uiState.value.schedule ?: return
+        val settings = _uiState.value.settings
+        val updated = repository.applyCustomTimes(schedule, settings.customPrayerTimes)
+        _uiState.update { it.copy(schedule = updated, nextPrayer = updated.nextPrayer) }
+        updateCountdownDisplay()
+        PrayerNotificationManager.schedulePrayerAlarms(getApplication(), updated, settings)
+    }
+
+    /** Picks the azaan that is used as the reminder sound (null = system sound). */
+    fun selectAzaan(azaanId: String?) {
+        val newSettings = _uiState.value.settings.copy(selectedAzaanId = azaanId)
+        preferencesManager.saveSettings(newSettings)
+        _uiState.update { it.copy(settings = newSettings) }
+        if (azaanId != null) {
+            // Make sure the azaan is on the device before it is used.
+            downloadAzaan(azaanId)
+        }
+        rescheduleAlarms()
+    }
+
+    /** Downloads an azaan and saves it on the device. */
+    fun downloadAzaan(azaanId: String) {
+        val azaan = AzaanCatalogue.byId(azaanId) ?: return
+        if (downloadingAzaanId == azaanId) return
+        viewModelScope.launch {
+            downloadingAzaanId = azaanId
+            failedAzaanIds.remove(azaanId)
+            refreshAzaans()
+
+            val downloaded = AzaanManager.download(getApplication(), azaan)
+            if (downloaded.isSuccess) {
+                AzaanManager.install(getApplication(), azaan)
+            } else {
+                failedAzaanIds.add(azaanId)
+            }
+
+            downloadingAzaanId = null
+            refreshAzaans()
+            rescheduleAlarms()
+        }
+    }
+
+    /** Plays an azaan so the user can hear it. */
+    fun previewAzaan(azaanId: String) {
+        val azaan = AzaanCatalogue.byId(azaanId) ?: return
+        if (!AzaanManager.isDownloaded(getApplication(), azaan)) {
+            downloadAzaan(azaanId)
+            return
+        }
+        AzaanManager.preview(getApplication(), azaan)
+    }
+
+    /** Refreshes the download state of every azaan. */
+    private fun refreshAzaans() {
+        val context = getApplication<Application>()
+        val sounds = AzaanCatalogue.sounds.map { azaan ->
+            azaan.copy(
+                isDownloaded = AzaanManager.isDownloaded(context, azaan),
+                isDownloading = downloadingAzaanId == azaan.id,
+                hasFailed = failedAzaanIds.contains(azaan.id)
+            )
+        }
+        _uiState.update { it.copy(azaans = sounds) }
     }
 
     fun clearCache() {
@@ -306,7 +427,7 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        val diffMillis = next.targetEpochMillis - now
+        val diffMillis = next.effectiveEpochMillis - now
 
         if (diffMillis <= 0) {
             // The ticker runs every second; request a refresh only once for this

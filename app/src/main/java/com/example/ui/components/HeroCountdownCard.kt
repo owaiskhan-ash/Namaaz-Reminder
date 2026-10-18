@@ -116,7 +116,7 @@ fun HeroCountdownCard(
                         color = cardTextColor
                     )
                     Text(
-                        text = "Starts at ${nextPrayer?.displayTime(use24Hour) ?: "--:--"}",
+                        text = "Starts at ${nextPrayer?.effectiveTime(use24Hour) ?: "--:--"}",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Medium
                         ),
