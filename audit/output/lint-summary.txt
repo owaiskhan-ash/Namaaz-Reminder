@@ -1,29 +1,3 @@
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/notification/AzaanSoundStore.kt:170: Warning: Field requires API level 29 (current min is 24): android.provider.MediaStore#VOLUME_EXTERNAL_PRIMARY [InlinedApi]
-        val collection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Explanation for issues of type "InlinedApi":
-   This check scans through all the Android API field references in the
-   application and flags certain constants, such as static final integers and
-   Strings, which were introduced in later versions. These will actually be
-   copied into the class files rather than being referenced, which means that
-   the value is available even when running on older devices. In some cases
-   that's fine, and in other cases it can result in a runtime crash or
-   incorrect behavior. It depends on the context, so consider the code
-   carefully and decide whether it's safe and can be suppressed or whether the
-   code needs to be guarded.
-
-   If you really want to use this API and don't need to support older devices
-   just set the minSdkVersion in your build.gradle or AndroidManifest.xml
-   files.
-
-   If your code is deliberately accessing newer APIs, and you have ensured
-   (e.g. with conditional execution) that this code will only ever be called
-   on a supported platform, then you can annotate your class or method with
-   the @TargetApi annotation specifying the local minimum SDK to apply, such
-   as @TargetApi(11), such that this check considers 11 rather than your
-   manifest file's minimum SDK as the required API level.
-
 /home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/build.gradle.kts:18: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
     targetSdk = 36
     ~~~~~~~~~~~~~~
@@ -45,15 +19,6 @@
    html
 
    https://developer.android.com/distribute/best-practices/develop/target-sdk.html
-
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/AndroidManifest.xml:28: Warning: Redundant label can be removed [RedundantLabel]
-            android:label="@string/app_name"
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Explanation for issues of type "RedundantLabel":
-   When an activity does not have a label attribute, it will use the one from
-   the application tag. Since the application has already specified the same
-   label, the label on this activity can be omitted.
 
 /home/runner/work/Namaaz-Reminder/Namaaz-Reminder/gradle/wrapper/gradle-wrapper.properties:3: Warning: A newer version of Gradle than 9.3.1 is available: 9.8.1 [AndroidGradlePluginVersion]
 distributionUrl=https\://services.gradle.org/distributions/gradle-9.3.1-bin.zip
@@ -179,88 +144,14 @@ robolectric = "4.16.1"
    MavenCentral dependency, and connects to the library every time, which
    makes it more flexible but also much slower.
 
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/notification/PrayerNotificationManager.kt:123: Warning: Unnecessary; SDK_INT is always >= 24 [ObsoleteSdkInt]
-                        if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png: Warning: The following unrelated icon files have identical contents: ic_app_icon.png, ic_launcher.png [IconDuplicates]
 
-   Explanation for issues of type "ObsoleteSdkInt":
-   This check flags version checks that are not necessary, because the
-   minSdkVersion (or surrounding known API level) is already at least as high
-   as the version checked for.
-
-   Similarly, it also looks for resources in -vNN folders, such as values-v14
-   where the version qualifier is less than or equal to the minSdkVersion,
-   where the contents should be merged into the best folder.
-
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:3: Warning: The resource R.color.purple_200 appears to be unused [UnusedResources]
-    <color name="purple_200">#FFBB86FC</color>
-           ~~~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:4: Warning: The resource R.color.purple_500 appears to be unused [UnusedResources]
-    <color name="purple_500">#FF6200EE</color>
-           ~~~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:5: Warning: The resource R.color.purple_700 appears to be unused [UnusedResources]
-    <color name="purple_700">#FF3700B3</color>
-           ~~~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:6: Warning: The resource R.color.teal_200 appears to be unused [UnusedResources]
-    <color name="teal_200">#FF03DAC5</color>
-           ~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:7: Warning: The resource R.color.teal_700 appears to be unused [UnusedResources]
-    <color name="teal_700">#FF018786</color>
-           ~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:8: Warning: The resource R.color.black appears to be unused [UnusedResources]
-    <color name="black">#FF000000</color>
-           ~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/colors.xml:9: Warning: The resource R.color.white appears to be unused [UnusedResources]
-    <color name="white">#FFFFFFFF</color>
-           ~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/values/strings.xml:3: Warning: The resource R.string.channel_name appears to be unused [UnusedResources]
-    <string name="channel_name">Prayer Reminders</string>
-            ~~~~~~~~~~~~~~~~~~~
-
-   Explanation for issues of type "UnusedResources":
-   Unused resources make applications larger and slow down builds.
-
-
-   The unused resource check can ignore tests. If you want to include
-   resources that are only referenced from tests, consider packaging them in a
-   test source set instead.
-
-   You can include test sources in the unused resource check by setting the
-   system property lint.unused-resources.include-tests =true, and to exclude
-   them (usually for performance reasons), use
-   lint.unused-resources.exclude-tests =true.
-   ,
-
-   Available options:
-
-   **skip-libraries** (default is true):
-   Whether the unused resource check should skip reporting unused resources in libraries.
-
-   Many libraries will declare resources that are part of the library surface; other modules depending on the library will also reference the resources. To avoid reporting all these resources as unused (in the context of a library), the unused resource check normally skips reporting unused resources in libraries. Instead, run the unused resource check on the consuming app module (along with `checkDependencies=true`).
-
-   However, there are cases where you want to check that all the resources declared in a library are used; in that case, you can disable the skip option.
-
-   To configure this option, use a `lint.xml` file with an <option> like this:
-
-   ```xml
-   <lint>
-       <issue id="UnusedResources">
-           <option name="skip-libraries" value="true" />
-       </issue>
-   </lint>
-   ```
-
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/drawable/ic_app_icon.png: Warning: Found bitmap drawable res/drawable/ic_app_icon.png in densityless folder [IconLocation]
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/res/drawable/ic_launcher_foreground_mark.png: Warning: Found bitmap drawable res/drawable/ic_launcher_foreground_mark.png in densityless folder [IconLocation]
-
-   Explanation for issues of type "IconLocation":
-   The res/drawable folder is intended for density-independent graphics such
-   as shapes defined in XML. For bitmaps, move it to drawable-mdpi and
-   consider providing higher and lower resolution versions in drawable-ldpi,
-   drawable-hdpi and drawable-xhdpi. If the icon really is density independent
-   (for example a solid color) you can place it in drawable-nodpi.
-
-   https://developer.android.com/guide/practices/screens_support.html
+   Explanation for issues of type "IconDuplicates":
+   If an icon is repeated under different names, you can consolidate and just
+   use one of the icons and delete the others to make your application
+   smaller. However, duplicated icons usually are not intentional and can
+   sometimes point to icons that were accidentally overwritten or accidentally
+   not updated.
 
 /home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/notification/AzaanSoundStore.kt:60: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
                 ?.let { value -> Uri.parse(value) }
@@ -271,7 +162,7 @@ robolectric = "4.16.1"
 /home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/notification/AzaanSoundStore.kt:80: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
             val savedUri = runCatching { Uri.parse(savedValue) }.getOrNull()
                                          ~~~~~~~~~~~~~~~~~~~~~
-/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/ui/NamazScreen.kt:653: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+/home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/ui/NamazScreen.kt:676: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
     val packageUri = Uri.parse("package:${context.packageName}")
                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /home/runner/work/Namaaz-Reminder/Namaaz-Reminder/app/src/main/java/com/example/data/local/PreferencesManager.kt:64: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
@@ -346,4 +237,4 @@ robolectric = "4.16.1"
    </lint>
    ```
 
-0 errors, 56 warnings
+0 errors, 44 warnings
