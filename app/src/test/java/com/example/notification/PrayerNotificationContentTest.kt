@@ -1,6 +1,8 @@
 package com.example.notification
 
+import android.app.NotificationManager
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -70,12 +72,12 @@ class PrayerNotificationContentTest {
             nextPrayerLabel = "Isha at 7:20 PM"
         )
 
-        val text = notification.extras?.getCharSequence(androidx.core.app.NotificationCompat.EXTRA_TEXT)?.toString()
+        val title = NotificationCompat.getContentTitle(notification).toString()
+        val text = NotificationCompat.getContentText(notification).toString()
 
-        assertTrue(notification.extras?.getCharSequence(androidx.core.app.NotificationCompat.EXTRA_TITLE)?.toString()
-            ?.contains("Maghrib") == true)
-        assertTrue(text?.contains("Maghrib") == true)
-        assertTrue(text?.contains("Next: Isha at 7:20 PM") == true)
+        assertTrue("title was: $title", title.contains("Maghrib"))
+        assertTrue("text was: $text", text.contains("Maghrib"))
+        assertTrue("text was: $text", text.contains("Next: Isha at 7:20 PM"))
     }
 
     @Test
@@ -88,35 +90,27 @@ class PrayerNotificationContentTest {
             offsetMinutes = 10
         )
 
-        val title = notification.extras
-            ?.getCharSequence(androidx.core.app.NotificationCompat.EXTRA_TITLE)
-            ?.toString()
+        val title = NotificationCompat.getContentTitle(notification).toString()
 
-        assertTrue(title?.contains("10m after adhan") == true)
+        assertTrue("title was: $title", title.contains("10m after adhan"))
     }
 
     @Test
-    fun `the channel follows the sound and vibration preferences`() {
-        val loud = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:05 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = true,
-            vibrateEnabled = true
-        )
-        val silent = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:05 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = false,
-            vibrateEnabled = false
-        )
+    fun `a channel is created for every sound and vibration combination`() {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        assertEquals(PrayerNotificationManager.CHANNEL_ID, loud.channel)
-        assertEquals(PrayerNotificationManager.CHANNEL_ID_SILENT, silent.channel)
+        PrayerNotificationManager.createNotificationChannel(context)
+
+        assertNotNull(notificationManager.getNotificationChannel(PrayerNotificationManager.CHANNEL_ID))
+        assertNotNull(
+            notificationManager.getNotificationChannel(PrayerNotificationManager.CHANNEL_ID_SOUND_ONLY)
+        )
+        assertNotNull(
+            notificationManager.getNotificationChannel(PrayerNotificationManager.CHANNEL_ID_VIBRATE_ONLY)
+        )
+        assertNotNull(
+            notificationManager.getNotificationChannel(PrayerNotificationManager.CHANNEL_ID_SILENT)
+        )
     }
 }

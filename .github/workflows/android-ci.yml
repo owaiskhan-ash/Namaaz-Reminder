@@ -47,6 +47,54 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
+      - name: Summarise the unit test run
+        # The summary is published on the `apk-latest` release page and on the
+        # `apk-builds` branch, so the outcome of a run can be read without
+        # digging through the Actions log.
+        if: always()
+        run: |
+          set -uo pipefail
+          REPORT_DIR="app/build/test-results/testDebugUnitTest"
+          {
+            echo "- commit: \`${GITHUB_SHA::8}\`"
+            echo "- branch: \`${GITHUB_REF_NAME}\`"
+            echo
+            if compgen -G "$REPORT_DIR/TEST-*.xml" > /dev/null; then
+              echo "## Test classes"
+              echo
+              for xml in "$REPORT_DIR"/TEST-*.xml; do
+                [ -e "$xml" ] || continue
+                echo "- \`$(basename "$xml")\` $(grep -o 'tests="[0-9]*"[^>]*' "$xml" | head -1)"
+              done
+              echo
+              echo "## Failures"
+              echo
+              echo '```'
+              for xml in "$REPORT_DIR"/TEST-*.xml; do
+                [ -e "$xml" ] || continue
+                if grep -q "<failure\|<error" "$xml"; then
+                  echo "### $(basename "$xml")"
+                  sed -e 's/&quot;/"/g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' "$xml" \
+                    | sed -n '/<testcase/,/<\/testcase>/p' \
+                    | head -60
+                  echo
+                fi
+              done
+              echo '```'
+            else
+              echo "No test report was produced."
+            fi
+          } > test-summary.md
+          cat test-summary.md
+
+      - name: Upload the unit test summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary
+          path: test-summary.md
+          if-no-files-found: warn
+
       - name: Prepare release signing key
         # The `release` build type signs with key alias `upload`. We import the
         # committed debug key under that alias so that:
@@ -99,7 +147,8 @@ jobs:
   publish:
     name: Publish APKs for download
     # Only run for pushes (never for pull requests, where the token is read-only).
-    if: github.event_name != 'pull_request'
+    # It also runs when the build failed, so the release page can report why.
+    if: always() && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -112,32 +161,55 @@ jobs:
 
       - name: Download built APKs
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: NamaazReminder-apks
           path: apk
+
+      - name: Download the unit test summary
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: test-summary
+          path: summary
 
       - name: Publish to the rolling `apk-latest` release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           SHA="${GITHUB_SHA::8}"
-          NOTES="Namaaz Reminder APKs built from commit \`$SHA\`.
+          {
+            echo "Namaaz Reminder APKs, built from commit \`$SHA\`."
+            echo
+            echo "* \`-debug.apk\` — debug build, signed with the standard Android debug key."
+            echo "* \`-release.apk\` — release build (minification off), signed with the same"
+            echo "  certificate so it can upgrade the debug build in place."
+            echo
+            echo "Install with: \`adb install -r <file>.apk\`"
+            echo
+            echo "## Latest build"
+            echo
+            if [ -f summary/test-summary.md ]; then
+              cat summary/test-summary.md
+            else
+              echo "No unit test report was produced for this run."
+            fi
+          } > notes.md
 
-          * \`-debug.apk\` — debug build, signed with the standard Android debug key.
-          * \`-release.apk\` — release build (minification off), signed with the same
-            certificate so it can upgrade the debug build in place.
-
-          Install with: \`adb install -r <file>.apk\`"
-
-          if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
+          if ls apk/*.apk >/dev/null 2>&1; then
+            if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+              gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
+            else
+              gh release create apk-latest apk/*.apk \
+                --repo "${GITHUB_REPOSITORY}" \
+                --title "Namaaz Reminder (latest APK build)" \
+                --notes-file notes.md \
+                --target "$GITHUB_SHA"
+            fi
+            gh release edit apk-latest --notes-file notes.md --repo "${GITHUB_REPOSITORY}"
           else
-            gh release create apk-latest apk/*.apk \
-              --repo "${GITHUB_REPOSITORY}" \
-              --title "Namaaz Reminder (latest APK build)" \
-              --notes "$NOTES" \
-              --target "$GITHUB_SHA"
+            echo "This run produced no APK; the published release was left untouched."
           fi
 
       - name: Mirror APKs to the `apk-builds` branch
@@ -148,10 +220,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           cd "$GITHUB_WORKSPACE"
+          if ! ls apk/*.apk >/dev/null 2>&1; then
+            echo "This run produced no APK; nothing to mirror."
+            exit 0
+          fi
           mkdir -p apk-build
           cp apk/*.apk apk-build/
+          if [ -f summary/test-summary.md ]; then
+            cp summary/test-summary.md apk-build/test-summary.md
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f apk-build
