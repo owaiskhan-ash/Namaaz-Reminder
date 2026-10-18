@@ -163,8 +163,18 @@ object PrayerNotificationManager {
 
     /**
      * The channel that matches the user's sound / vibration preferences.
+     *
+     * When an azaan is used it is set on the notification itself, so the
+     * channel has to stay silent - the system only plays the sound of a
+     * notification when its channel does not define one.
      */
-    fun channelIdFor(soundEnabled: Boolean, vibrateEnabled: Boolean): String = when {
+    fun channelIdFor(
+        soundEnabled: Boolean,
+        vibrateEnabled: Boolean,
+        hasAzaan: Boolean = false
+    ): String = when {
+        hasAzaan && soundEnabled && vibrateEnabled -> CHANNEL_ID_VIBRATE_ONLY
+        hasAzaan && soundEnabled -> CHANNEL_ID_SILENT
         soundEnabled && vibrateEnabled -> CHANNEL_ID
         soundEnabled -> CHANNEL_ID_SOUND_ONLY
         vibrateEnabled -> CHANNEL_ID_VIBRATE_ONLY
@@ -465,11 +475,11 @@ object PrayerNotificationManager {
         // channel has to stay silent - the system only plays the sound of a
         // notification when its channel does not define one.
         val useAzaan = azaanUri != null && soundEnabled
-        val channelId = if (useAzaan) {
-            if (vibrateEnabled) CHANNEL_ID_VIBRATE_ONLY else CHANNEL_ID_SILENT
-        } else {
-            channelIdFor(soundEnabled = soundEnabled, vibrateEnabled = vibrateEnabled)
-        }
+        val channelId = channelIdFor(
+            soundEnabled = soundEnabled,
+            vibrateEnabled = vibrateEnabled,
+            hasAzaan = useAzaan
+        )
 
         val builder = NotificationCompat.Builder(context, channelId)
             // Small icons are rendered using only the alpha channel; the app logo PNG

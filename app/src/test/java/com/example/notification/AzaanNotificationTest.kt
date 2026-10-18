@@ -1,7 +1,7 @@
 package com.example.notification
 
+import android.app.NotificationManager
 import android.content.Context
-import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -21,82 +21,72 @@ class AzaanNotificationTest {
     private val context: Context
         get() = ApplicationProvider.getApplicationContext()
 
-    private val azaanUri: Uri = Uri.parse("content://media/external/audio/media/42")
-
     @Test
-    fun `the azaan is the sound of the reminder`() {
-        val notification = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:30 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = true,
-            vibrateEnabled = true,
-            azaanUri = azaanUri
+    fun `the azaan plays on a channel that has no sound of its own`() {
+        assertEquals(
+            PrayerNotificationManager.CHANNEL_ID_VIBRATE_ONLY,
+            PrayerNotificationManager.channelIdFor(
+                soundEnabled = true,
+                vibrateEnabled = true,
+                hasAzaan = true
+            )
         )
-
-        assertEquals(azaanUri, notification.sound)
     }
 
     @Test
-    fun `the azaan is played on a channel that has no sound of its own`() {
-        val notification = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:30 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = true,
-            vibrateEnabled = true,
-            azaanUri = azaanUri
+    fun `the azaan plays on the silent channel when the vibration is off`() {
+        assertEquals(
+            PrayerNotificationManager.CHANNEL_ID_SILENT,
+            PrayerNotificationManager.channelIdFor(
+                soundEnabled = true,
+                vibrateEnabled = false,
+                hasAzaan = true
+            )
         )
-
-        // The system only plays the sound of the notification when the channel
-        // itself is silent.
-        assertEquals(PrayerNotificationManager.CHANNEL_ID_VIBRATE_ONLY, notification.channelId)
     }
 
     @Test
     fun `without an azaan the channel of the preferences is used`() {
-        val notification = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:05 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = true,
-            vibrateEnabled = true
+        assertEquals(
+            PrayerNotificationManager.CHANNEL_ID,
+            PrayerNotificationManager.channelIdFor(
+                soundEnabled = true,
+                vibrateEnabled = true
+            )
         )
-
-        assertEquals(PrayerNotificationManager.CHANNEL_ID, notification.channelId)
-        assertNull(notification.sound)
+        assertEquals(
+            PrayerNotificationManager.CHANNEL_ID_SOUND_ONLY,
+            PrayerNotificationManager.channelIdFor(
+                soundEnabled = true,
+                vibrateEnabled = false
+            )
+        )
+        assertEquals(
+            PrayerNotificationManager.CHANNEL_ID_SILENT,
+            PrayerNotificationManager.channelIdFor(
+                soundEnabled = false,
+                vibrateEnabled = false
+            )
+        )
     }
 
     @Test
-    fun `without a sound the azaan is not played`() {
-        val notification = PrayerNotificationManager.buildPrayerNotification(
-            context = context,
-            prayerName = "Fajr",
-            prayerTime = "5:30 AM",
-            city = "Delhi",
-            offsetMinutes = 0,
-            soundEnabled = false,
-            vibrateEnabled = true,
-            azaanUri = azaanUri
-        )
+    fun `the channel that plays the azaan is silent`() {
+        PrayerNotificationManager.createNotificationChannel(context)
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        assertNull(notification.sound)
-        assertEquals(PrayerNotificationManager.CHANNEL_ID_VIBRATE_ONLY, notification.channelId)
+        val channel = notificationManager
+            .getNotificationChannel(PrayerNotificationManager.CHANNEL_ID_VIBRATE_ONLY)
+
+        assertNotNull(channel)
+        // The azaan is set on the notification itself, the channel stays silent.
+        assertNull(channel.sound)
     }
 
     @Test
     fun `the azaan uri is passed on to the alarm`() {
         // The reminder that the alarm posts has to know which azaan to play.
-        assertNotNull(PrayerNotificationManager.EXTRA_AZAAN_URI)
-        assertEquals(
-            "extra_azaan_uri",
-            PrayerNotificationManager.EXTRA_AZAAN_URI
-        )
+        assertEquals("extra_azaan_uri", PrayerNotificationManager.EXTRA_AZAAN_URI)
     }
 }

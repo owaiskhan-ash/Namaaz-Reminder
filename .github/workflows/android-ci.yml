@@ -179,8 +179,10 @@ jobs:
         run: |
           set -uo pipefail
           SHA="${GITHUB_SHA::8}"
+          HAS_APK=0
+          ls apk/*.apk >/dev/null 2>&1 && HAS_APK=1
           {
-            echo "Namaaz Reminder APKs, built from commit \`$SHA\`."
+            echo "Namaaz Reminder APKs."
             echo
             echo "* \`-debug.apk\` — debug build, signed with the standard Android debug key."
             echo "* \`-release.apk\` — release build (minification off), signed with the same"
@@ -188,7 +190,13 @@ jobs:
             echo
             echo "Install with: \`adb install -r <file>.apk\`"
             echo
-            echo "## Latest build"
+            if [ "$HAS_APK" = "1" ]; then
+              echo "## Latest build"
+            else
+              echo "## Latest run"
+              echo
+              echo "> This run did not produce new APKs, the files of this release are from the last successful build."
+            fi
             echo
             if [ -f summary/test-summary.md ]; then
               cat summary/test-summary.md
@@ -197,7 +205,7 @@ jobs:
             fi
           } > notes.md
 
-          if ls apk/*.apk >/dev/null 2>&1; then
+          if [ "$HAS_APK" = "1" ]; then
             if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
               gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
             else
@@ -207,9 +215,11 @@ jobs:
                 --notes-file notes.md \
                 --target "$GITHUB_SHA"
             fi
+          fi
+          # The notes are published in any case, so a failed run can be read
+          # from the release page without digging through the Actions log.
+          if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
             gh release edit apk-latest --notes-file notes.md --repo "${GITHUB_REPOSITORY}"
-          else
-            echo "This run produced no APK; the published release was left untouched."
           fi
 
       - name: Mirror APKs to the `apk-builds` branch
@@ -222,18 +232,20 @@ jobs:
         run: |
           set -uo pipefail
           cd "$GITHUB_WORKSPACE"
-          if ! ls apk/*.apk >/dev/null 2>&1; then
-            echo "This run produced no APK; nothing to mirror."
-            exit 0
-          fi
           mkdir -p apk-build
-          cp apk/*.apk apk-build/
+          if ls apk/*.apk >/dev/null 2>&1; then
+            cp apk/*.apk apk-build/
+          fi
           if [ -f summary/test-summary.md ]; then
             cp summary/test-summary.md apk-build/test-summary.md
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f apk-build
+          if git diff --cached --quiet -- apk-build; then
+            echo "Nothing changed since the last mirror."
+            exit 0
+          fi
           git commit -q -m "chore: APK build ${GITHUB_SHA::8}"
           git push --force origin HEAD:refs/heads/apk-builds
           git ls-remote --heads origin apk-builds
