@@ -10,7 +10,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Light / dark / system theme, and a settings sheet for muted prayers, reminder lead time and
   calculation method.
 
-Current version: **1.1** (`versionCode` 2).
+Current version: **1.2** (`versionCode` 3).
 
 ## Getting the APKs
 
@@ -33,7 +33,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.1-release.apk
+adb install -r NamaazReminder-1.2-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
