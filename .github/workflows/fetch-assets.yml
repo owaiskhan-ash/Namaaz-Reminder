@@ -1,0 +1,35 @@
+name: Fetch app assets
+
+# The master icon and the azaan library live in a public Supabase storage
+# bucket that the repository cannot reach directly, so CI mirrors them into
+# the `app-assets` branch (and into assets/ when it runs).
+on:
+  push:
+    branches:
+      - main
+      - 'arena/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    name: Fetch the master icon and probe the azaan library
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Fetch the assets
+        run: python3 scripts/fetch_assets.py
+
+      - name: Publish the assets to the `app-assets` branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f assets
+          git commit -q -m "chore: refresh app assets" || true
+          git push --force origin HEAD:refs/heads/app-assets
+          git ls-remote --heads origin app-assets
