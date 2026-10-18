@@ -16,9 +16,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
+env:
+  # The upload key below is derived from the committed, publicly-known Android
+  # debug key (see app/build.gradle.kts -> signingConfigs.debugConfig), so the
+  # password is not a secret. It only exists to satisfy the `release`
+  # signingConfig, which expects the `upload` key alias.
+  APK_STORE_PASSWORD: namaaz-apk-build
+  APK_KEY_PASSWORD: namaaz-apk-build
+
 jobs:
   build:
-    name: Test & build debug APK
+    name: Test & build APKs
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -36,15 +47,114 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Prepare release signing key
+        # The `release` build type signs with key alias `upload`. We import the
+        # committed debug key under that alias so that:
+        #   * the release APK is installable (signed with a known certificate),
+        #   * the signature is stable across builds, so a newer APK can upgrade
+        #     an older one instead of asking the user to uninstall first.
+        # If the import ever fails we fall back to a freshly generated key.
+        run: |
+          set -euo pipefail
+          KS="$RUNNER_TEMP/my-upload-key.jks"
+          if keytool -importkeystore \
+                -srckeystore debug.keystore -srcstoretype PKCS12 -srcstorepass android \
+                -srcalias androiddebugkey -srckeypass android \
+                -destkeystore "$KS" -deststoretype PKCS12 \
+                -deststorepass "$APK_STORE_PASSWORD" -destkeypass "$APK_KEY_PASSWORD" \
+                -destalias upload; then
+            echo "Imported the committed debug key under the 'upload' alias."
+          else
+            echo "Falling back to generating a fresh upload key."
+            keytool -genkeypair -v -keystore "$KS" -storetype PKCS12 \
+              -storepass "$APK_STORE_PASSWORD" -keypass "$APK_KEY_PASSWORD" \
+              -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Namaaz Reminder, OU=Mobile, O=Namaaz, L=Mumbai, ST=Maharashtra, C=IN"
+          fi
+          keytool -list -keystore "$KS" -storepass "$APK_STORE_PASSWORD" -alias upload
 
-      - name: Upload debug APK
+      - name: Build debug and release APKs
+        env:
+          KEYSTORE_PATH: ${{ runner.temp }}/my-upload-key.jks
+          STORE_PASSWORD: ${{ env.APK_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ env.APK_KEY_PASSWORD }}
+        run: ./gradlew assembleDebug assembleRelease --stacktrace
+
+      - name: Collect APKs
+        run: |
+          set -euo pipefail
+          VERSION="$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')"
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/NamaazReminder-${VERSION}-debug.apk"
+          cp app/build/outputs/apk/release/app-release.apk "dist/NamaazReminder-${VERSION}-release.apk"
+          ls -lh dist
+
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: NamaazReminder-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: NamaazReminder-apks
+          path: dist/*.apk
           if-no-files-found: error
+
+  publish:
+    name: Publish APKs for download
+    # Only run for pushes (never for pull requests, where the token is read-only).
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download built APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: NamaazReminder-apks
+          path: apk
+
+      - name: Publish to the rolling `apk-latest` release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA::8}"
+          NOTES="Namaaz Reminder APKs built from commit \`$SHA\`.
+
+          * \`-debug.apk\` — debug build, signed with the standard Android debug key.
+          * \`-release.apk\` — release build (minification off), signed with the same
+            certificate so it can upgrade the debug build in place.
+
+          Install with: \`adb install -r <file>.apk\`"
+
+          if gh release view apk-latest >/dev/null 2>&1; then
+            gh release upload apk-latest apk/*.apk --clobber
+          else
+            gh release create apk-latest apk/*.apk \
+              --title "Namaaz Reminder (latest APK build)" \
+              --notes "$NOTES" \
+              --target "$GITHUB_SHA"
+          fi
+
+      - name: Mirror APKs to the `apk-builds` branch
+        # Keeps a fetchable copy of the APKs inside the repository itself so
+        # they can be downloaded straight from the branch page.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          WORKDIR="$RUNNER_TEMP/apk-branch"
+          rm -rf "$WORKDIR"
+          mkdir -p "$WORKDIR/apk"
+          cp apk/*.apk "$WORKDIR/apk/"
+          cd "$WORKDIR"
+          git init -q -b apk-builds
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore: APK build ${GITHUB_SHA::8}"
+          git push --force \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            apk-builds
 
   release:
     name: Publish APK to GitHub Release
@@ -54,10 +164,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Download built APK
+      - name: Download built APKs
         uses: actions/download-artifact@v4
         with:
-          name: NamaazReminder-debug-apk
+          name: NamaazReminder-apks
           path: apk
 
       - name: Attach APK to release
