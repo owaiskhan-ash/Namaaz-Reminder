@@ -1,8 +1,9 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,12 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.PrayerItem
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PrayerTimeCard(
     prayer: PrayerItem,
     use24Hour: Boolean,
     onToggleReminder: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLongClick: () -> Unit = {}
 ) {
     val isNext = prayer.isNext
     val isPassed = prayer.isPassed
@@ -64,6 +67,11 @@ fun PrayerTimeCard(
             .clip(RoundedCornerShape(14.dp))
             .background(cardBackground)
             .border(borderWidth, cardBorder, RoundedCornerShape(14.dp))
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onLongClick,
+                onLongClickLabel = "Set a custom time for ${prayer.type.englishName}"
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp)
             .testTag("prayer_card_${prayer.type.name}"),
         contentAlignment = Alignment.Center
@@ -151,14 +159,38 @@ fun PrayerTimeCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = prayer.displayTime(use24Hour),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = if (isNext) FontWeight.Bold else FontWeight.SemiBold,
-                        fontSize = 17.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = textAlpha)
-                )
+                if (prayer.customTime != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = prayer.displayTime(use24Hour),
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = if (isNext) FontWeight.Bold else FontWeight.SemiBold,
+                                fontSize = 17.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = textAlpha)
+                        )
+                        Spacer(modifier = Modifier.width(7.dp))
+                        Text(
+                            text = prayer.defaultDisplayTime(use24Hour),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 11.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = if (isPassed && !isNext) 0.4f else 0.72f
+                            )
+                        )
+                    }
+                } else {
+                    Text(
+                        text = prayer.displayTime(use24Hour),
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = if (isNext) FontWeight.Bold else FontWeight.SemiBold,
+                            fontSize = 17.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = textAlpha)
+                    )
+                }
 
                 if (prayer.type.isPrimaryPrayer) {
                     Spacer(modifier = Modifier.width(10.dp))

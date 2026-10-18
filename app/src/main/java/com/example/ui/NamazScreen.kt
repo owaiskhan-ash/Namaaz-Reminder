@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.Manifest
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,6 +70,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.model.PrayerItem
 import com.example.notification.PrayerNotificationManager
 import com.example.ui.components.CitySelectionSheet
 import com.example.ui.components.HeroCountdownCard
@@ -81,6 +85,11 @@ fun NamazScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val isDarkTheme = when (uiState.settings.themeMode) {
+        "DARK" -> true
+        "LIGHT" -> false
+        else -> isSystemInDarkTheme()
+    }
     val snackbarHostState = remember { SnackbarHostState() }
 
     var hasNotificationPermission by remember {
@@ -94,6 +103,20 @@ fun NamazScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasNotificationPermission = isGranted
+    }
+
+    val audioPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { audioUri ->
+        if (audioUri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    audioUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            viewModel.importCustomAzaan(audioUri)
+        }
     }
 
     var isAstronomicalExpanded by remember { mutableStateOf(false) }
@@ -114,6 +137,7 @@ fun NamazScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasNotificationPermission = checkNotificationPermission(context)
+                viewModel.ensureMadinahAzaanDownloaded()
                 val exactAlarmsNow = PrayerNotificationManager.canScheduleExactAlarms(context)
                 if (exactAlarmsNow && !canScheduleExactAlarms) {
                     viewModel.rescheduleAlarms()
@@ -133,22 +157,36 @@ fun NamazScreen(
         }
     }
 
+    fun showPrayerTimePicker(prayer: PrayerItem) {
+        val currentTime = prayer.customTime ?: prayer.rawTime
+        val parts = currentTime.split(":")
+        val hour = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 23) ?: 12
+        val minute = parts.getOrNull(1)?.toIntOrNull()?.coerceIn(0, 59) ?: 0
+        TimePickerDialog(
+            context,
+            { _, selectedHour, selectedMinute ->
+                viewModel.setCustomPrayerTime(prayer.type.name, selectedHour, selectedMinute)
+            },
+            hour,
+            minute,
+            uiState.settings.is24HourFormat
+        ).show()
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             NamazTopBar(
+                modifier = Modifier.statusBarsPadding(),
                 isLoading = uiState.isLoading,
                 currentCity = uiState.settings.selectedCity,
-                currentTheme = uiState.settings.themeMode,
+                currentTheme = if (isDarkTheme) "DARK" else "LIGHT",
                 onToggleTheme = {
-                    val nextMode = when (uiState.settings.themeMode) {
-                        "DARK" -> "LIGHT"
-                        "LIGHT" -> "SYSTEM"
-                        else -> "DARK"
-                    }
-                    viewModel.setThemeMode(nextMode)
+                    // Toggle against the effective theme so a first tap also changes
+                    // appearance when the saved mode was SYSTEM.
+                    viewModel.setThemeMode(if (isDarkTheme) "LIGHT" else "DARK")
                 },
                 onOpenCityPicker = { viewModel.openCityPicker(true) },
                 onOpenSettings = { viewModel.openSettings(true) }
@@ -417,7 +455,8 @@ fun NamazScreen(
                                     use24Hour = uiState.settings.is24HourFormat,
                                     onToggleReminder = {
                                         viewModel.togglePrayerNotification(prayer.type.name)
-                                    }
+                                    },
+                                    onLongClick = { showPrayerTimePicker(prayer) }
                                 )
                             }
                         }
@@ -513,6 +552,8 @@ fun NamazScreen(
         onToggleVibration = { viewModel.toggleVibration(it) },
         onToggle24Hour = { viewModel.toggle24HourFormat(it) },
         onSelectTheme = { viewModel.setThemeMode(it) },
+        onSelectAzaan = { viewModel.selectAzaan(it) },
+        onChooseAzaanFile = { audioPickerLauncher.launch(arrayOf("audio/*")) },
         onSendTestNotification = { viewModel.sendTestNotification() },
         onClearCache = { viewModel.clearCache() }
     )

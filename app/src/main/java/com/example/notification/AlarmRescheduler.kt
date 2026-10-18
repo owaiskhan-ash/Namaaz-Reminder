@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.data.local.PreferencesManager
 import com.example.data.model.PrayerScheduleData
 import com.example.data.repository.PrayerRepository
+import com.example.data.repository.PrayerScheduleCustomizer
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -69,8 +70,9 @@ object AlarmRescheduler {
                 }
         }
 
-        schedule?.let {
-            PrayerNotificationManager.schedulePrayerAlarms(appContext, it, settings)
+        schedule?.let { fetchedSchedule ->
+            val scheduleWithOverrides = PrayerScheduleCustomizer.apply(fetchedSchedule, settings)
+            PrayerNotificationManager.schedulePrayerAlarms(appContext, scheduleWithOverrides, settings)
         }
     }
 }

@@ -16,15 +16,35 @@ enum class PrayerType(
 
 data class PrayerItem(
     val type: PrayerType,
-    val rawTime: String, // e.g. "05:05"
-    val formattedTime12: String, // e.g. "05:05 AM"
-    val formattedTime24: String, // e.g. "05:05"
+    val rawTime: String, // Default time, e.g. "05:05"
+    val formattedTime12: String, // Default time, e.g. "5:05 AM"
+    val formattedTime24: String, // Default time, e.g. "05:05"
     val targetEpochMillis: Long,
     val isNext: Boolean = false,
     val isPassed: Boolean = false,
-    val notificationEnabled: Boolean = true
+    val notificationEnabled: Boolean = true,
+    /** Optional today-only override in HH:mm format. */
+    val customTime: String? = null
 ) {
-    fun displayTime(use24Hour: Boolean): String = if (use24Hour) formattedTime24 else formattedTime12
+    fun defaultDisplayTime(use24Hour: Boolean): String =
+        if (use24Hour) formattedTime24 else formattedTime12
+
+    fun displayTime(use24Hour: Boolean): String {
+        val override = customTime ?: return defaultDisplayTime(use24Hour)
+        val parts = override.split(":")
+        val hour = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 23)
+            ?: return defaultDisplayTime(use24Hour)
+        val minute = parts.getOrNull(1)?.toIntOrNull()?.coerceIn(0, 59)
+            ?: return defaultDisplayTime(use24Hour)
+        if (use24Hour) return String.format(java.util.Locale.US, "%02d:%02d", hour, minute)
+
+        val amPm = if (hour >= 12) "PM" else "AM"
+        val hour12 = when (hour % 12) {
+            0 -> 12
+            else -> hour % 12
+        }
+        return String.format(java.util.Locale.US, "%d:%02d %s", hour12, minute, amPm)
+    }
 }
 
 data class CalculationMethod(
@@ -49,6 +69,12 @@ data class PrayerScheduleData(
         get() = prayers.firstOrNull { it.isNext } ?: prayers.firstOrNull { !it.isPassed && it.type.isPrimaryPrayer }
 }
 
+object AzaanSoundIds {
+    const val MADINAH = "madinah"
+    const val DEVICE_DEFAULT = "device_default"
+    const val CUSTOM = "custom"
+}
+
 data class UserSettings(
     val selectedCity: String = "Delhi",
     val methodId: Int = 1,
@@ -58,7 +84,12 @@ data class UserSettings(
     val soundEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
     val is24HourFormat: Boolean = false,
-    val mutedPrayerNames: Set<String> = emptySet()
+    val mutedPrayerNames: Set<String> = emptySet(),
+    /** Overrides are keyed by yyyy-MM-dd|PRAYER_NAME and apply to that day only. */
+    val customPrayerTimes: Map<String, String> = emptyMap(),
+    val azaanSoundId: String = AzaanSoundIds.MADINAH,
+    val customAzaanName: String? = null,
+    val customAzaanUri: String? = null
 )
 
 val POPULAR_INDIAN_CITIES = listOf(

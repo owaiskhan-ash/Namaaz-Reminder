@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -69,6 +70,8 @@ fun SettingsSheet(
     onToggleVibration: (Boolean) -> Unit,
     onToggle24Hour: (Boolean) -> Unit,
     onSelectTheme: (String) -> Unit,
+    onSelectAzaan: (String) -> Unit,
+    onChooseAzaanFile: () -> Unit,
     onSendTestNotification: () -> Unit,
     onClearCache: () -> Unit,
     modifier: Modifier = Modifier
@@ -389,6 +392,56 @@ fun SettingsSheet(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Azaan sound selection. Custom audio is copied into device storage so
+            // reminders can use it without depending on the source file remaining selected.
+            SectionTitle(title = "AZAAN SOUND")
+            Text(
+                text = "Madinah Azaan is saved automatically. You can also use another Azaan audio file from your device.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            AzaanOptionRow(
+                title = "Madinah Azaan",
+                description = "Default reminder sound",
+                selected = settings.azaanSoundId == "madinah",
+                testTag = "azaan_option_madinah",
+                onClick = { onSelectAzaan("madinah") }
+            )
+            AzaanOptionRow(
+                title = "Device default",
+                description = "Use the system notification tone",
+                selected = settings.azaanSoundId == "device_default",
+                testTag = "azaan_option_device_default",
+                onClick = { onSelectAzaan("device_default") }
+            )
+            if (!settings.customAzaanUri.isNullOrBlank()) {
+                AzaanOptionRow(
+                    title = settings.customAzaanName ?: "Custom Azaan",
+                    description = "Audio saved from this device",
+                    selected = settings.azaanSoundId == "custom",
+                    testTag = "azaan_option_custom",
+                    onClick = { onSelectAzaan("custom") }
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            OutlinedButton(
+                onClick = onChooseAzaanFile,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("choose_azaan_file_button")
+            ) {
+                Text(if (settings.customAzaanUri.isNullOrBlank()) "Choose another Azaan audio file" else "Choose a different Azaan audio file")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            Spacer(modifier = Modifier.height(16.dp))
+
             // 3. Display & Format
             SectionTitle(title = "THEME & FORMAT")
 
@@ -508,6 +561,45 @@ fun SettingsSheet(
                 Text("Clear Offline Cache")
             }
         }
+    }
+}
+
+@Composable
+private fun AzaanOptionRow(
+    title: String,
+    description: String,
+    selected: Boolean,
+    testTag: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 2.dp)
+            .testTag(testTag),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
     }
 }
 

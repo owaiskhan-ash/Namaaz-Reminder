@@ -126,7 +126,7 @@ fun NamazTopBar(
         ) {
             Icon(
                 imageVector = if (currentTheme == "DARK") Icons.Default.LightMode else Icons.Default.DarkMode,
-                contentDescription = "Toggle Theme",
+                    contentDescription = if (currentTheme == "DARK") "Switch to light mode" else "Switch to dark mode",
                 tint = MaterialTheme.colorScheme.onBackground
             )
         }

@@ -1,16 +1,22 @@
 package com.example.ui
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.PreferencesManager
+import com.example.data.model.AzaanSoundIds
 import com.example.data.model.CALCULATION_METHODS
 import com.example.data.model.POPULAR_INDIAN_CITIES
 import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerScheduleData
+import com.example.data.model.PrayerType
 import com.example.data.model.UserSettings
 import com.example.data.repository.PrayerRepository
+import com.example.data.repository.PrayerScheduleCustomizer
+import com.example.notification.AzaanSoundStore
 import com.example.notification.PrayerNotificationManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 data class NamazUiState(
@@ -45,11 +52,15 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<NamazUiState> = _uiState.asStateFlow()
 
     private var countdownJob: Job? = null
+    private var madinahDownloadJob: Job? = null
+    private var madinahSoundReady = false
+    private var loadedScheduleDateKey: String? = null
     private var lastExpiredPrayerRefreshMillis: Long? = null
 
     init {
         val initialSettings = preferencesManager.loadSettings()
         _uiState.update { it.copy(settings = initialSettings) }
+        ensureMadinahAzaanDownloaded()
         loadTimings(initialSettings.selectedCity, initialSettings.methodId)
         startCountdownTicker()
     }
@@ -57,15 +68,18 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     fun loadTimings(city: String, methodId: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            val currentSettings = _uiState.value.settings
+            val requestSettings = _uiState.value.settings
             val result = repository.getPrayerSchedule(
                 city = city,
                 methodId = methodId,
-                mutedPrayers = currentSettings.mutedPrayerNames
+                mutedPrayers = requestSettings.mutedPrayerNames
             )
 
             result.fold(
-                onSuccess = { schedule ->
+                onSuccess = { fetchedSchedule ->
+                    val latestSettings = _uiState.value.settings
+                    val schedule = PrayerScheduleCustomizer.apply(fetchedSchedule, latestSettings)
+                    loadedScheduleDateKey = PrayerScheduleCustomizer.dateKey(schedule)
                     val next = schedule.nextPrayer
                     _uiState.update {
                         it.copy(
@@ -76,11 +90,10 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
                         )
                     }
                     updateCountdownDisplay()
-                    // Reschedule alarms
                     PrayerNotificationManager.schedulePrayerAlarms(
                         getApplication(),
                         schedule,
-                        currentSettings
+                        latestSettings
                     )
                 },
                 onFailure = { error ->
@@ -192,6 +205,125 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setCustomPrayerTime(prayerName: String, hour: Int, minute: Int) {
+        val state = _uiState.value
+        val schedule = state.schedule ?: return
+        val prayerType = runCatching { PrayerType.valueOf(prayerName) }.getOrNull() ?: return
+        if (!prayerType.isPrimaryPrayer) return
+
+        val dayKey = PrayerScheduleCustomizer.dateKey(schedule)
+        val overrides = state.settings.customPrayerTimes
+            .filterKeys { it.substringBefore('|') == dayKey }
+            .toMutableMap()
+        overrides[PrayerScheduleCustomizer.customTimeKey(schedule, prayerType)] =
+            String.format(Locale.US, "%02d:%02d", hour, minute)
+        val newSettings = state.settings.copy(customPrayerTimes = overrides)
+        preferencesManager.saveSettings(newSettings)
+
+        val updatedSchedule = PrayerScheduleCustomizer.apply(schedule, newSettings)
+        _uiState.update {
+            it.copy(
+                settings = newSettings,
+                schedule = updatedSchedule,
+                nextPrayer = updatedSchedule.nextPrayer
+            )
+        }
+        updateCountdownDisplay()
+        PrayerNotificationManager.schedulePrayerAlarms(getApplication(), updatedSchedule, newSettings)
+    }
+
+    fun clearCustomPrayerTime(prayerName: String) {
+        val state = _uiState.value
+        val schedule = state.schedule ?: return
+        val prayerType = runCatching { PrayerType.valueOf(prayerName) }.getOrNull() ?: return
+        val overrides = state.settings.customPrayerTimes.toMutableMap().apply {
+            remove(PrayerScheduleCustomizer.customTimeKey(schedule, prayerType))
+        }
+        val newSettings = state.settings.copy(customPrayerTimes = overrides)
+        preferencesManager.saveSettings(newSettings)
+
+        val updatedSchedule = PrayerScheduleCustomizer.apply(schedule, newSettings)
+        _uiState.update {
+            it.copy(
+                settings = newSettings,
+                schedule = updatedSchedule,
+                nextPrayer = updatedSchedule.nextPrayer
+            )
+        }
+        updateCountdownDisplay()
+        PrayerNotificationManager.schedulePrayerAlarms(getApplication(), updatedSchedule, newSettings)
+    }
+
+    fun selectAzaan(soundId: String) {
+        if (soundId !in setOf(AzaanSoundIds.MADINAH, AzaanSoundIds.DEVICE_DEFAULT, AzaanSoundIds.CUSTOM)) return
+        val current = _uiState.value.settings
+        if (soundId == AzaanSoundIds.CUSTOM && current.customAzaanUri.isNullOrBlank()) return
+
+        val newSettings = current.copy(azaanSoundId = soundId)
+        preferencesManager.saveSettings(newSettings)
+        _uiState.update { it.copy(settings = newSettings) }
+        PrayerNotificationManager.createNotificationChannel(getApplication(), newSettings)
+        _uiState.value.schedule?.let { schedule ->
+            PrayerNotificationManager.schedulePrayerAlarms(getApplication(), schedule, newSettings)
+        }
+    }
+
+    fun importCustomAzaan(sourceUri: Uri) {
+        viewModelScope.launch {
+            val imported = runCatching {
+                withContext(Dispatchers.IO) {
+                    AzaanSoundStore.importAzaan(getApplication(), sourceUri)
+                }
+            }
+            imported.fold(
+                onSuccess = { sound ->
+                    val newSettings = _uiState.value.settings.copy(
+                        azaanSoundId = AzaanSoundIds.CUSTOM,
+                        customAzaanName = sound.name,
+                        customAzaanUri = sound.uri.toString()
+                    )
+                    preferencesManager.saveSettings(newSettings)
+                    _uiState.update {
+                        it.copy(
+                            settings = newSettings,
+                            toastMessage = "${sound.name} saved on this device and selected for reminders."
+                        )
+                    }
+                    PrayerNotificationManager.createNotificationChannel(getApplication(), newSettings)
+                    _uiState.value.schedule?.let { schedule ->
+                        PrayerNotificationManager.schedulePrayerAlarms(getApplication(), schedule, newSettings)
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(toastMessage = error.localizedMessage ?: "Could not import that audio file.")
+                    }
+                }
+            )
+        }
+    }
+
+    /** Downloads the supplied Madinah Azaan automatically and retries on resume if offline. */
+    fun ensureMadinahAzaanDownloaded() {
+        if (madinahDownloadJob?.isActive == true || madinahSoundReady) return
+        madinahDownloadJob = viewModelScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    AzaanSoundStore.ensureMadinahAzaanDownloaded(getApplication(), preferencesManager)
+                }
+            }
+            if (result.isSuccess) {
+                madinahSoundReady = true
+                val latestSettings = _uiState.value.settings
+                PrayerNotificationManager.createNotificationChannel(getApplication(), latestSettings)
+                rescheduleAlarms()
+            } else {
+                // Keep the normal device notification sound as a fallback and retry later.
+                madinahDownloadJob = null
+            }
+        }
+    }
+
     fun toggleSound(enabled: Boolean) {
         val newSettings = _uiState.value.settings.copy(soundEnabled = enabled)
         preferencesManager.saveSettings(newSettings)
@@ -263,8 +395,7 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
             prayerTime = prayerTime,
             city = current.settings.selectedCity,
             offsetMinutes = current.settings.reminderOffsetMinutes,
-            soundEnabled = current.settings.soundEnabled,
-            vibrateEnabled = current.settings.vibrationEnabled,
+            settings = current.settings,
             isTest = true
         )
 
@@ -297,6 +428,14 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun updateCountdownDisplay() {
         val schedule = _uiState.value.schedule ?: return
+        val todayKey = PrayerScheduleCustomizer.dateKey(schedule)
+        if (loadedScheduleDateKey != null && loadedScheduleDateKey != todayKey) {
+            // Date-scoped overrides expire at local midnight, so refresh the schedule
+            // once to drop yesterday's custom times and re-arm today's prayers.
+            loadedScheduleDateKey = todayKey
+            loadTimings(_uiState.value.settings.selectedCity, _uiState.value.settings.methodId)
+            return
+        }
         val now = System.currentTimeMillis()
 
         // Check if next prayer passed or needs re-calculation
@@ -337,5 +476,6 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         countdownJob?.cancel()
+        madinahDownloadJob?.cancel()
     }
 }
