@@ -105,34 +105,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      # `gh` resolves the target repository from the local git checkout, so the
+      # repository has to be checked out before any `gh release` call.
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Download built APKs
         uses: actions/download-artifact@v4
         with:
           name: NamaazReminder-apks
           path: apk
-
-      - name: Publish to the rolling `apk-latest` release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          SHA="${GITHUB_SHA::8}"
-          NOTES="Namaaz Reminder APKs built from commit \`$SHA\`.
-
-          * \`-debug.apk\` — debug build, signed with the standard Android debug key.
-          * \`-release.apk\` — release build (minification off), signed with the same
-            certificate so it can upgrade the debug build in place.
-
-          Install with: \`adb install -r <file>.apk\`"
-
-          if gh release view apk-latest >/dev/null 2>&1; then
-            gh release upload apk-latest apk/*.apk --clobber
-          else
-            gh release create apk-latest apk/*.apk \
-              --title "Namaaz Reminder (latest APK build)" \
-              --notes "$NOTES" \
-              --target "$GITHUB_SHA"
-          fi
 
       - name: Mirror APKs to the `apk-builds` branch
         # Keeps a fetchable copy of the APKs inside the repository itself so
@@ -155,6 +137,30 @@ jobs:
           git push --force \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
             apk-builds
+
+      - name: Publish to the rolling `apk-latest` release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA="${GITHUB_SHA::8}"
+          NOTES="Namaaz Reminder APKs built from commit \`$SHA\`.
+
+          * \`-debug.apk\` — debug build, signed with the standard Android debug key.
+          * \`-release.apk\` — release build (minification off), signed with the same
+            certificate so it can upgrade the debug build in place.
+
+          Install with: \`adb install -r <file>.apk\`"
+
+          if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
+          else
+            gh release create apk-latest apk/*.apk \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "Namaaz Reminder (latest APK build)" \
+              --notes "$NOTES" \
+              --target "$GITHUB_SHA"
+          fi
 
   release:
     name: Publish APK to GitHub Release
