@@ -195,7 +195,11 @@ fun HeroCountdownCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (isReminderActive) "${reminderOffsetMinutes}m alert" else "Muted",
+                                text = if (isReminderActive) {
+                                    if (reminderOffsetMinutes == 0) "At Adhan" else "${reminderOffsetMinutes}m after"
+                                } else {
+                                    "Muted"
+                                },
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Medium
                                 ),

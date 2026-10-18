@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,6 +38,10 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +77,7 @@ fun SettingsSheet(
     if (!isOpen) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isMethodDropdownExpanded by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -115,57 +122,105 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 1. Calculation Method
+            // 1. Calculation Method (Collapsible Dropdown)
             SectionTitle(title = "CALCULATION METHOD")
             Text(
-                text = "Used to determine Fajr and Isha angles. Method 1 (Karachi) is standard in India.",
+                text = "Tap to choose calculation method. Method 1 (Karachi) is standard across India.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            CALCULATION_METHODS.forEach { method ->
-                val isSelected = method.id == settings.methodId
-                Row(
+            val currentMethod = CALCULATION_METHODS.firstOrNull { it.id == settings.methodId }
+                ?: CALCULATION_METHODS.first()
+
+            // Dropdown Trigger Card
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                    .clickable { isMethodDropdownExpanded = !isMethodDropdownExpanded }
+                    .padding(horizontal = 14.dp, vertical = 12.dp)
+                    .testTag("method_dropdown_trigger"),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = currentMethod.name,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = currentMethod.description,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Icon(
+                    imageVector = if (isMethodDropdownExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isMethodDropdownExpanded) "Collapse Methods" else "Expand Methods",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            // Dropdown Menu Items (when expanded)
+            if (isMethodDropdownExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
-                        )
-                        .border(
-                            1.dp,
-                            if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .clickable { onSelectMethod(method.id) }
-                        .padding(horizontal = 14.dp, vertical = 10.dp)
-                        .testTag("method_option_${method.id}"),
-                    verticalAlignment = Alignment.CenterVertically
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                        .padding(6.dp)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = method.name,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = method.description,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    CALCULATION_METHODS.forEach { method ->
+                        val isSelected = method.id == settings.methodId
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 3.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
+                                )
+                                .clickable {
+                                    onSelectMethod(method.id)
+                                    isMethodDropdownExpanded = false
+                                }
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
+                                .testTag("method_option_${method.id}"),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = method.name,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = method.description,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
-                    if (isSelected) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(18.dp)
-                        )
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -214,18 +269,24 @@ fun SettingsSheet(
             if (settings.notificationsEnabled) {
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Reminder Offset Selector
+                // Reminder Offset Selector (After Prayer)
                 Text(
-                    text = "Reminder Timing",
+                    text = "Reminder Timing (After Prayer)",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(6.dp))
 
-                val offsets = listOf(0 to "At Adhan", 5 to "5 min before", 10 to "10 min before", 15 to "15 min before")
+                val offsets = listOf(
+                    0 to "At Adhan",
+                    5 to "5m after",
+                    10 to "10m after",
+                    15 to "15m after",
+                    30 to "30m after"
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     offsets.forEach { (mins, label) ->
                         val isSel = settings.reminderOffsetMinutes == mins
@@ -243,7 +304,7 @@ fun SettingsSheet(
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.bodySmall.copy(
-                                    fontSize = 11.sp,
+                                    fontSize = 10.5.sp,
                                     fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
                                 ),
                                 color = if (isSel) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface

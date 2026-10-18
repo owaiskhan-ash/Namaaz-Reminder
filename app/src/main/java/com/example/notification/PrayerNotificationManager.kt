@@ -67,7 +67,7 @@ object PrayerNotificationManager {
 
         schedule.prayers.filter { it.type.isPrimaryPrayer }.forEachIndexed { index, prayer ->
             if (!settings.mutedPrayerNames.contains(prayer.type.name)) {
-                val triggerAt = prayer.targetEpochMillis - offsetMillis
+                val triggerAt = prayer.targetEpochMillis + offsetMillis
 
                 if (triggerAt > now) {
                     val intent = Intent(context, com.example.receiver.PrayerAlarmReceiver::class.java).apply {
@@ -167,7 +167,7 @@ object PrayerNotificationManager {
         val title = if (isTest) {
             "Test Reminder: $prayerName Prayer"
         } else if (offsetMinutes > 0) {
-            "$prayerName Prayer in $offsetMinutes min"
+            "$prayerName Reminder ($offsetMinutes min after)"
         } else {
             "Time for $prayerName Prayer"
         }
@@ -175,7 +175,7 @@ object PrayerNotificationManager {
         val message = if (isTest) {
             "Notification & sound are working properly. Scheduled time: $prayerTime in $city."
         } else if (offsetMinutes > 0) {
-            "$prayerName prayer in $city will start at $prayerTime. Prepare for Salah."
+            "$prayerName prayer in $city started $offsetMinutes minutes ago ($prayerTime). It is time for your Salah."
         } else {
             "It is now time for $prayerName prayer in $city ($prayerTime)."
         }

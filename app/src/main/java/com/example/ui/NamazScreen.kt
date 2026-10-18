@@ -172,7 +172,7 @@ fun NamazScreen(
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
-                                    text = "Enable notifications for 5-min prayer alerts",
+                                    text = "Enable notifications for prayer reminder alerts",
                                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
