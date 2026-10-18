@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.AzaanSoundIds
 import com.example.data.model.CALCULATION_METHODS
 import com.example.data.model.CalculationMethod
 import com.example.data.model.UserSettings
@@ -249,7 +250,7 @@ fun SettingsSheet(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "Get notified before each prayer time",
+                        text = "Get notified at or after each prayer time",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -404,24 +405,24 @@ fun SettingsSheet(
             AzaanOptionRow(
                 title = "Madinah Azaan",
                 description = "Default reminder sound",
-                selected = settings.azaanSoundId == "madinah",
+                selected = settings.azaanSoundId == AzaanSoundIds.MADINAH,
                 testTag = "azaan_option_madinah",
-                onClick = { onSelectAzaan("madinah") }
+                onClick = { onSelectAzaan(AzaanSoundIds.MADINAH) }
             )
             AzaanOptionRow(
                 title = "Device default",
                 description = "Use the system notification tone",
-                selected = settings.azaanSoundId == "device_default",
+                selected = settings.azaanSoundId == AzaanSoundIds.DEVICE_DEFAULT,
                 testTag = "azaan_option_device_default",
-                onClick = { onSelectAzaan("device_default") }
+                onClick = { onSelectAzaan(AzaanSoundIds.DEVICE_DEFAULT) }
             )
             if (!settings.customAzaanUri.isNullOrBlank()) {
                 AzaanOptionRow(
                     title = settings.customAzaanName ?: "Custom Azaan",
                     description = "Audio saved from this device",
-                    selected = settings.azaanSoundId == "custom",
+                    selected = settings.azaanSoundId == AzaanSoundIds.CUSTOM,
                     testTag = "azaan_option_custom",
-                    onClick = { onSelectAzaan("custom") }
+                    onClick = { onSelectAzaan(AzaanSoundIds.CUSTOM) }
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))

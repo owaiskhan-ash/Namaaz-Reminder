@@ -294,9 +294,15 @@ def main() -> None:
         art.resize((px, px), Image.LANCZOS).save(os.path.join(out, "ic_launcher.png"))
         round_circle(art, px).save(os.path.join(out, "ic_launcher_round.png"))
 
-    art.resize((512, 512), Image.LANCZOS).save(os.path.join(RES, "drawable", "ic_app_icon.png"))
-    extend_plate(art, 864).save(
-        os.path.join(RES, "drawable", "ic_launcher_foreground_mark.png")
+    # Bitmaps live in a density bucket, never in the densityless drawable/
+    # folder: there they would be treated as mdpi and decoded far larger than
+    # needed. 34dp header badge at xxxhdpi is 136px; 192px keeps it crisp.
+    xxxhdpi = os.path.join(RES, "drawable-xxxhdpi")
+    os.makedirs(xxxhdpi, exist_ok=True)
+    art.resize((192, 192), Image.LANCZOS).save(os.path.join(xxxhdpi, "ic_app_icon.png"))
+    # Adaptive foreground is 108dp: 432px at xxxhdpi.
+    extend_plate(art, 432).save(
+        os.path.join(xxxhdpi, "ic_launcher_foreground_mark.png")
     )
     with open(os.path.join(RES, "drawable", "ic_launcher_monochrome.xml"), "w") as fh:
         fh.write(monochrome_xml())

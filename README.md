@@ -7,8 +7,9 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Offline cache: the last successful schedule is stored locally and re-anchored to the current day.
 - Notifications for upcoming prayer times, with exact alarms (Android 12+) and a boot receiver that
   re-arms the schedule after a restart.
-- Light / dark / system theme, and a settings sheet for muted prayers, reminder lead time and
-  calculation method.
+- Light / dark / system theme, and a settings sheet for muted prayers, reminder timing and
+  calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
+  default), which is when the adhan ends and the salah begins.
 
 Current version: **1.3.1** (`versionCode` 5).
 
@@ -94,7 +95,7 @@ asset* workflow (GitHub runners can reach hosts that some sandboxes cannot).
 app/src/main/java/com/example/
 ├── MainActivity.kt                  # Compose entry point, notification channel setup
 ├── data/
-│   ├── local/PreferencesManager.kt   # DataStore-backed settings + cached schedule
+│   ├── local/PreferencesManager.kt   # SharedPreferences-backed settings + cached schedule
 │   ├── model/PrayerModels.kt        # Prayer types, schedule data, UI state models
 │   └── repository/
 │       ├── PrayerRepository.kt       # Aladhan API + offline cache fallback
@@ -109,20 +110,21 @@ app/src/main/java/com/example/
 
 ## Notifications
 
-Each prayer reminder stays a separate notification — the system never bundles the daily
-reminders into one merged group:
+Each prayer reminder stays a separate notification — the app never groups or bundles them:
 
-- every prayer gets its own notification id **and** its own group, so a Fajr reminder never
-  disappears into a stack of "5 notifications",
-- the reminder carries the prayer time as its timestamp (not the moment it happened to be
-  posted), the city as its subtitle and mentions the next prayer,
-- reminders posted on an earlier day are pruned automatically, so the shade does not fill up
-  with stale, identical looking reminders,
-- turning **Enable Reminders** off also clears the reminders that are already in the shade,
-- sound and vibration live in separate channels (`Prayer Reminders`, `Prayer Reminders (Sound
-  only)`, `Prayer Reminders (Azaan)`, `Prayer Reminders (Silent)`) — from Android 8.0
-  the system reads both from the channel, not from the individual notification, so a single
-  channel cannot honour the sound / vibration toggles.
+- every prayer gets its own notification id, so a Fajr reminder never disappears into a
+  "5 notifications" stack,
+- the reminder names the prayer and the time in the title and body, with the city in the text,
+- posting the same prayer again on a later day updates its existing notification instead of
+  adding a duplicate,
+- turning **Enable Reminders** off cancels the pending alarms *and* clears reminders already in
+  the shade,
+- exact alarms are used when Android allows them (Android 12+); otherwise the app falls back to
+  inexact alarms rather than dropping the reminder,
+- sound and vibration live in separate channels (`Prayer Reminders (Silent)` and
+  `Prayer Reminders — <sound name>`), because from Android 8.0 the system reads both from the
+  channel rather than the individual notification. Changing the sound or vibration creates the
+  new channel and deletes the superseded ones.
 
 ## Azaan (reminder sound)
 
@@ -144,7 +146,8 @@ Every prayer card can be **long pressed** to set its time by hand:
 - the custom time is shown next to the calculated one, the calculated time stays visible but
   is dimmed, the card is marked with a `CUSTOM` badge,
 - the custom time is the one the countdown, the next-prayer line and the reminder alarm use,
-- the times survive a restart and can be removed again with **RESET** in the same dialog.
+- the times survive a restart and can be removed again: long press the card and choose
+  **Reset to calculated**.
 
 ## Permissions
 

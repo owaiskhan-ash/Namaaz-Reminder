@@ -17,8 +17,11 @@ import com.example.data.model.PrayerScheduleData
 import com.example.data.model.UserSettings
 
 object PrayerNotificationManager {
-    /** Prefix retained for compatibility with the original channel ID. */
-    const val CHANNEL_ID = "namaz_prayer_reminders_channel"
+    /**
+     * Every channel the app creates is named `<prefix>_<sound>_<vibration>`.
+     * The sound and vibration toggles are baked into the channel, so changing
+     * either creates a new channel; the old ones are deleted on creation.
+     */
     private const val CHANNEL_ID_PREFIX = "namaz_prayer_reminders"
     const val ACTION_PRAYER_REMINDER = "com.example.namaztimes.ACTION_PRAYER_REMINDER"
 
@@ -55,6 +58,15 @@ object PrayerNotificationManager {
             setSound(soundUri, audioAttributes)
         }
         notificationManager.createNotificationChannel(channel)
+
+        // Deleting a channel's settings is not possible, so when the sound or
+        // vibration preference changes a new channel is needed. Remove the
+        // channels those earlier choices created, otherwise the app's entry in
+        // the system notification settings fills up with stale duplicates.
+        notificationManager.notificationChannels
+            .map { it.id }
+            .filter { it.startsWith("${CHANNEL_ID_PREFIX}_") && it != channelId }
+            .forEach(notificationManager::deleteNotificationChannel)
     }
 
     private fun channelIdFor(settings: UserSettings, soundUri: Uri?): String {
@@ -120,7 +132,7 @@ object PrayerNotificationManager {
                     )
 
                     try {
-                        if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (canExact) {
                             alarmManager.setExactAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
                                 triggerAt,

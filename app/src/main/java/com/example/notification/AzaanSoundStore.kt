@@ -160,6 +160,7 @@ object AzaanSoundStore {
         }
     }
 
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
     private fun saveToMediaStore(
         context: Context,
         input: InputStream,

@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -157,7 +158,7 @@ fun NamazScreen(
         }
     }
 
-    fun showPrayerTimePicker(prayer: PrayerItem) {
+    fun showTimePicker(prayer: PrayerItem) {
         val currentTime = prayer.customTime ?: prayer.rawTime
         val parts = currentTime.split(":")
         val hour = parts.getOrNull(0)?.toIntOrNull()?.coerceIn(0, 23) ?: 12
@@ -171,6 +172,28 @@ fun NamazScreen(
             minute,
             uiState.settings.is24HourFormat
         ).show()
+    }
+
+
+    // Long press a card to set a custom time. When one is already set, offer to
+    // change or clear it - otherwise a custom time could never be undone.
+    fun showPrayerTimePicker(prayer: PrayerItem) {
+        if (prayer.customTime == null) {
+            showTimePicker(prayer)
+            return
+        }
+        AlertDialog.Builder(context)
+            .setTitle("${prayer.type.englishName} — custom time")
+            .setMessage(
+                "The calculated time today is " +
+                    prayer.defaultDisplayTime(uiState.settings.is24HourFormat) + "."
+            )
+            .setPositiveButton("Change time") { _, _ -> showTimePicker(prayer) }
+            .setNeutralButton("Reset to calculated") { _, _ ->
+                viewModel.clearCustomPrayerTime(prayer.type.name)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     Scaffold(
