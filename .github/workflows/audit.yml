@@ -1,0 +1,71 @@
+name: Audit
+
+# Pre-publish audit: runs the Android linter and the unit tests, then commits
+# the text reports back to the repository so they can be reviewed without
+# downloading artifacts.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'audit/trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    name: Lint + tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run lint
+        # --continue so the report is produced even when lint finds errors.
+        run: |
+          set -o pipefail
+          ./gradlew lintDebug --continue 2>&1 | tail -60 || true
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --continue 2>&1 | tail -40 || true
+
+      - name: Collect reports
+        if: always()
+        run: |
+          set -uo pipefail
+          mkdir -p audit/output
+          for f in app/build/reports/lint-results-debug.txt \
+                   app/build/reports/lint-results-debug.xml \
+                   app/build/reports/lint-results-debug.html; do
+            [ -f "$f" ] && cp "$f" audit/output/
+          done
+          # A compact, readable summary of every lint issue.
+          if [ -f app/build/reports/lint-results-debug.txt ]; then
+            cp app/build/reports/lint-results-debug.txt audit/output/lint-summary.txt
+          fi
+          ls -la audit/output || true
+
+      - name: Commit the reports
+        if: always()
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f audit/output
+          if git diff --cached --quiet; then
+            echo "No report changes."
+          else
+            git commit -m "chore(audit): lint and test reports for ${GITHUB_SHA::8}"
+            git push
+          fi
