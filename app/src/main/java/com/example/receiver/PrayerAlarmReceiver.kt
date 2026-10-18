@@ -3,6 +3,7 @@ package com.example.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.example.data.local.PreferencesManager
 import com.example.notification.AlarmRescheduler
 import com.example.notification.PrayerNotificationManager
 import kotlinx.coroutines.CoroutineScope
@@ -10,10 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Fires the prayer reminder notification, then re-arms the remaining and
- * next-day alarms. The re-arm step is what keeps reminders going daily:
- * the scheduled alarms are one-shot, so without it reminders would stop
- * after the last alarm of the day unless the user reopened the app.
+ * Fires a prayer reminder notification, then re-arms the remaining and
+ * next-day alarms. The re-arm step keeps reminders going day after day.
  */
 class PrayerAlarmReceiver : BroadcastReceiver() {
 
@@ -21,27 +20,26 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         if (intent == null) return
 
         val appContext = context.applicationContext
-
+        val settings = PreferencesManager(appContext).loadSettings()
         val prayerName = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_NAME) ?: "Prayer"
         val prayerTime = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_TIME) ?: ""
         val city = intent.getStringExtra(PrayerNotificationManager.EXTRA_CITY) ?: "India"
-        val offset = intent.getIntExtra(PrayerNotificationManager.EXTRA_OFFSET, 5)
-        val sound = intent.getBooleanExtra(PrayerNotificationManager.EXTRA_SOUND, true)
-        val vibrate = intent.getBooleanExtra(PrayerNotificationManager.EXTRA_VIBRATE, true)
+        val offset = intent.getIntExtra(PrayerNotificationManager.EXTRA_OFFSET, settings.reminderOffsetMinutes)
 
-        // 1) Show the reminder immediately (fast, synchronous).
-        PrayerNotificationManager.showPrayerNotification(
-            context = appContext,
-            prayerName = prayerName,
-            prayerTime = prayerTime,
-            city = city,
-            offsetMinutes = offset,
-            soundEnabled = sound,
-            vibrateEnabled = vibrate,
-            isTest = false
-        )
+        // Settings are read at delivery time so a changed Azaan or sound preference is
+        // applied even if an older one-shot PendingIntent happened to be in flight.
+        if (settings.notificationsEnabled) {
+            PrayerNotificationManager.showPrayerNotification(
+                context = appContext,
+                prayerName = prayerName,
+                prayerTime = prayerTime,
+                city = city,
+                offsetMinutes = offset,
+                settings = settings,
+                isTest = false
+            )
+        }
 
-        // 2) Re-arm upcoming alarms (kept alive via goAsync while this runs).
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {

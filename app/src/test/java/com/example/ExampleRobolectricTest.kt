@@ -40,7 +40,11 @@ class ExampleRobolectricTest {
             soundEnabled = false,
             vibrationEnabled = true,
             is24HourFormat = true,
-            mutedPrayerNames = setOf("ASR")
+            mutedPrayerNames = setOf("ASR"),
+            customPrayerTimes = mapOf("2026-10-18|mumbai|FAJR" to "05:20"),
+            azaanSoundId = "custom",
+            customAzaanName = "My Azaan",
+            customAzaanUri = "content://media/audio/42"
         )
 
         prefs.saveSettings(testSettings)
@@ -53,6 +57,10 @@ class ExampleRobolectricTest {
         assertEquals(false, loaded.soundEnabled)
         assertEquals(true, loaded.is24HourFormat)
         assertTrue(loaded.mutedPrayerNames.contains("ASR"))
+        assertEquals(mapOf("2026-10-18|mumbai|FAJR" to "05:20"), loaded.customPrayerTimes)
+        assertEquals("custom", loaded.azaanSoundId)
+        assertEquals("My Azaan", loaded.customAzaanName)
+        assertEquals("content://media/audio/42", loaded.customAzaanUri)
     }
 
     @Test
