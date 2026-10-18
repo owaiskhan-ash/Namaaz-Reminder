@@ -54,15 +54,14 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         startCountdownTicker()
     }
 
-    fun loadTimings(city: String, methodId: Int, forceRefresh: Boolean = false) {
+    fun loadTimings(city: String, methodId: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val currentSettings = _uiState.value.settings
             val result = repository.getPrayerSchedule(
                 city = city,
                 methodId = methodId,
-                mutedPrayers = currentSettings.mutedPrayerNames,
-                forceRefresh = forceRefresh
+                mutedPrayers = currentSettings.mutedPrayerNames
             )
 
             result.fold(
@@ -85,10 +84,15 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 },
                 onFailure = { error ->
+                    val message = error.localizedMessage ?: "Failed to load prayer times."
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = error.localizedMessage ?: "Failed to load prayer times."
+                            errorMessage = message,
+                            // The full-screen error state only renders when there is no
+                            // schedule to show; surface failures as a snackbar instead so
+                            // refresh errors are never silent.
+                            toastMessage = if (it.schedule != null) message else it.toastMessage
                         )
                     }
                 }
@@ -98,7 +102,18 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refresh() {
         val current = _uiState.value
-        loadTimings(current.settings.selectedCity, current.settings.methodId, forceRefresh = true)
+        loadTimings(current.settings.selectedCity, current.settings.methodId)
+    }
+
+    /**
+     * Re-arms alarms from the current schedule + settings. Used when a relevant
+     * permission (e.g. SCHEDULE_EXACT_ALARM) was just granted, so pending
+     * inexact alarms are upgraded to exact ones without a network refresh.
+     */
+    fun rescheduleAlarms() {
+        val state = _uiState.value
+        val schedule = state.schedule ?: return
+        PrayerNotificationManager.schedulePrayerAlarms(getApplication(), schedule, state.settings)
     }
 
     fun onSearchQueryChange(query: String) {

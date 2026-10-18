@@ -49,6 +49,18 @@ object PrayerNotificationManager {
         }
     }
 
+    /**
+     * Whether the app is currently allowed to schedule exact alarms.
+     * Android 12+ (API 31+) requires SCHEDULE_EXACT_ALARM to be granted by the user
+     * (denied by default on Android 14+ for fresh installs of apps targeting 33+).
+     */
+    fun canScheduleExactAlarms(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            ?: return false
+        return alarmManager.canScheduleExactAlarms()
+    }
+
     fun schedulePrayerAlarms(
         context: Context,
         schedule: PrayerScheduleData,
@@ -62,6 +74,7 @@ object PrayerNotificationManager {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
         val now = System.currentTimeMillis()
         val offsetMillis = settings.reminderOffsetMinutes * 60 * 1000L
+        val canExact = canScheduleExactAlarms(context)
 
         createNotificationChannel(context)
 
@@ -88,13 +101,16 @@ object PrayerNotificationManager {
                     )
 
                     try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             alarmManager.setExactAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
                                 triggerAt,
                                 pendingIntent
                             )
                         } else {
+                            // SCHEDULE_EXACT_ALARM not granted (or pre-M device):
+                            // fall back to an inexact alarm so a reminder still fires,
+                            // albeit possibly delayed by system batching/Doze.
                             alarmManager.set(
                                 AlarmManager.RTC_WAKEUP,
                                 triggerAt,
@@ -102,7 +118,7 @@ object PrayerNotificationManager {
                             )
                         }
                     } catch (e: SecurityException) {
-                        // In case SCHEDULE_EXACT_ALARM is not granted, fallback to normal set
+                        // Defensive: some OEM builds throw even when the check above passed.
                         alarmManager.set(
                             AlarmManager.RTC_WAKEUP,
                             triggerAt,
@@ -181,7 +197,10 @@ object PrayerNotificationManager {
         }
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_app_icon)
+            // Small icons are rendered using only the alpha channel; the app logo PNG
+            // (opaque RGB) would show as a solid white square, so use the dedicated
+            // monochrome mosque silhouette vector instead.
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))

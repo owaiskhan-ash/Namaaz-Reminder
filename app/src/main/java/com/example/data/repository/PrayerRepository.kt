@@ -9,9 +9,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
@@ -26,15 +24,24 @@ class PrayerRepository(
         .build()
 ) {
 
+    /**
+     * Fetches today's prayer schedule, always trying the network first and
+     * falling back to the locally cached payload when offline.
+     *
+     * Note on cache staleness: cached payloads are re-anchored to the current
+     * day when parsed (see [parseJsonResponse]), so timings can be off by a
+     * minute or two if the cache is several days old. [PrayerScheduleData]
+     * carries `isOfflineCache`/`cachedAtMillis` so the UI can surface the
+     * cache age to the user.
+     */
     suspend fun getPrayerSchedule(
         city: String,
         methodId: Int,
-        mutedPrayers: Set<String> = emptySet(),
-        forceRefresh: Boolean = false
+        mutedPrayers: Set<String> = emptySet()
     ): Result<PrayerScheduleData> = withContext(Dispatchers.IO) {
         val cleanCity = city.trim().ifEmpty { "Delhi" }
 
-        // Try network request if not forced offline
+        // Try network request first
         var networkException: Exception? = null
         try {
             val encodedCity = java.net.URLEncoder.encode(cleanCity, "UTF-8")
@@ -140,7 +147,6 @@ class PrayerRepository(
             return parts.firstOrNull() ?: raw
         }
 
-        val nowCal = Calendar.getInstance(tz)
         val nowMillis = System.currentTimeMillis()
 
         // Create prayer items

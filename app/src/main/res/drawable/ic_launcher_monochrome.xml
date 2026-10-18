@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Monochrome (themed icon) layer for the adaptive launcher icon.
+    Wraps the 24dp mosque silhouette at the 66dp safe-zone size used by
+    the other adaptive-icon layers. The launcher recolors this layer, so
+    it must stay a single-color shape on a transparent background.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="66dp"
+        android:height="66dp"
+        android:drawable="@drawable/ic_notification"
+        android:gravity="center" />
+</layer-list>
