@@ -45,6 +45,7 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<NamazUiState> = _uiState.asStateFlow()
 
     private var countdownJob: Job? = null
+    private var lastExpiredPrayerRefreshMillis: Long? = null
 
     init {
         val initialSettings = preferencesManager.loadSettings()
@@ -293,11 +294,16 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         val diffMillis = next.targetEpochMillis - now
 
         if (diffMillis <= 0) {
-            // Target prayer passed! Reload schedule to advance to next
-            loadTimings(_uiState.value.settings.selectedCity, _uiState.value.settings.methodId)
+            // The ticker runs every second; request a refresh only once for this
+            // expired prayer so a slow or failed request cannot spawn a request storm.
+            if (lastExpiredPrayerRefreshMillis != next.targetEpochMillis) {
+                lastExpiredPrayerRefreshMillis = next.targetEpochMillis
+                loadTimings(_uiState.value.settings.selectedCity, _uiState.value.settings.methodId)
+            }
             return
         }
 
+        lastExpiredPrayerRefreshMillis = null
         val totalSeconds = diffMillis / 1000
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
