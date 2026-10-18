@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Adaptive-icon background: the same near-black, gently top-lit box the
+    legacy PNG icons use, so the launcher mark looks identical on every
+    Android version. Keep in sync with design/nr_monogram.py (BOX_TOP/BOX_BOTTOM).
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#000000"
-        android:pathData="M0,0h108v108h-108z" />
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="0"
+                android:endY="108"
+                android:startColor="#FF1E1E1E"
+                android:endColor="#FF121212" />
+        </aapt:attr>
+    </path>
 </vector>

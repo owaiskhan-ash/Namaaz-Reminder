@@ -1,13 +1,13 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -50,23 +50,23 @@ fun NamazTopBar(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // App icon badge
+        // App mark: the NR monogram debossed on a black tile. The tile is a
+        // self-contained asset, so it reads the same in the light and dark theme.
         Box(
             modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.onBackground)
+                .size(34.dp)
+                .clip(RoundedCornerShape(9.dp))
                 .border(
                     1.dp,
                     MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(8.dp)
+                    RoundedCornerShape(9.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_app_icon),
-                contentDescription = "App Logo",
-                modifier = Modifier.size(24.dp)
+                contentDescription = "Namaaz Reminder logo",
+                modifier = Modifier.fillMaxSize()
             )
         }
 

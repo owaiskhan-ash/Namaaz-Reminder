@@ -10,7 +10,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Light / dark / system theme, and a settings sheet for muted prayers, reminder lead time and
   calculation method.
 
-Current version: **1.2** (`versionCode` 3).
+Current version: **1.3** (`versionCode` 4).
 
 ## Getting the APKs
 
@@ -33,7 +33,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.2-release.apk
+adb install -r NamaazReminder-1.3-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
@@ -60,6 +60,28 @@ The `release` build type signs with the `upload` key alias, configured in
 CI derives the `upload` alias from the committed, publicly known `debug.keystore`, so the release
 APK keeps a stable signature across builds. For a Play Store upload, point `KEYSTORE_PATH` at your
 own upload key instead.
+
+## Brand
+
+The app mark is an **NR** monogram debossed into a black box — the same
+monochrome language as the rest of the app.
+
+- `design/nr_monogram.py` generates every icon asset from geometry (no font
+  dependency, so the letterforms never shift between machines):
+  `mipmap-*/ic_launcher(.png|_round.png)`, `drawable/ic_app_icon.png`,
+  `drawable/ic_launcher_foreground_mark.png` and the themed-icon vector
+  `drawable/ic_launcher_monochrome.xml`.
+- The recess is built the way light actually behaves: the tile is a subtly
+  top-lit `#1E1E1E → #121212` box, the letters sit in pure black below it, the
+  upper inner wall stays in shadow and the lower one catches a thin highlight.
+- The in-app header shows the same tile (`ic_app_icon`), not the old mosque mark.
+
+Regenerate after changing any metric:
+
+```bash
+pip install pillow
+python3 design/nr_monogram.py    # rewrites the res/ assets + design/preview/
+```
 
 ## Project layout
 
