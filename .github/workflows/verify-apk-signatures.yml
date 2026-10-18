@@ -1,0 +1,65 @@
+name: Verify APK signatures
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Compare the signing certificates of the published APKs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Download the published APKs
+        run: |
+          set -euo pipefail
+          mkdir -p apks
+          cd apks
+          for name in NamaazReminder-1.0-debug.apk NamaazReminder-1.0-release.apk \
+                      NamaazReminder-1.1-debug.apk NamaazReminder-1.1-release.apk; do
+            curl -sSL -o "$name" \
+              "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/apk-latest/$name"
+          done
+          ls -lh
+
+      - name: Print the certificate of every APK
+        run: |
+          set -uo pipefail
+          BUILD_TOOLS="$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* | sort -V | tail -1)"
+          {
+            echo "# APK signature report"
+            echo
+            for apk in apks/*.apk; do
+              echo "## $(basename "$apk")"
+              echo
+              echo '```'
+              "$BUILD_TOOLS"/apksigner verify --print-certs "$apk" 2>&1 \
+                | grep -E "Signer #1 certificate (DN|SHA-256 digest)" || true
+              echo '```'
+              echo
+            done
+          } > signature-report.md
+          cat signature-report.md
+
+      - name: Publish the report to the `apk-signature-check` branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f apks/*.apk
+          git add -f signature-report.md
+          git commit -q -m "docs: APK signature report"
+          git push --force origin HEAD:refs/heads/apk-signature-check
