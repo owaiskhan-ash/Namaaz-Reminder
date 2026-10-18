@@ -51,7 +51,16 @@ Requires JDK 21 and the Android SDK (compileSdk 36, minSdk 24).
 ```
 
 The `release` build type signs with the `upload` key alias, configured in
-`app/build.gradle.kts`. Provide it through the environment:
+`app/build.gradle.kts`.
+
+CI uses the Play upload key from repository secrets — `KEYSTORE_BASE64`
+(base64 of the PKCS12 keystore), `STORE_PASSWORD` and `KEY_PASSWORD`. When
+those secrets are present it also builds `NamaazReminder-<version>-release.aab`
+for the Play Console; without them it builds only the APKs, signed with the
+debug key, so a build can never silently publish a bundle signed by the wrong
+key.
+
+For a local build, provide the key through the environment:
 
 | Variable | Meaning |
 | --- | --- |

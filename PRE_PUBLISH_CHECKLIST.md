@@ -25,11 +25,14 @@ suggestions, 9 KTX style hints, 1 target-SDK notice.
 1. **Package name** — currently `com.aistudio.namaztimes.vxqpl`. The
    `applicationId` is permanent once published; change it now if a different
    name is wanted.
-2. **Signing key** — CI signs the release build with the *committed debug
-   key* (`debug.keystore`, password `android`), which is fine for side-loading
-   but must not be the upload key for a store listing. Generate a private
-   keystore, store it as a secret, and set `KEYSTORE_PATH`, `STORE_PASSWORD`
-   and `KEY_PASSWORD`. Enrol in **Play App Signing**.
+2. **Signing key** — *done*: a dedicated upload key exists
+   (`namaaz-upload-key.jks`, alias `upload`, PKCS12, 4096-bit RSA, valid to
+   2054). Add it to the repository as the `KEYSTORE_BASE64`,
+   `STORE_PASSWORD` and `KEY_PASSWORD` secrets — the workflow then builds and
+   publishes a `.aab` signed with it. Until the secrets exist the workflow
+   keeps signing the APKs with the committed debug key and builds **no**
+   bundle, so a throwaway key can never become the Play upload key.
+   Enrol in **Play App Signing** on the first upload.
 3. **Upload format** — Play accepts the **AAB** now produced by CI
    (`NamaazReminder-<version>-release.aab`), not the APK.
 4. **Exact alarms** — `SCHEDULE_EXACT_ALARM` is a restricted permission. Fill
