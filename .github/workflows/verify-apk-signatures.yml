@@ -40,17 +40,29 @@ jobs:
       - name: Print the certificate of every APK
         run: |
           set -uo pipefail
-          BUILD_TOOLS="$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* | sort -V | tail -1)"
+          SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(ls -1 "$SDK"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1)"
+          if [ -z "$APKSIGNER" ]; then
+            APKSIGNER="$(command -v apksigner || true)"
+          fi
+          echo "Using apksigner: ${APKSIGNER:-<not found>}"
           {
             echo "# APK signature report"
+            echo
+            echo "apksigner: ${APKSIGNER:-<not found>}"
             echo
             for apk in apks/*.apk; do
               echo "## $(basename "$apk")"
               echo
               echo '```'
-              "$BUILD_TOOLS"/apksigner verify --print-certs "$apk" 2>&1 \
-                | grep -E "Signer #1 certificate (DN|SHA-256 digest)" || true
+              if [ -n "${APKSIGNER:-}" ]; then
+                "$APKSIGNER" verify --print-certs "$apk" 2>&1 || echo "(apksigner exited non-zero)"
+              else
+                echo "(apksigner not available)"
+              fi
               echo '```'
+              echo
+              echo "sha256 of the APK file: $(sha256sum "$apk" | cut -d' ' -f1)"
               echo
             done
           } > signature-report.md
