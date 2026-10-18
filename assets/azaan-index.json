@@ -1,0 +1,11 @@
+{
+  "baseUrl": "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/",
+  "sounds": [
+    {
+      "file": "Madinah Azaan.mp3",
+      "url": "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3",
+      "size": 9130702,
+      "contentType": "audio/mpeg"
+    }
+  ]
+}
