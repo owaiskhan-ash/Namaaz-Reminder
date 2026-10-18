@@ -148,6 +148,21 @@ object AzaanManager {
         previewPlayer = null
     }
 
+    /** Checks that the file behind a stored uri is still on the device. */
+    private fun isStillOnDevice(context: Context, uriString: String): Boolean {
+        val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return false
+        return try {
+            when (uri.scheme) {
+                ContentResolver.SCHEME_CONTENT ->
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use { true } ?: false
+                ContentResolver.SCHEME_FILE -> uri.path?.let { File(it).exists() } ?: false
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     private fun saveToDevice(context: Context, azaan: AzaanSound, source: File): Uri? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return saveToMediaStore(context, azaan, source)
