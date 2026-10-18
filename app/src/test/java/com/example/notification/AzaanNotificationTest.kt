@@ -81,7 +81,7 @@ class AzaanNotificationTest {
 
         assertNotNull(channel)
         // The azaan is set on the notification itself, the channel stays silent.
-        assertNull(channel.sound)
+        assertNull(channel!!.sound)
     }
 
     @Test

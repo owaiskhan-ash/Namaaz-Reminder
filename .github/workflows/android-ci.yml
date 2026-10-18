@@ -45,7 +45,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest --stacktrace
+        # The output is kept in a file, so a compile error can be published on
+        # the release page together with the test summary.
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --stacktrace 2>&1 | tee gradle-test.log
 
       - name: Summarise the unit test run
         # The summary is published on the `apk-latest` release page and on the
@@ -83,6 +87,14 @@ jobs:
               echo '```'
             else
               echo "No test report was produced."
+            fi
+            if [ -f gradle-test.log ]; then
+              echo
+              echo "## Build errors"
+              echo
+              echo '```'
+              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following" gradle-test.log | head -40
+              echo '```'
             fi
           } > test-summary.md
           cat test-summary.md
