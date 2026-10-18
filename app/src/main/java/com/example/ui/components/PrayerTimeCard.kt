@@ -1,8 +1,10 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,11 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.PrayerItem
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PrayerTimeCard(
     prayer: PrayerItem,
     use24Hour: Boolean,
     onToggleReminder: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isNext = prayer.isNext
@@ -64,6 +68,11 @@ fun PrayerTimeCard(
             .clip(RoundedCornerShape(14.dp))
             .background(cardBackground)
             .border(borderWidth, cardBorder, RoundedCornerShape(14.dp))
+            // Long pressing a prayer lets the user set its time by hand.
+            .combinedClickable(
+                onClick = { },
+                onLongClick = { onLongClick?.invoke() }
+            )
             .padding(horizontal = 16.dp, vertical = 14.dp)
             .testTag("prayer_card_${prayer.type.name}"),
         contentAlignment = Alignment.Center
@@ -104,6 +113,25 @@ fun PrayerTimeCard(
                             ),
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = textAlpha)
                         )
+
+                        if (prayer.hasCustomTime) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "CUSTOM",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.surface
+                                )
+                            }
+                        }
 
                         if (isNext) {
                             Spacer(modifier = Modifier.width(8.dp))
@@ -152,13 +180,28 @@ fun PrayerTimeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = prayer.displayTime(use24Hour),
+                    text = prayer.effectiveTime(use24Hour),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = if (isNext) FontWeight.Bold else FontWeight.SemiBold,
                         fontSize = 17.sp
                     ),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = textAlpha)
                 )
+
+                if (prayer.hasCustomTime) {
+                    // The calculated time stays visible, but dimmed.
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = prayer.defaultTime(use24Hour),
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            alpha = 0.55f * textAlpha
+                        )
+                    )
+                }
 
                 if (prayer.type.isPrimaryPrayer) {
                     Spacer(modifier = Modifier.width(10.dp))

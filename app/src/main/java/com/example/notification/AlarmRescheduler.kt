@@ -42,7 +42,8 @@ object AlarmRescheduler {
             repository.getPrayerSchedule(
                 city = settings.selectedCity,
                 methodId = settings.methodId,
-                mutedPrayers = settings.mutedPrayerNames
+                mutedPrayers = settings.mutedPrayerNames,
+                customTimes = settings.customPrayerTimes
             )
         }?.getOrNull()
 
@@ -63,7 +64,8 @@ object AlarmRescheduler {
                             methodId = settings.methodId,
                             mutedPrayers = settings.mutedPrayerNames,
                             isOffline = true,
-                            cacheTime = cachedAt
+                            cacheTime = cachedAt,
+                            customTimes = settings.customPrayerTimes
                         )
                     }.getOrNull()
                 }

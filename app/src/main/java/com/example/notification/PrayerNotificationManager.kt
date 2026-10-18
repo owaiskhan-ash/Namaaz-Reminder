@@ -8,10 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.MainActivity
 import com.example.R
+import com.example.data.model.AzaanCatalogue
 import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerScheduleData
 import com.example.data.model.PrayerType
@@ -53,6 +55,7 @@ object PrayerNotificationManager {
     const val EXTRA_PRAYER_EPOCH = "extra_prayer_epoch"
     const val EXTRA_NEXT_PRAYER = "extra_next_prayer"
     const val EXTRA_NEXT_PRAYER_TIME = "extra_next_prayer_time"
+    const val EXTRA_AZAAN_URI = "extra_azaan_uri"
 
     /** First id used by the per-prayer reminder notifications. */
     private const val NOTIFICATION_ID_BASE = 2100
@@ -226,27 +229,35 @@ object PrayerNotificationManager {
         // (re)armed, so only the current day's reminders remain in the shade.
         pruneStaleNotifications(context)
 
+        // The azaan that should play with the reminder, if one is selected and
+        // it is already saved on the device.
+        val azaanUri = settings.selectedAzaanId
+            ?.let { AzaanCatalogue.byId(it) }
+            ?.let { AzaanManager.notificationUri(context, it) }
+
         val primaryPrayers = schedule.prayers.filter { it.type.isPrimaryPrayer }
         primaryPrayers.forEachIndexed { index, prayer ->
             if (!settings.mutedPrayerNames.contains(prayer.type.name)) {
-                val triggerAt = prayer.targetEpochMillis + offsetMillis
+                // A time the user set by hand is the one the reminder follows.
+                val triggerAt = prayer.effectiveEpochMillis + offsetMillis
                 val nextPrayer = primaryPrayers.getOrNull(index + 1)
 
                 if (triggerAt > now) {
                     val intent = Intent(context, com.example.receiver.PrayerAlarmReceiver::class.java).apply {
                         action = ACTION_PRAYER_REMINDER
                         putExtra(EXTRA_PRAYER_NAME, prayer.type.englishName)
-                        putExtra(EXTRA_PRAYER_TIME, prayer.displayTime(settings.is24HourFormat))
+                        putExtra(EXTRA_PRAYER_TIME, prayer.effectiveTime(settings.is24HourFormat))
                         putExtra(EXTRA_CITY, schedule.city)
                         putExtra(EXTRA_OFFSET, settings.reminderOffsetMinutes)
                         putExtra(EXTRA_SOUND, settings.soundEnabled)
                         putExtra(EXTRA_VIBRATE, settings.vibrationEnabled)
-                        putExtra(EXTRA_PRAYER_EPOCH, prayer.targetEpochMillis)
+                        putExtra(EXTRA_PRAYER_EPOCH, prayer.effectiveEpochMillis)
                         putExtra(EXTRA_NEXT_PRAYER, nextPrayer?.type?.englishName)
                         putExtra(
                             EXTRA_NEXT_PRAYER_TIME,
-                            nextPrayer?.displayTime(settings.is24HourFormat)
+                            nextPrayer?.effectiveTime(settings.is24HourFormat)
                         )
+                        putExtra(EXTRA_AZAAN_URI, azaanUri?.toString())
                     }
 
                     val pendingIntent = PendingIntent.getBroadcast(
@@ -369,7 +380,8 @@ object PrayerNotificationManager {
         vibrateEnabled: Boolean = true,
         isTest: Boolean = false,
         prayerEpochMillis: Long = 0L,
-        nextPrayerLabel: String? = null
+        nextPrayerLabel: String? = null,
+        azaanUri: Uri? = null
     ) {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
@@ -384,7 +396,8 @@ object PrayerNotificationManager {
             vibrateEnabled = vibrateEnabled,
             isTest = isTest,
             prayerEpochMillis = prayerEpochMillis,
-            nextPrayerLabel = nextPrayerLabel
+            nextPrayerLabel = nextPrayerLabel,
+            azaanUri = azaanUri
         )
 
         val notificationId = if (isTest) TEST_NOTIFICATION_ID else notificationIdFor(prayerName)
@@ -413,7 +426,8 @@ object PrayerNotificationManager {
         vibrateEnabled: Boolean = true,
         isTest: Boolean = false,
         prayerEpochMillis: Long = 0L,
-        nextPrayerLabel: String? = null
+        nextPrayerLabel: String? = null,
+        azaanUri: Uri? = null
     ): android.app.Notification {
         createNotificationChannel(context)
 
@@ -447,10 +461,17 @@ object PrayerNotificationManager {
             }
         }
 
-        val builder = NotificationCompat.Builder(
-            context,
+        // When an azaan is used it is set on the notification itself, so the
+        // channel has to stay silent - the system only plays the sound of a
+        // notification when its channel does not define one.
+        val useAzaan = azaanUri != null && soundEnabled
+        val channelId = if (useAzaan) {
+            if (vibrateEnabled) CHANNEL_ID_VIBRATE_ONLY else CHANNEL_ID_SILENT
+        } else {
             channelIdFor(soundEnabled = soundEnabled, vibrateEnabled = vibrateEnabled)
-        )
+        }
+
+        val builder = NotificationCompat.Builder(context, channelId)
             // Small icons are rendered using only the alpha channel; the app logo PNG
             // (opaque RGB) would show as a solid white square, so use the dedicated
             // monochrome mosque silhouette vector instead.
@@ -475,7 +496,9 @@ object PrayerNotificationManager {
             builder.setWhen(prayerEpochMillis).setShowWhen(true)
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        if (useAzaan) {
+            builder.setSound(azaanUri)
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             // From Android 8.0 onwards the channel decides; see createNotificationChannel.
             if (soundEnabled) {
                 builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))

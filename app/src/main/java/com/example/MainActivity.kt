@@ -15,6 +15,7 @@ import com.example.notification.PrayerNotificationManager
 import com.example.ui.NamazScreen
 import com.example.ui.NamazViewModel
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.theme.isDarkThemeActive
 
 class MainActivity : ComponentActivity() {
 
@@ -33,11 +34,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val isDarkTheme = when (uiState.settings.themeMode) {
-                "DARK" -> true
-                "LIGHT" -> false
-                else -> isSystemInDarkTheme()
-            }
+            val isDarkTheme = isDarkThemeActive(
+                themeMode = uiState.settings.themeMode,
+                systemInDarkTheme = isSystemInDarkTheme()
+            )
 
             MyApplicationTheme(darkTheme = isDarkTheme) {
                 Surface(modifier = Modifier.fillMaxSize()) {

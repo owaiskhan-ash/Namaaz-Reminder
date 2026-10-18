@@ -3,6 +3,7 @@ package com.example.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.example.notification.AlarmRescheduler
 import com.example.notification.PrayerNotificationManager
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +37,10 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             nextPrayerTime.isNullOrBlank() -> nextPrayer
             else -> "$nextPrayer at $nextPrayerTime"
         }
+        // The azaan that was saved on the device when the alarm was armed.
+        val azaanUri = intent.getStringExtra(PrayerNotificationManager.EXTRA_AZAAN_URI)
+            ?.takeIf { it.isNotBlank() }
+            ?.let { runCatching { Uri.parse(it) }.getOrNull() }
 
         // 1) Show the reminder immediately (fast, synchronous).
         PrayerNotificationManager.showPrayerNotification(
@@ -48,7 +53,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             vibrateEnabled = vibrate,
             isTest = false,
             prayerEpochMillis = prayerEpoch,
-            nextPrayerLabel = nextPrayerLabel
+            nextPrayerLabel = nextPrayerLabel,
+            azaanUri = azaanUri
         )
 
         // 2) Re-arm upcoming alarms (kept alive via goAsync while this runs).

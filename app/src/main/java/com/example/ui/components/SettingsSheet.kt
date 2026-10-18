@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -44,10 +48,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.AzaanSound
 import com.example.data.model.CALCULATION_METHODS
 import com.example.data.model.CalculationMethod
 import com.example.data.model.UserSettings
@@ -69,6 +75,10 @@ fun SettingsSheet(
     onToggleVibration: (Boolean) -> Unit,
     onToggle24Hour: (Boolean) -> Unit,
     onSelectTheme: (String) -> Unit,
+    azaans: List<AzaanSound>,
+    onSelectAzaan: (String?) -> Unit,
+    onDownloadAzaan: (String) -> Unit,
+    onPreviewAzaan: (String) -> Unit,
     onSendTestNotification: () -> Unit,
     onClearCache: () -> Unit,
     modifier: Modifier = Modifier
@@ -362,6 +372,47 @@ fun SettingsSheet(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Azaan picker
+                Text(
+                    text = "Azaan (Reminder Sound)",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Pick the azaan that plays with the reminder. It is saved on this device the first time it is used.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                AzaanOptionRow(
+                    title = "Default system sound",
+                    subtitle = "Use the notification sound of the phone",
+                    isSelected = settings.selectedAzaanId == null,
+                    isDownloaded = true,
+                    isDownloading = false,
+                    hasFailed = false,
+                    onSelect = { onSelectAzaan(null) },
+                    onDownload = { },
+                    onPreview = { }
+                )
+
+                azaans.forEach { azaan ->
+                    AzaanOptionRow(
+                        title = azaan.displayName,
+                        subtitle = azaan.statusLabel,
+                        isSelected = settings.selectedAzaanId == azaan.id,
+                        isDownloaded = azaan.isDownloaded,
+                        isDownloading = azaan.isDownloading,
+                        hasFailed = azaan.hasFailed,
+                        onSelect = { onSelectAzaan(azaan.id) },
+                        onDownload = { onDownloadAzaan(azaan.id) },
+                        onPreview = { onPreviewAzaan(azaan.id) }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Test Notification Button
@@ -507,6 +558,112 @@ fun SettingsSheet(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Clear Offline Cache")
             }
+        }
+    }
+}
+
+@Composable
+private fun AzaanOptionRow(
+    title: String,
+    subtitle: String,
+    isSelected: Boolean,
+    isDownloaded: Boolean,
+    isDownloading: Boolean,
+    hasFailed: Boolean,
+    onSelect: () -> Unit,
+    onDownload: () -> Unit,
+    onPreview: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent)
+            .border(
+                1.dp,
+                if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                RoundedCornerShape(10.dp)
+            )
+            .clickable { onSelect() }
+            .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 10.dp)
+            .testTag("azaan_option_$title"),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Radio button
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .clip(CircleShape)
+                .border(
+                    2.dp,
+                    if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(9.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.onSurface)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                color = if (hasFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Preview the azaan
+        IconButton(
+            onClick = onPreview,
+            enabled = isDownloaded && !isDownloading,
+            modifier = Modifier.testTag("azaan_preview_$title")
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "Play $title",
+                tint = if (isDownloaded) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Download the azaan to the device
+        if (!isDownloaded) {
+            IconButton(
+                onClick = onDownload,
+                enabled = !isDownloading,
+                modifier = Modifier.testTag("azaan_download_$title")
+            ) {
+                Icon(
+                    imageVector = if (isDownloading) Icons.Default.HourglassTop else Icons.Default.Download,
+                    contentDescription = "Download $title",
+                    tint = if (isDownloading) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        } else {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Saved on this device",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(18.dp)
+            )
         }
     }
 }

@@ -37,7 +37,8 @@ class PrayerRepository(
     suspend fun getPrayerSchedule(
         city: String,
         methodId: Int,
-        mutedPrayers: Set<String> = emptySet()
+        mutedPrayers: Set<String> = emptySet(),
+        customTimes: Map<String, String> = emptyMap()
     ): Result<PrayerScheduleData> = withContext(Dispatchers.IO) {
         val cleanCity = city.trim().ifEmpty { "Delhi" }
 
@@ -62,7 +63,8 @@ class PrayerRepository(
                             methodId = methodId,
                             mutedPrayers = mutedPrayers,
                             isOffline = false,
-                            cacheTime = System.currentTimeMillis()
+                            cacheTime = System.currentTimeMillis(),
+                            customTimes = customTimes
                         )
                         // Save to cache
                         preferencesManager.saveCachedScheduleJson(cleanCity, methodId, bodyString)
@@ -84,7 +86,8 @@ class PrayerRepository(
                     methodId = methodId,
                     mutedPrayers = mutedPrayers,
                     isOffline = true,
-                    cacheTime = timestamp
+                    cacheTime = timestamp,
+                    customTimes = customTimes
                 )
                 return@withContext Result.success(cachedSchedule)
             } catch (e: Exception) {
@@ -104,7 +107,8 @@ class PrayerRepository(
         methodId: Int,
         mutedPrayers: Set<String>,
         isOffline: Boolean,
-        cacheTime: Long
+        cacheTime: Long,
+        customTimes: Map<String, String> = emptyMap()
     ): PrayerScheduleData {
         val root = JSONObject(jsonStr)
         val dataObj = root.getJSONObject("data")
@@ -141,12 +145,6 @@ class PrayerRepository(
         val methodName = metaObj?.optJSONObject("method")?.optString("name")
             ?: "Karachi (Univ. of Islamic Sciences)"
 
-        // Clean time strings (e.g. "05:05 (IST)" -> "05:05")
-        fun cleanTime(raw: String): String {
-            val parts = raw.trim().split(" ")
-            return parts.firstOrNull() ?: raw
-        }
-
         val nowMillis = System.currentTimeMillis()
 
         // Create prayer items
@@ -160,66 +158,16 @@ class PrayerRepository(
             PrayerType.ISHA to timingsObj.optString("Isha", "19:15")
         )
 
-        var foundNext = false
-        val prayerItems = mutableListOf<PrayerItem>()
-
-        for ((type, rawVal) in prayerEntries) {
-            val cleaned = cleanTime(rawVal)
-            val (h, m) = parseHoursMinutes(cleaned)
-
-            val pCal = Calendar.getInstance(tz).apply {
-                set(Calendar.HOUR_OF_DAY, h)
-                set(Calendar.MINUTE, m)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
-            val targetMillis = pCal.timeInMillis
-            val isPassed = nowMillis > targetMillis
-
-            val isNext = if (type.isPrimaryPrayer && !isPassed && !foundNext) {
-                foundNext = true
-                true
-            } else {
-                false
-            }
-
-            val formatted12 = format12Hour(h, m)
-            val formatted24 = String.format(Locale.US, "%02d:%02d", h, m)
-
-            prayerItems.add(
-                PrayerItem(
-                    type = type,
-                    rawTime = cleaned,
-                    formattedTime12 = formatted12,
-                    formattedTime24 = formatted24,
-                    targetEpochMillis = targetMillis,
-                    isNext = isNext,
-                    isPassed = isPassed,
-                    notificationEnabled = !mutedPrayers.contains(type.name)
-                )
-            )
-        }
-
-        // If all prayers today passed, Fajr tomorrow is next!
-        if (!foundNext) {
-            val fajrIndex = prayerItems.indexOfFirst { it.type == PrayerType.FAJR }
-            if (fajrIndex != -1) {
-                val oldFajr = prayerItems[fajrIndex]
-                val (fh, fm) = parseHoursMinutes(oldFajr.rawTime)
-                val tomorrowCal = Calendar.getInstance(tz).apply {
-                    add(Calendar.DAY_OF_YEAR, 1)
-                    set(Calendar.HOUR_OF_DAY, fh)
-                    set(Calendar.MINUTE, fm)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }
-                prayerItems[fajrIndex] = oldFajr.copy(
-                    targetEpochMillis = tomorrowCal.timeInMillis,
-                    isNext = true,
-                    isPassed = false
-                )
-            }
-        }
+        val prayerItems = withTomorrowFajrIfNeeded(
+            buildPrayerItems(
+                timeZone = tz,
+                entries = prayerEntries,
+                mutedPrayers = mutedPrayers,
+                customTimes = customTimes,
+                nowMillis = nowMillis
+            ).toMutableList(),
+            timeZone = tz
+        )
 
         return PrayerScheduleData(
             city = city,
@@ -234,6 +182,132 @@ class PrayerRepository(
             cachedAtMillis = cacheTime
         )
     }
+
+    /**
+     * Re-applies the times the user set by hand to an already loaded schedule,
+     * so the countdown and the reminders pick them up immediately.
+     */
+    fun applyCustomTimes(
+        schedule: PrayerScheduleData,
+        customTimes: Map<String, String>
+    ): PrayerScheduleData {
+        val timeZone = TimeZone.getTimeZone(schedule.timezone)
+        val entries = schedule.prayers.map { it.type to it.rawTime }
+        val muted = schedule.prayers.filter { !it.notificationEnabled }.map { it.type.name }.toSet()
+        val items = withTomorrowFajrIfNeeded(
+            buildPrayerItems(
+                timeZone = timeZone,
+                entries = entries,
+                mutedPrayers = muted,
+                customTimes = customTimes,
+                nowMillis = System.currentTimeMillis()
+            ).toMutableList(),
+            timeZone = timeZone
+        )
+        return schedule.copy(prayers = items)
+    }
+
+    /**
+     * Builds the prayer items. A time the user set by hand overrides the
+     * calculated one and is used for the countdown and the reminders.
+     */
+    private fun buildPrayerItems(
+        timeZone: TimeZone,
+        entries: List<Pair<PrayerType, String>>,
+        mutedPrayers: Set<String>,
+        customTimes: Map<String, String>,
+        nowMillis: Long
+    ): List<PrayerItem> {
+        var foundNext = false
+        val items = mutableListOf<PrayerItem>()
+
+        for ((type, rawValue) in entries) {
+            val cleaned = cleanTime(rawValue)
+            val (hour, minute) = parseHoursMinutes(cleaned)
+            val targetMillis = epochFor(timeZone, hour, minute)
+
+            val customRaw = customTimes[type.name]?.trim()
+            var customMillis: Long? = null
+            var custom12: String? = null
+            var custom24: String? = null
+            if (!customRaw.isNullOrEmpty()) {
+                val (customHour, customMinute) = parseHoursMinutes(customRaw)
+                customMillis = epochFor(timeZone, customHour, customMinute)
+                custom12 = format12Hour(customHour, customMinute)
+                custom24 = String.format(Locale.US, "%02d:%02d", customHour, customMinute)
+            }
+
+            val effectiveMillis = customMillis ?: targetMillis
+            val isPassed = nowMillis > effectiveMillis
+            val isNext = if (type.isPrimaryPrayer && !isPassed && !foundNext) {
+                foundNext = true
+                true
+            } else {
+                false
+            }
+
+            items.add(
+                PrayerItem(
+                    type = type,
+                    rawTime = cleaned,
+                    formattedTime12 = format12Hour(hour, minute),
+                    formattedTime24 = String.format(Locale.US, "%02d:%02d", hour, minute),
+                    targetEpochMillis = targetMillis,
+                    isNext = isNext,
+                    isPassed = isPassed,
+                    notificationEnabled = !mutedPrayers.contains(type.name),
+                    customRawTime = customRaw,
+                    customFormattedTime12 = custom12,
+                    customFormattedTime24 = custom24,
+                    customEpochMillis = customMillis
+                )
+            )
+        }
+        return items
+    }
+
+    /** When every prayer of today has passed, tomorrow's Fajr is the next one. */
+    private fun withTomorrowFajrIfNeeded(
+        items: MutableList<PrayerItem>,
+        timeZone: TimeZone
+    ): List<PrayerItem> {
+        if (items.any { it.isNext }) return items
+        val fajrIndex = items.indexOfFirst { it.type == PrayerType.FAJR }
+        if (fajrIndex == -1) return items
+
+        val oldFajr = items[fajrIndex]
+        val (hour, minute) = parseHoursMinutes(oldFajr.customRawTime ?: oldFajr.rawTime)
+        val tomorrowCal = Calendar.getInstance(timeZone).apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val tomorrowMillis = tomorrowCal.timeInMillis
+        items[fajrIndex] = oldFajr.copy(
+            targetEpochMillis = tomorrowMillis,
+            customEpochMillis = if (oldFajr.hasCustomTime) tomorrowMillis else null,
+            isNext = true,
+            isPassed = false
+        )
+        return items
+    }
+
+    /** Cleans time strings (e.g. "05:05 (IST)" -> "05:05"). */
+    private fun cleanTime(raw: String): String {
+        val parts = raw.trim().split(" ")
+        return parts.firstOrNull() ?: raw
+    }
+
+    /** The epoch of the given wall clock time in the given time zone. */
+    private fun epochFor(timeZone: TimeZone, hour: Int, minute: Int): Long =
+        Calendar.getInstance(timeZone).apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
 
     private fun parseHoursMinutes(timeStr: String): Pair<Int, Int> {
         return try {

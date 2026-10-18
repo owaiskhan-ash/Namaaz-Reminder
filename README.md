@@ -66,10 +66,12 @@ app/src/main/java/com/example/
 ├── MainActivity.kt                  # Compose entry point, notification channel setup
 ├── data/
 │   ├── local/PreferencesManager.kt   # DataStore-backed settings + cached schedule
+│   ├── model/AzaanSound.kt          # The azaans the app can play
 │   ├── model/PrayerModels.kt        # Prayer types, schedule data, UI state models
 │   └── repository/PrayerRepository.kt# Aladhan API + offline cache fallback
 ├── notification/
 │   ├── AlarmRescheduler.kt          # Re-arms exact alarms
+│   ├── AzaanManager.kt              # Downloads the azaans, saves them on the device
 │   └── PrayerNotificationManager.kt # Channels, reminders, permission prompts
 ├── receiver/                        # Boot + prayer alarm broadcast receivers
 └── ui/                              # Screen, view model, components, theme
@@ -88,9 +90,31 @@ reminders into one merged group:
   with stale, identical looking reminders,
 - turning **Enable Reminders** off also clears the reminders that are already in the shade,
 - sound and vibration live in separate channels (`Prayer Reminders`, `Prayer Reminders (Sound
-  only)`, `Prayer Reminders (Vibration only)`, `Prayer Reminders (Silent)`) — from Android 8.0
+  only)`, `Prayer Reminders (Azaan)`, `Prayer Reminders (Silent)`) — from Android 8.0
   the system reads both from the channel, not from the individual notification, so a single
   channel cannot honour the sound / vibration toggles.
+
+## Azaan (reminder sound)
+
+The reminder can play a full azaan instead of the short system sound:
+
+- the audio is **not** shipped inside the APK — it is fetched from the public asset bucket the
+  first time it is used and then **saved on the device** (media library on Android 10+, the
+  app's external files folder on older versions), so it also plays when the phone is offline,
+- **Settings → Notifications & reminders → Azaan** lists the available azaans with a
+  *play* and a *download* button, the default system sound stays selectable as well,
+- the picked azaan is stored per device, the reminder plays it through a silent channel and
+  the sound is set on the notification itself, so the sound / vibration toggles keep working,
+- **Send Test Reminder Notification** plays the same azaan, so it can be checked right away.
+
+## Custom prayer times
+
+Every prayer card can be **long pressed** to set its time by hand:
+
+- the custom time is shown next to the calculated one, the calculated time stays visible but
+  is dimmed, the card is marked with a `CUSTOM` badge,
+- the custom time is the one the countdown, the next-prayer line and the reminder alarm use,
+- the times survive a restart and can be removed again with **RESET** in the same dialog.
 
 ## Permissions
 
