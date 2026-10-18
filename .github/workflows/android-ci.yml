@@ -116,28 +116,6 @@ jobs:
           name: NamaazReminder-apks
           path: apk
 
-      - name: Mirror APKs to the `apk-builds` branch
-        # Keeps a fetchable copy of the APKs inside the repository itself so
-        # they can be downloaded straight from the branch page.
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          WORKDIR="$RUNNER_TEMP/apk-branch"
-          rm -rf "$WORKDIR"
-          mkdir -p "$WORKDIR/apk"
-          cp apk/*.apk "$WORKDIR/apk/"
-          cd "$WORKDIR"
-          git init -q -b apk-builds
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -q -m "chore: APK build ${GITHUB_SHA::8}"
-          git push --force \
-            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            apk-builds
-
       - name: Publish to the rolling `apk-latest` release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -161,6 +139,25 @@ jobs:
               --notes "$NOTES" \
               --target "$GITHUB_SHA"
           fi
+
+      - name: Mirror APKs to the `apk-builds` branch
+        # Keeps a fetchable copy of the APKs inside the repository itself so
+        # they can be downloaded straight from the branch page. The push uses
+        # the credentials persisted by actions/checkout, so no token has to be
+        # exported into the environment.
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p apk-build
+          cp apk/*.apk apk-build/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f apk-build
+          git commit -q -m "chore: APK build ${GITHUB_SHA::8}"
+          git push --force origin HEAD:refs/heads/apk-builds
+          git ls-remote --heads origin apk-builds
 
   release:
     name: Publish APK to GitHub Release
