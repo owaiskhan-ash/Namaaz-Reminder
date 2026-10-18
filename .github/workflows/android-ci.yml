@@ -55,6 +55,9 @@ jobs:
         # The summary is published on the `apk-latest` release page and on the
         # `apk-builds` branch, so the outcome of a run can be read without
         # digging through the Actions log.
+        # This step must never fail the build: the greps below legitimately
+        # find nothing when the tests pass, and the default shell runs with
+        # `errexit`, so every grep is guarded with `|| true`.
         if: always()
         run: |
           set -uo pipefail
@@ -68,7 +71,7 @@ jobs:
               echo
               for xml in "$REPORT_DIR"/TEST-*.xml; do
                 [ -e "$xml" ] || continue
-                echo "- \`$(basename "$xml")\` $(grep -o 'tests="[0-9]*"[^>]*' "$xml" | head -1)"
+                echo "- \`$(basename "$xml")\` $(grep -o 'tests="[0-9]*"[^>]*' "$xml" | head -1 || true)"
               done
               echo
               echo "## Failures"
@@ -93,7 +96,7 @@ jobs:
               echo "## Build errors"
               echo
               echo '```'
-              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following" gradle-test.log | head -40
+              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following" gradle-test.log | head -40 || true
               echo '```'
             fi
           } > test-summary.md
