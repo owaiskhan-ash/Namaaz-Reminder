@@ -25,7 +25,7 @@
     <nav class="nav-links">
       <a href="#screens">Screens</a>
       <a href="#features">Features</a>
-      <a href="#privacy">Privacy</a>
+      <a href="privacy.html">Privacy</a>
       <a class="nav-cta" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/tag/apk-latest">Download</a>
     </nav>
   </div>
@@ -44,7 +44,7 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
         Download the APK
       </a>
-      <a class="btn btn-ghost" href="#privacy">Read the privacy policy</a>
+      <a class="btn btn-ghost" href="privacy.html">Read the privacy policy</a>
     </div>
     <p class="meta">Version 1.3.1 &nbsp;·&nbsp; Android 7.0+ &nbsp;·&nbsp; 11 MB &nbsp;·&nbsp; Free</p>
   </div>
@@ -156,18 +156,17 @@
   </div>
 </section>
 
-<section class="privacy-band" aria-label="Privacy at a glance">
+<aside class="privacy-band" aria-label="Privacy at a glance">
   <div class="wrap privacy-band-inner">
     <div class="privacy-band-copy">
       <span class="privacy-band-label">PRIVATE BY DESIGN</span>
       <p><strong>No account. No ads. No tracking.</strong> Your city is only sent to fetch prayer times.</p>
     </div>
     <div class="privacy-band-links">
-      <a href="#privacy">Read the policy here</a>
-      <a href="privacy.html">Standalone privacy page <span aria-hidden="true">↗</span></a>
+      <a href="privacy.html">Read the full privacy policy <span aria-hidden="true">↗</span></a>
     </div>
   </div>
-</section>
+</aside>
 
 <!-- ========================================================= screens -->
 <section class="section alt" id="screens">
@@ -466,75 +465,6 @@
         <p>There is no sign-in, no analytics SDK, no advertising ID and no location permission. Nothing about you leaves the phone.</p>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ========================================================= privacy -->
-<section class="section alt" id="privacy">
-  <div class="wrap doc">
-    <span class="kicker" style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);font-weight:700">Privacy policy</span>
-    <h1 style="margin-top:12px">Your prayers are nobody's business.</h1>
-    <p class="updated">Last updated 19 October 2026 · Namaaz Reminder 1.3.1</p>
-
-    <div class="policy-standalone">
-      <div>
-        <strong>Need a direct link?</strong>
-        <span>This policy is also available on its own page.</span>
-      </div>
-      <a href="privacy.html">Open standalone policy <span aria-hidden="true">↗</span></a>
-    </div>
-
-    <div class="callout">
-      <p><strong>The short version.</strong> Namaaz Reminder has no accounts, no analytics, no advertising and no tracking. It does not request your location. The only thing it sends over the network is the name of the city you picked, so a prayer-time service can return timings for that city.</p>
-    </div>
-
-    <h2>Information we collect</h2>
-    <p>We do not collect, store, sell or share any personal information. The app contains no analytics SDK, no crash-reporting SDK, no advertising SDK and no social login.</p>
-
-    <h2>Location</h2>
-    <p>Namaaz Reminder does <strong>not</strong> request the Android location permission and never reads your GPS, network or cell-tower position. You choose your city by name from a list or by typing it. That city name is the only location information the app has.</p>
-
-    <h2>Network requests</h2>
-    <p>To fetch prayer times, the app sends the city name and the selected calculation method over HTTPS to the Aladhan prayer-times API:</p>
-    <ul>
-      <li><code>api.aladhan.com</code> &mdash; receives the city name, the country (India) and the calculation method number, and returns the day's timings. No device identifier, account or advertising ID is attached.</li>
-      <li><code>supabase.co</code> (storage) &mdash; used once to download the Madinah Azaan audio file when reminders are enabled.</li>
-    </ul>
-    <p>These requests are ordinary HTTPS requests. As with any web request, the receiving server can see your IP address and the time of the request; we do not log, retain or correlate them, and we do not control those third parties. Their own policies apply to what they receive.</p>
-
-    <h2>What is stored on your device</h2>
-    <ul>
-      <li><strong>Settings</strong> &mdash; city, calculation method, reminder timing, sound and vibration choices, theme. Stored in the app's private storage (<code>namaz_times_prefs</code>) and never uploaded.</li>
-      <li><strong>Offline cache</strong> &mdash; the timings for the current day, so the screen still works without a connection.</li>
-      <li><strong>Azaan audio</strong> &mdash; if you enable sound, the Madinah Azaan is saved to the public Ringtones folder so the reminder can play it. You can delete it from there at any time.</li>
-    </ul>
-    <p>Uninstalling the app removes its private storage and cache. Files you or the app added to shared folders, such as the Ringtones audio, remain until you delete them.</p>
-
-    <h2>Notifications</h2>
-    <p>Reminders are scheduled locally on your device with Android's alarm manager. To do this the app asks for notification permission, the ability to schedule exact alarms, and permission to restore reminders after a reboot. Notification content is generated on the device; nothing is sent to a push service.</p>
-
-    <h2>Backups</h2>
-    <p>Android's backup can copy your app settings so a new phone restores your city and preferences. The prayer-time cache is not included in backups.</p>
-
-    <h2>This website</h2>
-    <p>This landing page and the standalone policy are static files. They set no cookies, load no third-party scripts, fonts or trackers, and run no analytics.</p>
-
-    <h2>Children</h2>
-    <p>The app is suitable for all ages, contains no advertising and collects no data from anyone, including children.</p>
-
-    <h2>Your choices</h2>
-    <ul>
-      <li>Change or clear your city at any time from the city picker.</li>
-      <li>Turn reminders off, or clear the offline cache, from Settings.</li>
-      <li>Delete the downloaded Azaan file from your Ringtones folder.</li>
-      <li>Uninstall the app to remove everything it stores.</li>
-    </ul>
-
-    <h2>Changes to this policy</h2>
-    <p>If a future version changes how the app handles data, this page will be updated before that version is published, and the date at the top will change.</p>
-
-    <h2>Contact</h2>
-    <p>Questions about this policy can be raised at <a href="https://github.com/owaiskhan-ash/Namaaz-Reminder/issues">github.com/owaiskhan-ash/Namaaz-Reminder/issues</a>. You can also open this policy as a standalone page at <a href="privacy.html">privacy.html</a>.</p>
   </div>
 </section>
 
