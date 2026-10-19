@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Auto Backup for Android 11 and lower (API 30-).
+
+    Only the user's settings are restored. The Azaan audio can be tens of
+    megabytes and is downloaded again on demand, and the prayer schedule is
+    re-fetched from the API, so neither belongs in a cloud backup.
+    (Azaan audio on Android 10+ is stored in the public Ringtones collection,
+    which Auto Backup does not cover.)
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <include domain="sharedpref" path="namaz_times_prefs.xml" />
 </full-backup-content>

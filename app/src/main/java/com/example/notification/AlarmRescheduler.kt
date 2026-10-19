@@ -6,6 +6,8 @@ import com.example.data.model.PrayerScheduleData
 import com.example.data.repository.PrayerRepository
 import com.example.data.repository.PrayerScheduleCustomizer
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 /**
  * Re-arms upcoming prayer alarms from broadcast receivers (after boot and after
@@ -30,13 +32,24 @@ object AlarmRescheduler {
 
     private const val FETCH_TIMEOUT_MILLIS = 8_000L
 
+    /**
+     * A broadcast only gets about ten seconds before the system kills it, and
+     * OkHttp's blocking reads are not interrupted by coroutine cancellation.
+     * Short socket timeouts therefore do the real bounding here; the coroutine
+     * timeout above is only a second safety net.
+     */
+    private val fastClient: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(3, TimeUnit.SECONDS)
+        .build()
+
     suspend fun rescheduleAlarms(context: Context) {
         val appContext = context.applicationContext
         val prefs = PreferencesManager(appContext)
         val settings = prefs.loadSettings()
         if (!settings.notificationsEnabled) return
 
-        val repository = PrayerRepository(prefs)
+        val repository = PrayerRepository(prefs, fastClient)
 
         // 1) Bounded refresh (network with internal cache fallback).
         var schedule: PrayerScheduleData? = withTimeoutOrNull(FETCH_TIMEOUT_MILLIS) {

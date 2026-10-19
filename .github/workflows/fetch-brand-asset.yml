@@ -1,0 +1,60 @@
+name: Fetch brand asset
+
+# CI runners have unrestricted network access, while some sandboxes do not.
+# This workflow downloads a public brand image into the repository so the
+# icon generator can work from the real source artwork.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Public image URL to download
+        required: false
+        default: >-
+          https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/NR%20icon.png
+      path:
+        description: Where to store the file in the repository
+        required: false
+        default: design/source/NR-icon.png
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    name: Download and commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download the image
+        env:
+          URL: ${{ inputs.url || 'https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/NR%20icon.png' }}
+          DEST: ${{ inputs.path || 'design/source/NR-icon.png' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$DEST")"
+          curl -fsSL --retry 3 --retry-delay 2 "$URL" -o "$DEST"
+          file "$DEST"
+          ls -lh "$DEST"
+          # Fail loudly if the link served an HTML error page instead of an image.
+          case "$(file -b --mime-type "$DEST")" in
+            image/*) echo "Got an image." ;;
+            *) echo "::error::The URL did not return an image."; exit 1 ;;
+          esac
+
+      - name: Commit it
+        env:
+          DEST: ${{ inputs.path || 'design/source/NR-icon.png' }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "$DEST"
+          if git diff --cached --quiet; then
+            echo "Asset unchanged."
+          else
+            git commit -m "chore(brand): add source artwork ${DEST}"
+            git push
+          fi

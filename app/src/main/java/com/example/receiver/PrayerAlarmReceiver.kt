@@ -18,6 +18,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent == null) return
+        // The receiver is not exported, but only act on our own alarm action.
+        if (intent.action != PrayerNotificationManager.ACTION_PRAYER_REMINDER) return
 
         val appContext = context.applicationContext
         val settings = PreferencesManager(appContext).loadSettings()

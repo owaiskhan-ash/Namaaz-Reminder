@@ -17,3 +17,6 @@ local.properties
 .env
 # NOTE: debug.keystore is intentionally committed. It is the standard,
 # publicly-known Android debug signing key required by the debug build type.
+
+# Generated reports (Android CI uploads these as workflow artifacts).
+audit/output/

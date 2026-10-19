@@ -7,10 +7,11 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Offline cache: the last successful schedule is stored locally and re-anchored to the current day.
 - Notifications for upcoming prayer times, with exact alarms (Android 12+) and a boot receiver that
   re-arms the schedule after a restart.
-- Light / dark / system theme, and a settings sheet for muted prayers, reminder lead time and
-  calculation method.
+- Light / dark / system theme, and a settings sheet for muted prayers, reminder timing and
+  calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
+  default), which is when the adhan ends and the salah begins.
 
-Current version: **1.1** (`versionCode` 2).
+Current version: **1.3.1** (`versionCode` 5).
 
 ## Getting the APKs
 
@@ -21,6 +22,7 @@ signed APKs:
 | --- | --- | --- |
 | `NamaazReminder-<version>-debug.apk` | Debug build | Includes Compose tooling; signed with the standard Android debug key. |
 | `NamaazReminder-<version>-release.apk` | Release build | Release variant, minification off, signed with the same certificate, so it upgrades the debug build in place. |
+| `NamaazReminder-<version>-release.aab` | Play bundle | Upload this to the Play Console; Play does not accept new APK uploads. |
 
 They are available in three places:
 
@@ -33,7 +35,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.1-release.apk
+adb install -r NamaazReminder-1.3.1-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
@@ -49,7 +51,16 @@ Requires JDK 21 and the Android SDK (compileSdk 36, minSdk 24).
 ```
 
 The `release` build type signs with the `upload` key alias, configured in
-`app/build.gradle.kts`. Provide it through the environment:
+`app/build.gradle.kts`.
+
+CI uses the Play upload key from repository secrets — `KEYSTORE_BASE64`
+(base64 of the PKCS12 keystore), `STORE_PASSWORD` and `KEY_PASSWORD`. When
+those secrets are present it also builds `NamaazReminder-<version>-release.aab`
+for the Play Console; without them it builds only the APKs, signed with the
+debug key, so a build can never silently publish a bundle signed by the wrong
+key.
+
+For a local build, provide the key through the environment:
 
 | Variable | Meaning |
 | --- | --- |
@@ -61,13 +72,40 @@ CI derives the `upload` alias from the committed, publicly known `debug.keystore
 APK keeps a stable signature across builds. For a Play Store upload, point `KEYSTORE_PATH` at your
 own upload key instead.
 
+## Brand
+
+The app icon is the original **NR** artwork — a heavy block monogram debossed
+into a dark, top-lit tile (`design/source/NR-icon.png`).
+
+`design/build_icons.py` derives every icon from that one file, so the launcher
+icon, the themed icon and the in-app header can never drift apart:
+
+| Asset | How it is made |
+| --- | --- |
+| `mipmap-*/ic_launcher.png` | the artwork, tightly cropped to the plate |
+| `mipmap-*/ic_launcher_round.png` | circular crop of the artwork |
+| `drawable/ic_app_icon.png` | the header badge |
+| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon — the monogram's furthest corner sits at ~47% of the tile, inside every launcher mask |
+| `drawable/ic_launcher_background.xml` | the plate edge tone, for the margin a wide mask exposes |
+| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons — the launcher tints this layer, so the artwork's 3D shading cannot be used |
+
+Regenerate after replacing the source artwork:
+
+```bash
+pip install pillow numpy
+python3 design/build_icons.py     # rewrites the res/ assets + design/preview/
+```
+
+The source artwork can be refreshed from its public URL with the *Fetch brand
+asset* workflow (GitHub runners can reach hosts that some sandboxes cannot).
+
 ## Project layout
 
 ```
 app/src/main/java/com/example/
 ├── MainActivity.kt                  # Compose entry point, notification channel setup
 ├── data/
-│   ├── local/PreferencesManager.kt   # DataStore-backed settings + cached schedule
+│   ├── local/PreferencesManager.kt   # SharedPreferences-backed settings + cached schedule
 │   ├── model/PrayerModels.kt        # Prayer types, schedule data, UI state models
 │   └── repository/
 │       ├── PrayerRepository.kt       # Aladhan API + offline cache fallback
@@ -82,20 +120,21 @@ app/src/main/java/com/example/
 
 ## Notifications
 
-Each prayer reminder stays a separate notification — the system never bundles the daily
-reminders into one merged group:
+Each prayer reminder stays a separate notification — the app never groups or bundles them:
 
-- every prayer gets its own notification id **and** its own group, so a Fajr reminder never
-  disappears into a stack of "5 notifications",
-- the reminder carries the prayer time as its timestamp (not the moment it happened to be
-  posted), the city as its subtitle and mentions the next prayer,
-- reminders posted on an earlier day are pruned automatically, so the shade does not fill up
-  with stale, identical looking reminders,
-- turning **Enable Reminders** off also clears the reminders that are already in the shade,
-- sound and vibration live in separate channels (`Prayer Reminders`, `Prayer Reminders (Sound
-  only)`, `Prayer Reminders (Azaan)`, `Prayer Reminders (Silent)`) — from Android 8.0
-  the system reads both from the channel, not from the individual notification, so a single
-  channel cannot honour the sound / vibration toggles.
+- every prayer gets its own notification id, so a Fajr reminder never disappears into a
+  "5 notifications" stack,
+- the reminder names the prayer and the time in the title and body, with the city in the text,
+- posting the same prayer again on a later day updates its existing notification instead of
+  adding a duplicate,
+- turning **Enable Reminders** off cancels the pending alarms *and* clears reminders already in
+  the shade,
+- exact alarms are used when Android allows them (Android 12+); otherwise the app falls back to
+  inexact alarms rather than dropping the reminder,
+- sound and vibration live in separate channels (`Prayer Reminders (Silent)` and
+  `Prayer Reminders — <sound name>`), because from Android 8.0 the system reads both from the
+  channel rather than the individual notification. Changing the sound or vibration creates the
+  new channel and deletes the superseded ones.
 
 ## Azaan (reminder sound)
 
@@ -117,7 +156,8 @@ Every prayer card can be **long pressed** to set its time by hand:
 - the custom time is shown next to the calculated one, the calculated time stays visible but
   is dimmed, the card is marked with a `CUSTOM` badge,
 - the custom time is the one the countdown, the next-prayer line and the reminder alarm use,
-- the times survive a restart and can be removed again with **RESET** in the same dialog.
+- the times survive a restart and can be removed again: long press the card and choose
+  **Reset to calculated**.
 
 ## Permissions
 

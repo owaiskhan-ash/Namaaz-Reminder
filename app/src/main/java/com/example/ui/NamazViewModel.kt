@@ -1,7 +1,13 @@
 package com.example.ui
 
+import android.Manifest
 import android.app.Application
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.PreferencesManager
@@ -192,6 +198,13 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
 
         _uiState.value.schedule?.let { sched ->
             PrayerNotificationManager.schedulePrayerAlarms(getApplication(), sched, newSettings)
+        }
+
+        if (!enabled) {
+            // Cancelling the alarms leaves reminders already in the shade behind;
+            // turning reminders off should clear those too.
+            (getApplication<Application>().getSystemService(Context.NOTIFICATION_SERVICE)
+                as? NotificationManager)?.cancelAll()
         }
     }
 
@@ -385,6 +398,21 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendTestNotification() {
+        // Without this guard the "Test notification sent!" toast is a lie on
+        // Android 13+, where notify() silently does nothing until the user
+        // allows notifications.
+        val notificationsBlocked = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                getApplication(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        if (notificationsBlocked) {
+            _uiState.update {
+                it.copy(toastMessage = "Notifications are blocked. Allow them for Namaaz Reminder first.")
+            }
+            return
+        }
+
         val current = _uiState.value
         val prayerName = current.nextPrayer?.type?.englishName ?: "Fajr"
         val prayerTime = current.nextPrayer?.displayTime(current.settings.is24HourFormat) ?: "05:00 AM"

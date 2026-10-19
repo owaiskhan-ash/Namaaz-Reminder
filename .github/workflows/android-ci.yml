@@ -110,38 +110,75 @@ jobs:
           path: test-summary.md
           if-no-files-found: warn
 
+      - name: Detect the upload key
+        # The Play upload key lives in repository secrets. Without it the build
+        # still works (APKs signed with the debug key), but no .aab is produced:
+        # publishing a bundle signed by a throwaway key would lock the listing
+        # onto that key.
+        run: |
+          set -euo pipefail
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "HAS_UPLOAD_KEY=1" >> "$GITHUB_ENV"
+            echo "Using the upload key from repository secrets."
+          else
+            echo "HAS_UPLOAD_KEY=0" >> "$GITHUB_ENV"
+            echo "::warning::No KEYSTORE_BASE64 secret; release APKs will be signed with the debug key and no .aab will be built."
+          fi
+
       - name: Prepare release signing key
-        # The `release` build type signs with key alias `upload`. We import the
-        # committed debug key under that alias so that:
-        #   * the release APK is installable (signed with a known certificate),
-        #   * the signature is stable across builds, so a newer APK can upgrade
-        #     an older one instead of asking the user to uninstall first.
-        # If the import ever fails we fall back to a freshly generated key.
+        # The `release` build type signs with key alias `upload`.
+        #   * With the upload-key secret: decode the real Play upload key, so the
+        #     .aab uploads to Play and every future build carries the same
+        #     signature.
+        #   * Without it: import the committed debug key under the `upload`
+        #     alias, which keeps the side-loadable APKs installable and
+        #     upgradeable in place.
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          SECRET_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
           KS="$RUNNER_TEMP/my-upload-key.jks"
-          if keytool -importkeystore \
-                -srckeystore debug.keystore -srcstoretype PKCS12 -srcstorepass android \
-                -srcalias androiddebugkey -srckeypass android \
-                -destkeystore "$KS" -deststoretype PKCS12 \
-                -deststorepass "$APK_STORE_PASSWORD" -destkeypass "$APK_KEY_PASSWORD" \
-                -destalias upload; then
-            echo "Imported the committed debug key under the 'upload' alias."
+          if [ "$HAS_UPLOAD_KEY" = "1" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$KS"
+            chmod 600 "$KS"
+            echo "STORE_PW=$SECRET_STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "KEY_PW=$SECRET_KEY_PASSWORD" >> "$GITHUB_ENV"
+            echo "Decoded the upload key from repository secrets."
           else
-            echo "Falling back to generating a fresh upload key."
-            keytool -genkeypair -v -keystore "$KS" -storetype PKCS12 \
-              -storepass "$APK_STORE_PASSWORD" -keypass "$APK_KEY_PASSWORD" \
-              -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Namaaz Reminder, OU=Mobile, O=Namaaz, L=Mumbai, ST=Maharashtra, C=IN"
+            if keytool -importkeystore \
+                  -srckeystore debug.keystore -srcstoretype PKCS12 -srcstorepass android \
+                  -srcalias androiddebugkey -srckeypass android \
+                  -destkeystore "$KS" -deststoretype PKCS12 \
+                  -deststorepass "$APK_STORE_PASSWORD" -destkeypass "$APK_KEY_PASSWORD" \
+                  -destalias upload; then
+              echo "Imported the committed debug key under the 'upload' alias."
+            else
+              echo "Falling back to generating a fresh upload key."
+              keytool -genkeypair -v -keystore "$KS" -storetype PKCS12 \
+                -storepass "$APK_STORE_PASSWORD" -keypass "$APK_KEY_PASSWORD" \
+                -alias upload -keyalg RSA -keysize 2048 -validity 10000 \
+                -dname "CN=Namaaz Reminder, OU=Mobile, O=Namaaz, L=Mumbai, ST=Maharashtra, C=IN"
+            fi
+            echo "STORE_PW=$APK_STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "KEY_PW=$APK_KEY_PASSWORD" >> "$GITHUB_ENV"
           fi
-          keytool -list -keystore "$KS" -storepass "$APK_STORE_PASSWORD" -alias upload
+          keytool -list -v -keystore "$KS" -storepass "$(grep '^STORE_PW=' "$GITHUB_ENV" | cut -d= -f2-)" \
+            -alias upload | grep -E "Alias|Valid from|SHA256" || true
 
-      - name: Build debug and release APKs
+      - name: Build debug and release APKs, and the Play bundle
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/my-upload-key.jks
-          STORE_PASSWORD: ${{ env.APK_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ env.APK_KEY_PASSWORD }}
-        run: ./gradlew assembleDebug assembleRelease --stacktrace
+          STORE_PASSWORD: ${{ env.STORE_PW }}
+          KEY_PASSWORD: ${{ env.KEY_PW }}
+        # The .aab is what Google Play accepts; the APKs stay for side-loading.
+        # The bundle is only built when the real upload key is available.
+        run: |
+          set -euo pipefail
+          TASKS="assembleDebug assembleRelease"
+          if [ "$HAS_UPLOAD_KEY" = "1" ]; then TASKS="$TASKS bundleRelease"; fi
+          ./gradlew $TASKS --stacktrace
 
       - name: Collect APKs
         run: |
@@ -150,13 +187,18 @@ jobs:
           mkdir -p dist
           cp app/build/outputs/apk/debug/app-debug.apk "dist/NamaazReminder-${VERSION}-debug.apk"
           cp app/build/outputs/apk/release/app-release.apk "dist/NamaazReminder-${VERSION}-release.apk"
+          if [ "$HAS_UPLOAD_KEY" = "1" ]; then
+            cp app/build/outputs/bundle/release/app-release.aab "dist/NamaazReminder-${VERSION}-release.aab"
+          else
+            echo "Skipping the .aab: signed with the debug key, not the upload key."
+          fi
           ls -lh dist
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
           name: NamaazReminder-apks
-          path: dist/*.apk
+          path: dist/*
           if-no-files-found: error
 
   publish:
@@ -202,6 +244,9 @@ jobs:
             echo "* \`-debug.apk\` — debug build, signed with the standard Android debug key."
             echo "* \`-release.apk\` — release build (minification off), signed with the same"
             echo "  certificate so it can upgrade the debug build in place."
+            if ls apk/*.aab >/dev/null 2>&1; then
+              echo "* \`-release.aab\` — Play bundle, signed with the upload key."
+            fi
             echo
             echo "Install with: \`adb install -r <file>.apk\`"
             echo
@@ -220,11 +265,12 @@ jobs:
             fi
           } > notes.md
 
-          if [ "$HAS_APK" = "1" ]; then
+          mapfile -t FILES < <(ls apk/*.apk apk/*.aab 2>/dev/null || true)
+          if [ "${#FILES[@]}" -gt 0 ]; then
             if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-              gh release upload apk-latest apk/*.apk --clobber --repo "${GITHUB_REPOSITORY}"
+              gh release upload apk-latest "${FILES[@]}" --clobber --repo "${GITHUB_REPOSITORY}"
             else
-              gh release create apk-latest apk/*.apk \
+              gh release create apk-latest "${FILES[@]}" \
                 --repo "${GITHUB_REPOSITORY}" \
                 --title "Namaaz Reminder (latest APK build)" \
                 --notes-file notes.md \
@@ -248,8 +294,13 @@ jobs:
           set -uo pipefail
           cd "$GITHUB_WORKSPACE"
           mkdir -p apk-build
-          if ls apk/*.apk >/dev/null 2>&1; then
-            cp apk/*.apk apk-build/
+          for f in apk/*.apk apk/*.aab; do
+            [ -e "$f" ] && cp "$f" apk-build/
+          done
+          # Do not leave a stale bundle behind: a .aab from an earlier run would
+          # be signed with a different key than the one Play now expects.
+          if ! ls apk/*.aab >/dev/null 2>&1; then
+            rm -f apk-build/*.aab
           fi
           if [ -f summary/test-summary.md ]; then
             cp summary/test-summary.md apk-build/test-summary.md

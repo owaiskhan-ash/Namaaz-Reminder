@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -92,7 +93,7 @@ class PrayerRepository(
             }
         }
 
-        // If no cache for this city, try finding any cached city as a fallback
+        // No cache for this city and the network failed.
         Result.failure(
             networkException ?: IllegalStateException("Unable to fetch prayer times for $cleanCity. Check internet connection.")
         )
@@ -118,21 +119,29 @@ class PrayerRepository(
         val gregorianObj = dateObj.optJSONObject("gregorian")
         val hijriObj = dateObj.optJSONObject("hijri")
 
-        val readableDate = dateObj.optString("readable", "")
-        val gregorianWeekday = gregorianObj?.optJSONObject("weekday")?.optString("en", "") ?: ""
-        val gregorianDay = gregorianObj?.optString("day", "") ?: ""
-        val gregorianMonth = gregorianObj?.optJSONObject("month")?.optString("en", "") ?: ""
-        val gregorianYear = gregorianObj?.optString("year", "") ?: ""
-        val formattedGregorian = if (gregorianWeekday.isNotEmpty()) {
-            "$gregorianWeekday, $gregorianDay $gregorianMonth $gregorianYear"
-        } else {
-            readableDate
-        }
+        // The payload describes the day it was fetched, while the timings below
+        // are re-anchored to today. Deriving the date line from the device clock
+        // keeps a cached schedule from showing an old date above today's times.
+        val todayCal = Calendar.getInstance(tz)
+        val formattedGregorian = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.ENGLISH)
+            .apply { timeZone = tz }
+            .format(todayCal.time)
 
+        // A Hijri date cannot be derived from java.util.Calendar, so it is shown
+        // only when the payload really describes today - a stale Hijri date
+        // would be worse than none.
         val hijriDay = hijriObj?.optString("day", "") ?: ""
         val hijriMonth = hijriObj?.optJSONObject("month")?.optString("en", "") ?: ""
         val hijriYear = hijriObj?.optString("year", "") ?: ""
-        val formattedHijri = if (hijriDay.isNotEmpty()) {
+        val todayMonthName = SimpleDateFormat("MMMM", Locale.ENGLISH)
+            .apply { timeZone = tz }
+            .format(todayCal.time)
+        val payloadIsToday = gregorianObj != null &&
+            gregorianObj.optString("day", "").toIntOrNull() == todayCal.get(Calendar.DAY_OF_MONTH) &&
+            gregorianObj.optString("year", "").toIntOrNull() == todayCal.get(Calendar.YEAR) &&
+            gregorianObj.optJSONObject("month")?.optString("en", "")
+                ?.equals(todayMonthName, ignoreCase = true) == true
+        val formattedHijri = if (payloadIsToday && hijriDay.isNotEmpty()) {
             "$hijriDay $hijriMonth $hijriYear AH"
         } else {
             ""

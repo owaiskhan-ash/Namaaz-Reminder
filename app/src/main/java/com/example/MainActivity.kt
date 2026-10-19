@@ -1,6 +1,5 @@
 package com.example
 
-import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,10 +44,9 @@ class MainActivity : ComponentActivity() {
             }
 
             SideEffect {
-                // Edge-to-edge content keeps the system bars transparent; update icon
-                // contrast too whenever the user's explicit theme selection changes.
-                window.statusBarColor = AndroidColor.TRANSPARENT
-                window.navigationBarColor = AndroidColor.TRANSPARENT
+                // enableEdgeToEdge() already keeps the system bars transparent
+                // (setting the bar colours is a no-op from API 35), so only the
+                // icon contrast has to follow the selected theme.
                 WindowCompat.getInsetsController(window, window.decorView).apply {
                     isAppearanceLightStatusBars = !isDarkTheme
                     isAppearanceLightNavigationBars = !isDarkTheme
