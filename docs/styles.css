@@ -1,5 +1,5 @@
-/* Namaaz Reminder — landing page
-   Monochrome only: paper white, charred black, one hairline. */
+/* Just Simple Apps — website
+   Monochrome, minimal, and focused on the essentials. */
 
 :root {
   --page: #000000;
@@ -177,7 +177,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.02em;
 }
 
-/* --------------------------------------------------------- privacy band */
+/* ------------------------------------------------------ promise band */
 
 .privacy-band {
   background: var(--page-alt);
@@ -725,6 +725,45 @@ a { color: inherit; text-decoration: none; }
 }
 .section-head p { color: var(--text-dim); margin: 0; font-size: 15.5px; }
 
+.app-card {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #0c0c0c;
+}
+.app-card-icon {
+  display: block;
+  width: 88px;
+  height: 88px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.app-card-copy { min-width: 0; }
+.app-card-kicker {
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+.app-card h3 { margin: 5px 0 6px; font-size: 21px; line-height: 1.2; letter-spacing: -0.02em; }
+.app-card p { margin: 0; max-width: 64ch; color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+.app-badges { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; padding: 0; margin: 14px 0 0; }
+.app-badges li {
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 650;
+}
+.app-card-cta { white-space: nowrap; }
+.app-coming { margin: 15px 0 0; color: var(--text-faint); font-size: 12px; }
+#apps, #screens, #features, #principles { scroll-margin-top: 84px; }
+
 .screens {
   display: flex;
   gap: 34px;
@@ -855,7 +894,9 @@ footer {
   .section { padding: 60px 0; }
   .privacy-band-inner { align-items: stretch; flex-direction: column; gap: 14px; }
   .privacy-band-links a { flex: 1; justify-content: center; }
-  .policy-standalone { align-items: flex-start; flex-direction: column; }
+  .app-card { grid-template-columns: 1fr; justify-items: start; gap: 16px; padding: 20px; }
+  .app-card-icon { width: 72px; height: 72px; border-radius: 16px; }
+  .app-card-cta { width: 100%; justify-content: center; }
   .foot-links { flex-wrap: wrap; gap: 14px 18px; }
   .nav-cta { padding: 7px 11px; font-size: 11px; }
   .nav-title { font-size: 11px; letter-spacing: 0.1em; }
