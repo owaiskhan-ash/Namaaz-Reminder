@@ -177,6 +177,47 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.02em;
 }
 
+/* --------------------------------------------------------- privacy band */
+
+.privacy-band {
+  background: var(--page-alt);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.privacy-band-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.privacy-band-copy { display: grid; gap: 3px; }
+.privacy-band-label {
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+.privacy-band-copy p { margin: 0; color: var(--text-dim); font-size: 14px; }
+.privacy-band-copy strong { color: var(--text); }
+.privacy-band-links { display: flex; flex-wrap: wrap; gap: 9px; }
+.privacy-band-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 650;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.privacy-band-links a:hover { background: #141414; border-color: #3a3a3a; }
+
 /* ------------------------------------------------------------ phone art */
 
 .stage { display: flex; justify-content: center; }
@@ -765,6 +806,36 @@ a { color: inherit; text-decoration: none; }
   margin: 26px 0;
 }
 .doc .callout p { margin: 0; }
+.policy-standalone {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0c0c0c;
+}
+.policy-standalone > div { display: grid; gap: 2px; }
+.policy-standalone strong { color: var(--text); font-size: 14px; }
+.policy-standalone span { color: var(--text-dim); font-size: 13px; }
+.doc .policy-standalone a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 650;
+}
+.doc .policy-standalone a:hover { background: #141414; border-color: #3a3a3a; }
+.doc .policy-page-note { margin: -16px 0 28px; color: var(--text-dim); font-size: 14px; }
+.doc .policy-page-note a { color: var(--text); }
+#privacy { scroll-margin-top: 84px; }
 .doc a { border-bottom: 1px solid #3a3a3a; }
 .doc a:hover { border-color: #fff; }
 .doc code {
@@ -810,6 +881,10 @@ footer {
   .screens .phone, .screens > div:nth-child(2) .phone { --u: 0.62px; }
   .hero .phone { --u: 0.68px; }
   .section { padding: 60px 0; }
+  .privacy-band-inner { align-items: stretch; flex-direction: column; gap: 14px; }
+  .privacy-band-links a { flex: 1; justify-content: center; }
+  .policy-standalone { align-items: flex-start; flex-direction: column; }
+  .foot-links { flex-wrap: wrap; gap: 14px 18px; }
   .nav-cta { padding: 7px 11px; font-size: 11px; }
   .nav-title { font-size: 11px; letter-spacing: 0.1em; }
 }
