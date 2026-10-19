@@ -1,16 +1,13 @@
 name: Audit
 
-# Pre-publish audit: runs the Android linter and the unit tests, then commits
-# the text reports back to the repository so they can be reviewed without
-# downloading artifacts.
+# Pre-publish audit: runs the Android linter and the unit tests. The reports
+# are uploaded as workflow artifacts (never committed), so the branch history
+# stays free of generated files.
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'audit/trigger.txt'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   lint:
@@ -31,41 +28,39 @@ jobs:
 
       - name: Run lint
         # --continue so the report is produced even when lint finds errors.
-        run: |
-          set -o pipefail
-          ./gradlew lintDebug --continue 2>&1 | tail -60 || true
+        run: ./gradlew lintDebug --continue
 
       - name: Run unit tests
-        run: |
-          set -o pipefail
-          ./gradlew testDebugUnitTest --continue 2>&1 | tail -40 || true
+        run: ./gradlew testDebugUnitTest --continue
 
-      - name: Collect reports
+      - name: Upload the lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: |
+            app/build/reports/lint-results-debug.txt
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+
+      - name: Upload the unit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest
+          if-no-files-found: warn
+
+      - name: Summarise the result
         if: always()
         run: |
           set -uo pipefail
-          mkdir -p audit/output
-          for f in app/build/reports/lint-results-debug.txt \
-                   app/build/reports/lint-results-debug.xml \
-                   app/build/reports/lint-results-debug.html; do
-            [ -f "$f" ] && cp "$f" audit/output/
-          done
-          # A compact, readable summary of every lint issue.
-          if [ -f app/build/reports/lint-results-debug.txt ]; then
-            cp app/build/reports/lint-results-debug.txt audit/output/lint-summary.txt
-          fi
-          ls -la audit/output || true
-
-      - name: Commit the reports
-        if: always()
-        run: |
-          set -uo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f audit/output
-          if git diff --cached --quiet; then
-            echo "No report changes."
-          else
-            git commit -m "chore(audit): lint and test reports for ${GITHUB_SHA::8}"
-            git push
-          fi
+          {
+            echo "## Android Lint"
+            echo
+            if [ -f app/build/reports/lint-results-debug.txt ]; then
+              sed -n '1,40p' app/build/reports/lint-results-debug.txt
+            else
+              echo "No lint report was produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
