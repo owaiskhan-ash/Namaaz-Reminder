@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy policy: Namaaz Reminder</title>
 <meta name="description" content="Namaaz Reminder collects no personal data. No account, no ads, no analytics, no location permission.">
-<meta name="theme-color" content="#000000">
-<link rel="icon" href="assets/nr-mark-64.png">
+<meta name="theme-color" content="#0A0A0A">
+<script src="theme.js"></script>
+<link rel="icon" type="image/svg+xml" href="assets/nr-mark-header.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/nr-mark-header-64.png">
+<link rel="apple-touch-icon" sizes="128x128" href="assets/nr-mark-header-128.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,7 +17,7 @@
 <header class="nav">
   <div class="wrap nav-inner">
     <a href="index.html" style="display:flex;align-items:center;gap:14px">
-      <img class="nav-logo" src="assets/nr-mark-128.png" alt="Namaaz Reminder">
+      <img class="nav-logo" src="assets/nr-mark-header-128.png" alt="Namaaz Reminder" width="30" height="30">
       <span class="nav-title">NAMAAZ REMINDER</span>
     </a>
     <nav class="nav-links">
@@ -24,6 +27,15 @@
       <a href="index.html#features">Features</a>
       <a class="nav-cta" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/tag/apk-latest">Download</a>
     </nav>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to light mode" title="Switch to light mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="4.2"></circle>
+        <path d="M12 2.6v2.1M12 19.3v2.1M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M2.6 12h2.1M19.3 12h2.1M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5"></path>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.6 8.6 0 1 0 10.8 10.8Z"></path>
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -93,7 +105,7 @@
   <div class="wrap foot-inner">
     <div style="display:flex;align-items:center;gap:11px">
       <span style="display:flex;gap:6px">
-        <img src="assets/nr-mark-64.png" alt="" width="24" height="24" style="border-radius:6px">
+        <img src="assets/nr-mark-header-64.png" alt="" width="24" height="24" style="border-radius:6px">
         <img src="assets/screentime/icon-64.png" alt="" width="24" height="24" style="border-radius:6px">
       </span>
       <span>Namaaz Reminder · Screen Time Reminder · Free · no ads · no tracking</span>
@@ -107,5 +119,6 @@
   </div>
 </footer>
 
+<script src="motion.js"></script>
 </body>
 </html>
