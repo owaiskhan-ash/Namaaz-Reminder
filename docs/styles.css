@@ -851,7 +851,7 @@ section[id] { scroll-margin-top: 76px; }
 
 .apps {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -1049,7 +1049,7 @@ section[id] { scroll-margin-top: 76px; }
   .spot { gap: 40px; }
 }
 
-@media (max-width: 940px) {
+@media (max-width: 1000px) {
   .apps { grid-template-columns: 1fr; }
   .spot { grid-template-columns: 1fr; gap: 46px; }
   .spot-shots { max-width: 460px; }
