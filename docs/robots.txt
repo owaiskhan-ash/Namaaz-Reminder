@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://owaiskhan-ash.github.io/Namaaz-Reminder/sitemap.xml
