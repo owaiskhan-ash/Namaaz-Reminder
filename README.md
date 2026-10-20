@@ -13,6 +13,33 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 
 Current version: **1.3.1** (`versionCode` 5).
 
+## The app collection
+
+`docs/index.html` is the landing page for the whole collection, not just this app. Both apps
+share the same promise — free to use, no ads, no clutter, no accounts:
+
+| # | App | On the page |
+| --- | --- | --- |
+| 01 | **Namaaz Reminder** (this repo) | Collection card, the four-screen tour and the feature grid |
+| 02 | **[Screen Time Reminder](https://github.com/owaiskhan-ash/ScreenTime-Reminder)** | Collection card and the `#screentime` spotlight |
+
+Assets for app 02 live in `docs/assets/screentime/`:
+
+- `today.png`, `break.png`, `week.png`, `settings.png` — the device screenshots published with
+  the Screen Time Reminder source (`docs/` in that repo);
+- `icon-64/128/256/512.png` — the launcher clock, redrawn from the app's own vector
+  (`res/drawable/ic_launcher_foreground.xml`, ink `#0B0B0C`) so the web icon matches the phone.
+
+Regenerate the web icons with:
+
+```bash
+pip install pillow
+python3 design/build_screentime_icons.py
+```
+
+Adding app 03 means one more `<article class="app-card">` in the collection grid, a spotlight
+section if it earns one, and its screenshots under `docs/assets/`.
+
 ## Getting the APKs
 
 Every push to `main` or an `arena/**` branch runs the **Android CI** workflow, which produces two
