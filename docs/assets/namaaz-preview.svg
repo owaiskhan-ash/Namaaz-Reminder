@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" fill="none">
+<rect width="390" height="844" rx="28" fill="#111111"/>
+<rect x="1" y="1" width="388" height="842" rx="27" stroke="#303030"/>
+<g fill="#F6F5F2" font-family="Arial,sans-serif">
+  <text x="25" y="31" font-size="11" font-weight="600">9:41</text><text x="326" y="31" font-size="10" letter-spacing="2">▮ ▮ ▰</text>
+  <rect x="22" y="54" width="39" height="39" rx="12" fill="#F4F3F0"/><path d="M41.5 64 31 82h21L41.5 64Z" fill="#111"/>
+  <text x="72" y="71" font-size="10" letter-spacing="1.6" font-weight="700">NAMAAZ REMINDER</text><text x="72" y="87" font-size="9" fill="#A4A29D" letter-spacing="1.3">MUMBAI, INDIA</text>
+  <text x="24" y="131" font-size="10" fill="#9D9B96" letter-spacing="1.3">TUESDAY · 20 OCTOBER 2026</text>
+  <rect x="20" y="148" width="350" height="65" rx="16" fill="#1A1A1A" stroke="#343434"/><text x="38" y="173" font-size="9" fill="#A4A29D" letter-spacing="1.5">MUMBAI, INDIA</text><text x="38" y="195" font-size="12">7 Jumada al-Ula 1448</text><text x="345" y="186" font-size="10" fill="#A4A29D" text-anchor="end">CITY</text>
+  <rect x="20" y="229" width="350" height="170" rx="20" fill="#F3F2EF"/><text x="42" y="259" font-size="10" fill="#595854" letter-spacing="1.5">NEXT PRAYER</text><text x="42" y="307" font-size="31" fill="#171716" font-family="Georgia,serif">ASR</text><text x="42" y="330" font-size="12" fill="#6C6A65">Starts at 4:52 PM</text><text x="348" y="274" font-size="10" fill="#6C6A65" text-anchor="end">TIME REMAINING</text><text x="348" y="314" font-size="25" fill="#171716" text-anchor="end" font-family="monospace">01:07:52</text><path d="M42 356h306" stroke="#D5D4D0"/><text x="42" y="380" font-size="10" fill="#62615D">REMINDER</text><text x="348" y="380" font-size="10" fill="#171716" text-anchor="end">At adhan</text>
+  <text x="24" y="438" font-size="10" fill="#AAA8A2" letter-spacing="1.6">TODAY'S PRAYERS</text><text x="366" y="438" font-size="9" fill="#77756F" text-anchor="end">12-HOUR AM/PM</text>
+</g>
+<g font-family="Arial,sans-serif">
+  <path d="M24 456h342M24 516h342M24 576h342M24 636h342M24 696h342" stroke="#30302E"/>
+  <circle cx="39" cy="486" r="4" fill="#686761"/><text x="57" y="490" fill="#B8B6B0" font-size="14">Fajr</text><text x="352" y="490" fill="#A5A39D" font-size="13" text-anchor="end">5:18 AM</text>
+  <circle cx="39" cy="546" r="4" fill="#686761"/><text x="57" y="550" fill="#B8B6B0" font-size="14">Dhuhr</text><text x="352" y="550" fill="#A5A39D" font-size="13" text-anchor="end">12:31 PM</text>
+  <rect x="24" y="590" width="342" height="46" rx="12" fill="#252523"/><circle cx="39" cy="616" r="4" fill="#F4F3F0"/><text x="57" y="620" fill="#F4F3F0" font-size="14">Asr</text><rect x="91" y="604" width="38" height="22" rx="11" fill="#F3F2EF"/><text x="110" y="619" fill="#181817" font-size="8" font-weight="700" text-anchor="middle" letter-spacing=".5">NEXT</text><text x="352" y="620" fill="#F4F3F0" font-size="13" text-anchor="end">4:52 PM</text>
+  <circle cx="39" cy="666" r="4" fill="#686761"/><text x="57" y="670" fill="#B8B6B0" font-size="14">Maghrib</text><text x="352" y="670" fill="#A5A39D" font-size="13" text-anchor="end">6:09 PM</text>
+  <circle cx="39" cy="726" r="4" fill="#686761"/><text x="57" y="730" fill="#B8B6B0" font-size="14">Isha</text><text x="352" y="730" fill="#A5A39D" font-size="13" text-anchor="end">7:24 PM</text>
+  <rect x="20" y="765" width="350" height="54" rx="16" fill="#1A1A1A" stroke="#343434"/><text x="40" y="788" fill="#8E8C86" font-size="9" letter-spacing="1.3">TIMES FOR YOUR CITY</text><text x="40" y="805" fill="#F0EFEC" font-size="11">Cached and ready offline</text>
+</g></svg>
