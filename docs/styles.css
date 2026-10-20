@@ -43,6 +43,7 @@ html[data-theme="dark"] {
   --btn-fg: #0A0A0A;
   --btn-bg-hover: #CFCFD4;
   --shadow: 0 24px 52px rgba(0, 0, 0, 0.55);
+  --cursor-ring: rgba(238, 238, 240, 0.9);
 }
 
 html[data-theme="light"] {
@@ -66,6 +67,7 @@ html[data-theme="light"] {
   --btn-fg: #EEEEF0;
   --btn-bg-hover: #3A3A3C;
   --shadow: 0 24px 52px rgba(10, 10, 10, 0.12);
+  --cursor-ring: rgba(10, 10, 10, 0.45);
 }
 
 * { box-sizing: border-box; }
@@ -1373,4 +1375,61 @@ html { scroll-snap-type: y proximity; }
 .hero-message > p { margin: 0 auto 32px; max-width: 62ch; }
 @media (max-width: 940px) {
   .hero { padding-inline: clamp(24px, 6vw, 56px); }
+}
+
+/* ------------------------------------------------------- interactions */
+
+/* Inertia scrolling: motion.js drives window.scrollTo itself with its own
+   easing, so the native smooth-scroll and the section snapping step aside
+   (they would otherwise fight the glide and cause jumps mid-scroll). */
+html.has-inertia {
+  scroll-behavior: auto;
+  scroll-snap-type: none;
+}
+
+/* Custom dark dot cursor. The class is only added by motion.js on precise
+   pointers, so keyboard, touch and JS-less visitors keep the native cursor. */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--black);
+  box-shadow: 0 0 0 1.5px var(--cursor-ring);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    opacity 0.18s ease,
+    width 0.22s ease,
+    height 0.22s ease,
+    background-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.cursor-dot.is-visible { opacity: 1; }
+
+.cursor-dot.is-down {
+  width: 7px;
+  height: 7px;
+}
+
+/* Over links and buttons the dot opens into a ring. */
+.cursor-dot.is-active {
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  box-shadow: 0 0 0 1.5px var(--cursor-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-dot { transition: none; }
 }
