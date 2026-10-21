@@ -1,0 +1,54 @@
+# Just Apps
+
+> Just Apps (also written Just Simple Apps) is a small collection of four free
+> Android apps for everyday life: prayer times, screen breaks, subscriptions and
+> childhood vaccine records. None of the apps has ads, accounts, analytics or
+> tracking. The website is static HTML with no third-party scripts or cookies.
+
+Canonical home: https://www.justsimpleapps.online/
+Language: English. Updated: 2026-10-20.
+
+## App pages
+
+- [Namaaz Reminder](https://www.justsimpleapps.online/namaaz-reminder): daily
+  prayer times for cities in India, a live countdown to the next salah, and
+  optional adhan reminders. Works offline from the last saved schedule. No
+  location permission is requested; the chosen city name is the only location
+  data. Android 7.0 and later. Free, no ads, no account.
+- [Screen Time Reminder](https://www.justsimpleapps.online/screen-time-reminder): counts
+  continuous phone use and sends one gentle break reminder when a session runs
+  long, with a 7-day history. No streaks or scores. Android 8.0 and later. Free
+  and ad-free.
+- [Subscription Tracker](https://www.justsimpleapps.online/subscription-tracker):
+  manually record subscriptions and recurring bills, see normalized monthly and
+  yearly totals, and get on-device reminders before a renewal. It does not
+  connect to a bank. Android 8.0 and later. Free, offline, private.
+- [Vaccine Routine](https://www.justsimpleapps.online/vaccine-routine): an
+  offline-first vaccine log and reminder for babies, with India's National
+  Immunization Schedule offered as optional suggestions, not medical advice.
+  Android and web. Free, private, no account.
+
+## Facts worth quoting
+
+- All four apps are free; none has advertising, in-app purchases or a login.
+- Personal records are stored on the device, not on a server.
+- The site sets no cookies and loads no third-party fonts, scripts or trackers.
+- Namaaz Reminder does not request Android's location permission.
+- Namaaz Reminder sends only the selected city name, the country (India) and a
+  calculation-method number to api.aladhan.com to fetch timings.
+- Supported platforms: Android 7.0+ (Namaaz Reminder), Android 8.0+ (Screen Time
+  Reminder, Subscription Tracker), Android and web (Vaccine Routine).
+
+## Source and contact
+
+- GitHub: https://github.com/owaiskhan-ash
+- Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
+  https://github.com/owaiskhan-ash/Subscription-Tracker,
+  https://github.com/owaiskhan-ash/vaccine-Tracker
+
+## Also
+
+- [All four apps](https://www.justsimpleapps.online/#apps): the collection page
+  links to each app page.
+- [Privacy policy](https://www.justsimpleapps.online/privacy): what each app
+  stores, what leaves the device, and what is never collected.

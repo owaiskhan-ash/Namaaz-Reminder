@@ -13,32 +13,65 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 
 Current version: **1.3.1** (`versionCode` 5).
 
-## The app collection
+## The website
 
-`docs/index.html` is the landing page for the whole collection, not just this app. Both apps
-share the same promise — free to use, no ads, no clutter, no accounts:
+`docs/` is the static site for the whole collection, published at
+<https://www.justsimpleapps.online/> from the `docs` directory. Every canonical, Open Graph,
+sitemap and JSON-LD URL must use that host: `owaiskhan-ash.github.io` does not serve this site
+(GitHub Pages is off), so a `github.io` URL in the markup is a dead link.
 
-| # | App | On the page |
+| Page | File | URL |
 | --- | --- | --- |
-| 01 | **Namaaz Reminder** (this repo) | Collection card, the four-screen tour and the feature grid |
-| 02 | **[Screen Time Reminder](https://github.com/owaiskhan-ash/ScreenTime-Reminder)** | Collection card and the `#screentime` spotlight |
+| Collection landing page | `docs/index.html` | `/` |
+| Namaaz Reminder | `docs/namaaz-reminder.html` | `/namaaz-reminder` |
+| Screen Time Reminder | `docs/screen-time-reminder.html` | `/screen-time-reminder` |
+| Subscription Tracker | `docs/subscription-tracker.html` | `/subscription-tracker` |
+| Vaccine Routine | `docs/vaccine-routine.html` | `/vaccine-routine` |
+| Privacy policy | `docs/privacy.html` | `/privacy` |
 
-Assets for app 02 live in `docs/assets/screentime/`:
+The extensions are stripped by `cleanUrls` in `docs/vercel.json`, which also sets the asset
+cache headers, the security headers and the 308 from the `vercel.app` alias to the custom
+domain. `docs/404.html` is the branded not-found page.
 
-- `today.png`, `break.png`, `week.png`, `settings.png` — the device screenshots published with
-  the Screen Time Reminder source (`docs/` in that repo);
-- `icon-64/128/256/512.png` — the launcher clock, redrawn from the app's own vector
-  (`res/drawable/ic_launcher_foreground.xml`, ink `#0B0B0C`) so the web icon matches the phone.
-
-Regenerate the web icons with:
+The four app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
+facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML by hand:
 
 ```bash
-pip install pillow
-python3 design/build_screentime_icons.py
+python3 design/build_app_pages.py
 ```
 
-Adding app 03 means one more `<article class="app-card">` in the collection grid, a spotlight
-section if it earns one, and its screenshots under `docs/assets/`.
+Screenshots come from the other apps' repositories. Each one is also written as two WebP
+variants (400 px and 780 px wide) that the pages reference through `srcset`; regenerate them
+with Pillow (`pip install pillow`) whenever a screenshot changes:
+
+```bash
+python3 - <<'EOF'
+from PIL import Image
+src = 'docs/assets/vaccine/today.jpg'
+im = Image.open(src).convert('RGB')
+for width in (400, 585):
+    height = round(im.height * width / im.width)
+    im.resize((width, height), Image.LANCZOS).save(
+        src.rsplit('.', 1)[0] + f'-{width}.webp', 'WEBP', quality=82, method=6)
+EOF
+```
+
+`docs/assets/og/` holds the 1200×630 social cards, one per app. The `-400.webp` and `-780.webp`
+files next to each screenshot are the responsive variants referenced from the pages; the
+original PNG/JPG files next to them are kept as the source for regenerating those variants.
+
+Adding a fifth app means one more entry in `APPS`, its screenshots and social card under
+`docs/assets/`, a card on the landing page and a URL in `docs/sitemap.xml`.
+
+## The other apps
+
+Both public apps share the same promise — free to use, no ads, no clutter, no accounts:
+
+| # | App | Source |
+| --- | --- | --- |
+| 02 | **Screen Time Reminder** | <https://github.com/owaiskhan-ash/ScreenTime-Reminder> |
+| 03 | **Subscription Tracker** | <https://github.com/owaiskhan-ash/Subscription-Tracker> |
+| 04 | **Vaccine Routine** | <https://github.com/owaiskhan-ash/vaccine-Tracker> |
 
 ## Getting the APKs
 
