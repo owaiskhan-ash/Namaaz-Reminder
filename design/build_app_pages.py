@@ -203,7 +203,7 @@ APPS = [
           <dt>Permission</dt><dd>Usage access, used only to see which app is in the foreground and for how long.</dd>
           <dt>Internet</dt><dd>Not requested. The app cannot connect to a network.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
-          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">github.com/owaiskhan-ash/ScreenTime-Reminder</a></dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">ScreenTime-Reminder repository on GitHub</a></dd>
           <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
         </dl>
         """,
@@ -300,7 +300,7 @@ APPS = [
           <dt>Version</dt><dd>1.1.0.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
           <dt>Bank access</dt><dd>None. Entries are added by hand and stored on the device.</dd>
-          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Subscription-Tracker">github.com/owaiskhan-ash/Subscription-Tracker</a></dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Subscription-Tracker">Subscription-Tracker repository on GitHub</a></dd>
           <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
         </dl>
         """,
@@ -400,7 +400,7 @@ APPS = [
           <dt>Account</dt><dd>Not required — there is no sign-in and no sync.</dd>
           <dt>Storage</dt><dd>On the device, removed when you uninstall.</dd>
           <dt>Medical status</dt><dd>Not a medical device and not a substitute for professional advice.</dd>
-          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/vaccine-Tracker">github.com/owaiskhan-ash/vaccine-Tracker</a></dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/vaccine-Tracker">vaccine-Tracker repository on GitHub</a></dd>
           <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
         </dl>
         """,
