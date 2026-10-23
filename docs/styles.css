@@ -1078,11 +1078,13 @@ html[data-theme="light"] .feature:focus-within::after {
 }
 
 .apps-section .namaaz-preview,
+.apps-section .screentime-preview,
 .apps-section .vaccine-preview {
   gap: 10px;
 }
 
 .apps-section .namaaz-preview img,
+.apps-section .screentime-preview img,
 .apps-section .vaccine-preview img {
   height: 88%;
   max-width: 29%;
@@ -1091,11 +1093,13 @@ html[data-theme="light"] .feature:focus-within::after {
 }
 
 .apps-section .namaaz-preview img:nth-child(2),
+.apps-section .screentime-preview img:nth-child(2),
 .apps-section .vaccine-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
 .apps-section .app-card:hover .namaaz-preview img:nth-child(2),
+.apps-section .app-card:hover .screentime-preview img:nth-child(2),
 .apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
   transform: translateY(-10px);
 }
@@ -1148,6 +1152,11 @@ html[data-theme="light"] .apps-section .app-content::before {
   filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.36));
   flex: none;
   display: block;
+}
+
+#namaaz-reminder .app-icon,
+#screentime .app-icon {
+  border-radius: 0;
 }
 
 .app-id {
