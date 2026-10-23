@@ -121,14 +121,17 @@ def fit_plate(art: Image.Image, size: int) -> Image.Image:
 
 def extend_plate(art: Image.Image, size: int) -> Image.Image:
     """
-    Adaptive foreground: the artwork itself, full-bleed.
-
-    The launcher mask always cuts a shape inside the 108dp canvas, so it crops
-    the plate's own rounded rim exactly where a mask would cut anyway. The
-    monogram's furthest corner sits at ~47% of the tile, well inside every mask,
-    so nothing important is ever clipped.
+    Adaptive foreground: size the leather & suede squircle to ~79.5dp of the
+    108dp adaptive canvas (73.6% of `size`) so Android's 72dp launcher mask
+    preserves the perimeter saddle stitching, leather inlays, and centered NR
+    monogram, while `ic_launcher_background.xml` fills any outer parallax bleed.
     """
-    return art.resize((size, size), Image.LANCZOS)
+    inner = int(round(size * (318.0 / 432.0)))
+    pad = (size - inner) // 2
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    scaled = art.resize((inner, inner), Image.LANCZOS)
+    canvas.paste(scaled, (pad, pad), scaled)
+    return canvas
 
 
 def adaptive_background(art: Image.Image, size: int) -> Image.Image:
@@ -249,11 +252,10 @@ def monochrome_xml(safe_frac: float = 0.585) -> str:
 
 
 def background_xml(art: Image.Image) -> str:
-    """Adaptive background: two sampled plate tones, top to bottom."""
-    px = art.convert("RGB").load()
-    w, h = art.size
-    top = tuple(sum(px[x, int(h * 0.06)][i] for x in range(int(w * .3), int(w * .7))) // int(w * .4) for i in range(3))
-    bottom = tuple(sum(px[x, int(h * 0.94)][i] for x in range(int(w * .3), int(w * .7))) // int(w * .4) for i in range(3))
+    """Adaptive background: deep cyan-teal suede gradient matching the NR hide."""
+    del art
+    top = (8, 84, 89)
+    bottom = (5, 56, 59)
     hexc = lambda c: "#FF%02X%02X%02X" % c
     return f"""<?xml version="1.0" encoding="utf-8"?>
 <!--

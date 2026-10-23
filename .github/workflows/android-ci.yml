@@ -44,6 +44,20 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Bundle Madinah Azaan into APK raw resources
+        # Bundling Madinah Azaan directly into res/raw/madinah_azaan.mp3 ensures
+        # the full Madinah Azaan plays immediately offline (and in Silent/Vibrate
+        # mode via STREAM_ALARM) without waiting for a post-install download.
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/res/raw
+          if [ ! -s app/src/main/res/raw/madinah_azaan.mp3 ]; then
+            curl -fsSL --retry 3 --retry-delay 2 \
+              "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3" \
+              -o app/src/main/res/raw/madinah_azaan.mp3
+          fi
+          ls -lh app/src/main/res/raw/madinah_azaan.mp3
+
       - name: Run unit tests
         # The output is kept in a file, so a compile error can be published on
         # the release page together with the test summary.

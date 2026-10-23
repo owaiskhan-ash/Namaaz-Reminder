@@ -47,22 +47,38 @@ object AzaanSoundStore {
         else -> "Device default"
     }
 
+    /**
+     * Returns the APK-bundled Madinah Azaan URI (`res/raw/madinah_azaan`) when
+     * present so reminders work immediately offline without waiting for a download.
+     */
+    fun bundledMadinahUri(context: Context): Uri? {
+        val resId = context.resources.getIdentifier("madinah_azaan", "raw", context.packageName)
+        return if (resId != 0) {
+            Uri.parse("android.resource://${context.packageName}/$resId")
+        } else {
+            null
+        }
+    }
+
     fun selectedSoundUri(
         context: Context,
         settings: UserSettings,
         preferencesManager: PreferencesManager = PreferencesManager(context.applicationContext)
     ): Uri? {
-        val defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         if (!settings.soundEnabled) return null
+        val defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
         val selected = when (settings.azaanSoundId) {
-            AzaanSoundIds.MADINAH -> preferencesManager.getMadinahAzaanUri()
-                ?.let { value -> Uri.parse(value) }
-                ?.takeIf { canReadUri(context, it) }
+            AzaanSoundIds.MADINAH -> bundledMadinahUri(context)
+                ?: preferencesManager.getMadinahAzaanUri()
+                    ?.let { value -> Uri.parse(value) }
+                    ?.takeIf { canReadUri(context, it) }
                 ?: defaultUri
             AzaanSoundIds.CUSTOM -> settings.customAzaanUri
                 ?.let { value -> Uri.parse(value) }
                 ?.takeIf { canReadUri(context, it) }
+                ?: bundledMadinahUri(context)
                 ?: defaultUri
             else -> defaultUri
         }
@@ -70,12 +86,14 @@ object AzaanSoundStore {
         return selected
     }
 
-    /** Downloads the Madinah audio once and keeps its URI in app preferences. */
+    /** Downloads the Madinah audio once if not already bundled in APK raw resources. */
     fun ensureMadinahAzaanDownloaded(
         context: Context,
         preferencesManager: PreferencesManager
     ): Uri {
         val appContext = context.applicationContext
+        bundledMadinahUri(appContext)?.let { return it }
+
         preferencesManager.getMadinahAzaanUri()?.let { savedValue ->
             val savedUri = runCatching { Uri.parse(savedValue) }.getOrNull()
             if (savedUri != null && canReadUri(appContext, savedUri)) {

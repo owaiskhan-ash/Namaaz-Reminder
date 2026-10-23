@@ -1,18 +1,14 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -26,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,25 +45,12 @@ fun NamazTopBar(
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // App mark: the NR monogram debossed on a black tile. The tile is a
-        // self-contained asset, so it reads the same in the light and dark theme.
-        Box(
-            modifier = Modifier
-                .size(34.dp)
-                .clip(RoundedCornerShape(9.dp))
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(9.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_app_icon),
-                contentDescription = "Namaaz Reminder logo",
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        // App mark: tactile leather & suede NR squircle badge (transparent outer corners).
+        Image(
+            painter = painterResource(id = R.drawable.ic_app_icon),
+            contentDescription = "Namaaz Reminder logo",
+            modifier = Modifier.size(36.dp)
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 

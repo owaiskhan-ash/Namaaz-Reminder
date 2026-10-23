@@ -139,4 +139,33 @@ class CoreBehaviorTest {
         assertTrue(CALCULATION_METHODS.any { it.id == 2 && it.name.contains("ISNA") })
         assertTrue(CALCULATION_METHODS.any { it.id == 3 && it.name.contains("MWL") })
     }
+
+    @Test
+    fun `prayer notification channel and stop action work for alarm stream playback`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = UserSettings(
+            selectedCity = "Mumbai",
+            soundEnabled = true,
+            vibrationEnabled = true,
+            azaanSoundId = "madinah"
+        )
+        val channelId = com.example.notification.PrayerNotificationManager.createNotificationChannel(
+            context,
+            settings
+        )
+        assertTrue(channelId.contains("madinah"))
+
+        val notif = com.example.notification.PrayerNotificationManager.buildNotification(
+            context = context,
+            channelId = channelId,
+            notifId = 1001,
+            title = "Time for Fajr Prayer",
+            message = "It is now time for Fajr prayer in Mumbai.",
+            includeStopAction = true
+        )
+        assertEquals(android.app.Notification.CATEGORY_ALARM, notif.category)
+        assertTrue(notif.actions?.any { it.title == "Stop Azaan" } == true)
+
+        com.example.notification.PrayerNotificationManager.stopAzaan(context, 1001)
+    }
 }
