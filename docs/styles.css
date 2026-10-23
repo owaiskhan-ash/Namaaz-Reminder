@@ -1136,8 +1136,8 @@ html[data-theme="light"] .apps-section .app-content::before {
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  border: 1px solid var(--line);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  object-fit: contain;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.36));
   flex: none;
   display: block;
 }

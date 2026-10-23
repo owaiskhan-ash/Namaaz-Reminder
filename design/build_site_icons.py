@@ -222,12 +222,12 @@ def render(text: str, size: int) -> Image.Image:
     return img.resize((size, size), Image.LANCZOS)
 
 
-def svg(embedded_png: bytes, size: int) -> str:
+def svg(embedded_png: bytes, size: int, label: str = "Just Apps") -> str:
     """Favicon SVG: the rendered mark, embedded so it matches the PNG exactly."""
     b64 = base64.b64encode(embedded_png).decode("ascii")
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-        f'viewBox="0 0 {size} {size}" role="img" aria-label="Just Apps">\n'
+        f'viewBox="0 0 {size} {size}" role="img" aria-label="{label}">\n'
         f'  <image width="{size}" height="{size}" '
         f'href="data:image/png;base64,{b64}"/>\n'
         f"</svg>\n"
@@ -237,7 +237,7 @@ def svg(embedded_png: bytes, size: int) -> str:
 def _brand_source(source_path: str, size: int, remove_white_matte: bool = False) -> Image.Image:
     """Resize approved brand artwork, cleanly removing only exterior white corner matte."""
     source = Image.open(source_path).convert("RGBA")
-    if not remove_white_matte:
+    if not remove_white_matte or source.getpixel((0, 0))[3] < 16:
         return source.resize((size, size), Image.LANCZOS)
 
     # Work at 1024x1024 for fast, razor-sharp flood-fill & antialiased edge feathering
@@ -307,12 +307,10 @@ def _brand_source(source_path: str, size: int, remove_white_matte: bool = False)
 def main() -> None:
     os.makedirs(ASSETS, exist_ok=True)
     for text, prefix, sizes in MARKS:
+        src_path = JA_SOURCE if text == "JA" else NR_SOURCE
+        label = "Just Apps" if text == "JA" else "Namaaz Reminder"
         rendered = {
-            size: (
-                _brand_source(JA_SOURCE, size, remove_white_matte=True)
-                if text == "JA"
-                else _brand_source(NR_SOURCE, size)
-            )
+            size: _brand_source(src_path, size, remove_white_matte=True)
             for size in sizes
         }
         for size, img in rendered.items():
@@ -324,7 +322,7 @@ def main() -> None:
         rendered[max(sizes)].save(buf, "PNG", optimize=True)
         svg_path = os.path.join(ASSETS, f"{prefix}.svg")
         with open(svg_path, "w") as fh:
-            fh.write(svg(buf.getvalue(), max(sizes)))
+            fh.write(svg(buf.getvalue(), max(sizes), label=label))
         print("wrote", os.path.relpath(svg_path, ROOT))
 
         if prefix == "just-apps-icon":
@@ -332,6 +330,8 @@ def main() -> None:
             rendered[256].save(ico_path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
             print("wrote", os.path.relpath(ico_path, ROOT))
             _build_social_card(rendered[512])
+        elif prefix == "nr-mark":
+            _build_nr_og_card(rendered[512])
 
 
 def _load_woff2_font(woff2_path: str, size: int):
@@ -418,6 +418,71 @@ def _build_social_card(ja_icon_512: Image.Image) -> None:
     )
 
     out_path = os.path.join(ASSETS, "just-apps-social.png")
+    card.convert("RGB").save(out_path, "PNG", optimize=True)
+    print("wrote", os.path.relpath(out_path, ROOT))
+
+
+def _build_nr_og_card(nr_icon_512: Image.Image) -> None:
+    """Render docs/assets/og/og-namaaz-reminder.png (1200x630) with the leather & suede NR mark."""
+    from PIL import ImageDraw
+
+    w, h = 1200, 630
+    bg_tile = Image.open(os.path.join(ASSETS, "materials", "charcoal-leather.webp")).convert("RGB")
+    card = Image.new("RGBA", (w, h), (23, 27, 25, 255))
+    tw, th = bg_tile.size
+    for y in range(0, h, th):
+        for x in range(0, w, tw):
+            card.paste(bg_tile, (x, y))
+
+    ov = Image.new("RGBA", (w, h), (14, 18, 17, 178))
+    card = Image.alpha_composite(card, ov)
+
+    draw = ImageDraw.Draw(card)
+    pad = 46
+    draw.rounded_rectangle(
+        (pad, pad, w - pad, h - pad),
+        radius=28,
+        fill=(19, 25, 24, 165),
+        outline=(0, 188, 200, 95),
+        width=2,
+    )
+
+    icon_sz = 304
+    icon_x, icon_y = w - 112 - icon_sz, (h - icon_sz) // 2
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sh_alpha = nr_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS).split()[3]
+    sh_layer = Image.new("RGBA", (icon_sz, icon_sz), (0, 0, 0, 175))
+    sh_layer.putalpha(sh_alpha)
+    shadow.paste(sh_layer, (icon_x, icon_y + 14))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=16))
+    card = Image.alpha_composite(card, shadow)
+
+    nr_resized = nr_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS)
+    card.paste(nr_resized, (icon_x, icon_y), nr_resized)
+
+    draw = ImageDraw.Draw(card)
+    fonts_dir = os.path.join(ASSETS, "fonts")
+    f_eyebrow = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 17)
+    f_head = _load_woff2_font(os.path.join(fonts_dir, "instrument-serif-latin-400-normal.woff2"), 82)
+    f_sub = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-400-normal.woff2"), 24)
+    f_foot = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 15)
+
+    tx = 104
+    draw.text((tx, 166), "JUST APPS  ·  01  ·  PRAYER", font=f_eyebrow, fill=(0, 188, 200, 255))
+    draw.text((tx, 218), "Namaaz Reminder", font=f_head, fill=(247, 242, 232, 255))
+    draw.text((tx, 336), "Prayer times for your city, and a live", font=f_sub, fill=(216, 194, 160, 240))
+    draw.text((tx, 372), "countdown to the next salah.", font=f_sub, fill=(216, 194, 160, 240))
+    draw.line([(tx, 444), (tx + 590, 444)], fill=(216, 194, 160, 52), width=1)
+    draw.text(
+        (tx, 468),
+        "FREE   ·   NO ADS   ·   NO TRACKING   ·   OFFLINE",
+        font=f_foot,
+        fill=(240, 227, 204, 190),
+    )
+
+    og_dir = os.path.join(ASSETS, "og")
+    os.makedirs(og_dir, exist_ok=True)
+    out_path = os.path.join(og_dir, "og-namaaz-reminder.png")
     card.convert("RGB").save(out_path, "PNG", optimize=True)
     print("wrote", os.path.relpath(out_path, ROOT))
 
