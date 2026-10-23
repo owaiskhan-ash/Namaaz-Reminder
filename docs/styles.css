@@ -1077,6 +1077,12 @@ html[data-theme="light"] .feature:focus-within::after {
   background: var(--cyan);
 }
 
+.apps-section .namaaz-preview,
+.apps-section .vaccine-preview {
+  gap: 10px;
+}
+
+.apps-section .namaaz-preview img,
 .apps-section .vaccine-preview img {
   height: 88%;
   max-width: 29%;
@@ -1084,10 +1090,12 @@ html[data-theme="light"] .feature:focus-within::after {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
 }
 
+.apps-section .namaaz-preview img:nth-child(2),
 .apps-section .vaccine-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
+.apps-section .app-card:hover .namaaz-preview img:nth-child(2),
 .apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
   transform: translateY(-10px);
 }

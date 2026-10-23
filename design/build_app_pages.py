@@ -41,11 +41,26 @@ APPS = [
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders — without ads, accounts or a location permission.</p>",
         "cta": """          <span class="pill"><span class="dot"></span>Coming to Google Play</span>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
-        "cta_note": "Version 1.3.1 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
+        "cta_note": "Version 1.6.2 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
         "shots": [
-            shot("/assets/namaaz-preview.svg",
-                 "Namaaz Reminder showing the next prayer countdown and today's five prayer times",
-                 "The next prayer, its countdown and today’s timings on one screen.", 390, 844),
+            shot("/assets/namaaz/today-400.webp",
+                 "Namaaz Reminder showing the next prayer countdown and today's five prayer times on black leather",
+                 "Today: live countdown to the next salah and all five prayer times.",
+                 400, 866,
+                 "/assets/namaaz/today-400.webp 400w, /assets/namaaz/today-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/namaaz/cities-400.webp",
+                 "City picker for India with offline schedule caching and no GPS permission",
+                 "Any city in India, chosen by name — no GPS permission needed.",
+                 400, 866,
+                 "/assets/namaaz/cities-400.webp 400w, /assets/namaaz/cities-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/namaaz/settings-400.webp",
+                 "Settings showing calculation method, reminder offset, and bundled Madinah Azaan audio",
+                 "Settings: calculation method, reminder offset and Madinah adhan.",
+                 400, 866,
+                 "/assets/namaaz/settings-400.webp 400w, /assets/namaaz/settings-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
         ],
         "body": """
         <h2>What it does</h2>
@@ -98,7 +113,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
-          <dt>Version</dt><dd>1.3.1 (versionCode 5).</dd>
+          <dt>Version</dt><dd>1.6.2 (versionCode 10).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible — there is no sign-in.</dd>
           <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
@@ -122,10 +137,14 @@ APPS = [
             "name": "Namaaz Reminder",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Android 7.0 and later",
-            "softwareVersion": "1.3.1",
+            "softwareVersion": "1.6.2",
             "description": "Daily prayer times for cities in India, a live countdown to the next salah, optional adhan reminders and an offline copy of the last schedule. Free, no ads, no account, no location permission.",
             "image": BASE + "/assets/nr-mark-512.png",
-            "screenshot": [BASE + "/assets/namaaz-preview.svg"],
+            "screenshot": [
+                BASE + "/assets/namaaz/today-780.webp",
+                BASE + "/assets/namaaz/cities-780.webp",
+                BASE + "/assets/namaaz/settings-780.webp",
+            ],
             "featureList": [
                 "Prayer times for any city in India",
                 "Live countdown to the next salah",
