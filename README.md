@@ -11,7 +11,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
   calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
   default), which is when the adhan ends and the salah begins.
 
-Current version: **1.3.1** (`versionCode` 5).
+Current version: **1.4.0** (`versionCode` 6).
 
 ## The website
 
@@ -95,7 +95,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.3.1-release.apk
+adb install -r NamaazReminder-1.4.0-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
