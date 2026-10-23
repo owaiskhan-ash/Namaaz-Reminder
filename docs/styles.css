@@ -483,11 +483,27 @@ footer {
 }
 
 .nav-logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
   display: block;
   flex: none;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.48));
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.nav-logo--footer {
+  width: 28px;
+  height: 28px;
+}
+
+.nav-brand:hover .nav-logo {
+  transform: translateY(-1px) scale(1.03);
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.58));
+}
+
+.nav-brand:active .nav-logo {
+  transform: translateY(1px);
 }
 
 .nav-title {
