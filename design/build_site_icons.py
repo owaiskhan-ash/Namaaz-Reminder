@@ -50,9 +50,11 @@ TRACK_FRAC = -0.030       # letter spacing, share of cap height
 BLUE_TINT = 2.0           # the artwork is neutral with a ~2/255 blue lift
 
 JA_SOURCE = os.path.join(ROOT, "design", "source", "JA-icon.png")
+NR_SOURCE = os.path.join(ROOT, "design", "source", "NR-icon.png")
 
 MARKS = [
     ("JA", "just-apps-icon", [32, 64, 128, 180, 256, 512]),
+    ("NR", "nr-mark", [64, 128, 256, 512]),
     ("NR", "nr-mark-header", [64, 128]),
 ]
 
@@ -232,9 +234,11 @@ def svg(embedded_png: bytes, size: int) -> str:
     )
 
 
-def _ja_source(size: int) -> Image.Image:
-    """Resize the approved JA artwork and remove its generated white corner mat."""
-    source = Image.open(JA_SOURCE).convert("RGBA")
+def _brand_source(source_path: str, size: int, remove_white_matte: bool = False) -> Image.Image:
+    """Resize approved brand artwork, optionally removing generated white corners."""
+    source = Image.open(source_path).convert("RGBA")
+    if not remove_white_matte:
+        return source.resize((size, size), Image.LANCZOS)
     pixels = np.array(source).astype(np.float32)
     rgb = pixels[..., :3]
     neutral = rgb.max(axis=2) - rgb.min(axis=2) < 12
@@ -251,7 +255,11 @@ def main() -> None:
     os.makedirs(ASSETS, exist_ok=True)
     for text, prefix, sizes in MARKS:
         rendered = {
-            size: (_ja_source(size) if text == "JA" else render(text, size))
+            size: (
+                _brand_source(JA_SOURCE, size, remove_white_matte=True)
+                if text == "JA"
+                else _brand_source(NR_SOURCE, size)
+            )
             for size in sizes
         }
         for size, img in rendered.items():

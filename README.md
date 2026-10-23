@@ -134,8 +134,8 @@ own upload key instead.
 
 ## Brand
 
-The app icon is the original **NR** artwork — a heavy block monogram debossed
-into a dark, top-lit tile (`design/source/NR-icon.png`).
+The app icon is the approved **NR** artwork — a rounded block monogram in vivid
+coral and pink, set inside a matching neon frame on charcoal (`design/source/NR-icon.png`).
 
 `design/build_icons.py` derives every icon from that one file, so the launcher
 icon, the themed icon and the in-app header can never drift apart:
