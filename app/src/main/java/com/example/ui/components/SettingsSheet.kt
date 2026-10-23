@@ -499,7 +499,7 @@ fun SettingsSheet(
             )
             Spacer(modifier = Modifier.height(6.dp))
 
-            val themeOptions = listOf("SYSTEM" to "System Auto", "LIGHT" to "Pure Light", "DARK" to "Deep Dark")
+            val themeOptions = listOf("DARK" to "Black Leather", "LIGHT" to "Cream Light", "SYSTEM" to "System Auto")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

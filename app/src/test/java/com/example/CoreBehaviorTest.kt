@@ -168,4 +168,16 @@ class CoreBehaviorTest {
 
         com.example.notification.PrayerNotificationManager.stopAzaan(context, 1001)
     }
+
+    @Test
+    fun `default theme opens in subtle black leather dark mode and texture resource exists`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val freshSettings = PreferencesManager(context).loadSettings()
+        assertEquals("DARK", freshSettings.themeMode)
+        val bmp = android.graphics.BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.leather_black_tile
+        )
+        assertNotNull(bmp)
+    }
 }

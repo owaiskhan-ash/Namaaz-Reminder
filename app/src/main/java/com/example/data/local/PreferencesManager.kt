@@ -32,7 +32,7 @@ class PreferencesManager(context: Context) {
     fun loadSettings(): UserSettings {
         val city = prefs.getString(KEY_CITY, "Delhi") ?: "Delhi"
         val methodId = prefs.getInt(KEY_METHOD_ID, 1)
-        val themeMode = prefs.getString(KEY_THEME_MODE, "SYSTEM") ?: "SYSTEM"
+        val themeMode = prefs.getString(KEY_THEME_MODE, "DARK") ?: "DARK"
         val notifsEnabled = prefs.getBoolean(KEY_NOTIFS_ENABLED, true)
         val offset = prefs.getInt(KEY_OFFSET_MINUTES, 5)
         val sound = prefs.getBoolean(KEY_SOUND_ENABLED, true)

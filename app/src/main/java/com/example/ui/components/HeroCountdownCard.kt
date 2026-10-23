@@ -24,12 +24,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.PrayerItem
+import com.example.ui.theme.LeatherCreamInk
+import com.example.ui.theme.LeatherCreamPill
+import com.example.ui.theme.LeatherCyan
+import com.example.ui.theme.WarmAccent
 
 @Composable
 fun HeroCountdownCard(
@@ -40,63 +45,85 @@ fun HeroCountdownCard(
     use24Hour: Boolean,
     onToggleReminder: (String) -> Unit,
     onOpenCityPicker: (() -> Unit)? = null,
+    isDark: Boolean = true,
+    grainBrush: Brush? = null,
     modifier: Modifier = Modifier
 ) {
-    // Warm layered card treatment shared with Vaccine Routine: quiet charcoal/paper
-    // surfaces, soft borders and one restrained gold accent.
     val cardBackground = MaterialTheme.colorScheme.surface
     val cardTextColor = MaterialTheme.colorScheme.onSurface
     val subtleTextColor = MaterialTheme.colorScheme.onSurfaceVariant
     val pillBorderColor = MaterialTheme.colorScheme.outline
+    val outerBorder = if (isDark) {
+        LeatherCyan.copy(alpha = 0.28f)
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+    val stitchColor = if (isDark) {
+        WarmAccent.copy(alpha = 0.14f)
+    } else {
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
+    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(cardBackground)
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp))
+            .leatherCard(
+                cornerRadius = 20.dp,
+                isDark = isDark,
+                fillColor = cardBackground,
+                borderColor = outerBorder,
+                grainBrush = grainBrush,
+                stitchColor = stitchColor
+            )
             .padding(22.dp)
             .testTag("hero_countdown_card")
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Header: NEXT PRAYER Tag & City indicator
+            // Header: NEXT PRAYER suede pill & City indicator
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Badge
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .border(1.dp, pillBorderColor, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(if (isDark) LeatherCreamPill else MaterialTheme.colorScheme.onSurface)
+                        .padding(horizontal = 11.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "NEXT PRAYER",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 1.2.sp,
+                            fontSize = 10.sp
                         ),
-                        color = cardTextColor
+                        color = if (isDark) LeatherCreamInk else MaterialTheme.colorScheme.surface
                     )
                 }
 
-                // City indicator
-                Text(
-                    text = city.uppercase(),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 1.sp
-                    ),
-                    color = subtleTextColor,
-                    modifier = Modifier.clickable(enabled = onOpenCityPicker != null) {
-                        onOpenCityPicker?.invoke()
-                    }
-                )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .border(1.dp, pillBorderColor, RoundedCornerShape(50))
+                        .clickable(enabled = onOpenCityPicker != null) {
+                            onOpenCityPicker?.invoke()
+                        }
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = city.uppercase(),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 1.sp,
+                            fontSize = 10.sp
+                        ),
+                        color = subtleTextColor
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -134,16 +161,18 @@ fun HeroCountdownCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // Live Countdown Display
+            // Recessed Leather Countdown Well
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(cardTextColor.copy(alpha = 0.08f))
-                    .border(1.dp, pillBorderColor, RoundedCornerShape(12.dp))
-                    .padding(vertical = 14.dp, horizontal = 16.dp)
+                    .leatherWell(
+                        cornerRadius = 13.dp,
+                        isDark = isDark,
+                        borderColor = pillBorderColor
+                    )
+                    .padding(vertical = 13.dp, horizontal = 15.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -155,8 +184,8 @@ fun HeroCountdownCard(
                             text = "TIME REMAINING",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp,
-                                fontSize = 10.sp
+                                letterSpacing = 1.1.sp,
+                                fontSize = 9.5.sp
                             ),
                             color = subtleTextColor
                         )
@@ -166,23 +195,34 @@ fun HeroCountdownCard(
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.5.sp
+                                letterSpacing = 1.4.sp
                             ),
                             color = cardTextColor,
                             modifier = Modifier.testTag("countdown_timer_text")
                         )
                     }
 
-                    // Notification quick button
+                    // Subtle Reminder Quick Chip
                     val isReminderActive = nextPrayer?.notificationEnabled == true
+                    val chipBg = if (isReminderActive && isDark) {
+                        LeatherCreamPill.copy(alpha = 0.12f)
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    }
+                    val chipBorder = if (isReminderActive && isDark) {
+                        WarmAccent.copy(alpha = 0.36f)
+                    } else {
+                        pillBorderColor
+                    }
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, pillBorderColor, RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(50))
+                            .background(chipBg)
+                            .border(1.dp, chipBorder, RoundedCornerShape(50))
                             .clickable {
                                 nextPrayer?.type?.name?.let { onToggleReminder(it) }
                             }
-                            .padding(horizontal = 10.dp, vertical = 8.dp)
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
                             .testTag("hero_reminder_toggle"),
                         contentAlignment = Alignment.Center
                     ) {
@@ -190,8 +230,8 @@ fun HeroCountdownCard(
                             Icon(
                                 imageVector = if (isReminderActive) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                                 contentDescription = if (isReminderActive) "Reminder Active" else "Reminder Muted",
-                                tint = cardTextColor,
-                                modifier = Modifier.size(16.dp)
+                                tint = if (isReminderActive && isDark) WarmAccent else subtleTextColor,
+                                modifier = Modifier.size(15.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
@@ -201,7 +241,7 @@ fun HeroCountdownCard(
                                     "Muted"
                                 },
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.SemiBold
                                 ),
                                 color = cardTextColor
                             )

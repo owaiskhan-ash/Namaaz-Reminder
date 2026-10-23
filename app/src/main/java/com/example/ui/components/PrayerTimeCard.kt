@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -26,11 +27,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.PrayerItem
+import com.example.ui.theme.DarkNextCard
+import com.example.ui.theme.LeatherCognac
+import com.example.ui.theme.LeatherCyan
+import com.example.ui.theme.LeatherCyanSoft
+import com.example.ui.theme.LeatherLime
+import com.example.ui.theme.LightNextCard
+import com.example.ui.theme.WarmAccent
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -39,34 +48,53 @@ fun PrayerTimeCard(
     use24Hour: Boolean,
     onToggleReminder: () -> Unit,
     modifier: Modifier = Modifier,
+    isDark: Boolean = true,
+    grainBrush: Brush? = null,
     onLongClick: () -> Unit = {}
 ) {
     val isNext = prayer.isNext
     val isPassed = prayer.isPassed
 
-    // Monochrome styling
-    val cardBackground = if (isNext) {
-        MaterialTheme.colorScheme.surfaceVariant
-    } else {
-        MaterialTheme.colorScheme.surface
+    val cardBackground = when {
+        isNext && isDark -> DarkNextCard
+        isNext -> LightNextCard
+        else -> MaterialTheme.colorScheme.surface
     }
 
-    val cardBorder = if (isNext) {
-        MaterialTheme.colorScheme.onBackground
-    } else {
-        MaterialTheme.colorScheme.outline
+    val cardBorder = when {
+        isNext && isDark -> LeatherCyan.copy(alpha = 0.46f)
+        isNext -> LeatherCyan.copy(alpha = 0.65f)
+        else -> MaterialTheme.colorScheme.outline
     }
 
-    val borderWidth = if (isNext) 1.5.dp else 1.dp
+    val stitchColor = if (isNext) {
+        LeatherCyan.copy(alpha = if (isDark) 0.16f else 0.22f)
+    } else {
+        null
+    }
 
-    val textAlpha = if (isPassed && !isNext) 0.45f else 1.0f
+    val borderWidth = if (isNext) 1.2.dp else 1.dp
+    val textAlpha = if (isPassed && !isNext) 0.48f else 1.0f
+
+    val dotColor = when {
+        isNext && isDark -> LeatherLime
+        isNext -> LeatherCyan
+        isPassed -> WarmAccent.copy(alpha = 0.32f)
+        else -> LeatherCognac.copy(alpha = 0.58f)
+    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(cardBackground)
-            .border(borderWidth, cardBorder, RoundedCornerShape(14.dp))
+            .leatherCard(
+                cornerRadius = 14.dp,
+                isDark = isDark,
+                fillColor = cardBackground,
+                borderColor = cardBorder,
+                borderWidth = borderWidth,
+                grainBrush = grainBrush,
+                stitchColor = stitchColor
+            )
             .combinedClickable(
                 onClick = {},
                 onLongClick = onLongClick,
@@ -81,23 +109,16 @@ fun PrayerTimeCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Left: Status dot / pill & Name
+            // Left: Status dot & Prayer Name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Indicator indicator
                 Box(
                     modifier = Modifier
-                        .size(8.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            when {
-                                isNext -> MaterialTheme.colorScheme.onBackground
-                                isPassed -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                                else -> MaterialTheme.colorScheme.outline
-                            }
-                        )
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(dotColor)
                 )
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -118,16 +139,22 @@ fun PrayerTimeCard(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(MaterialTheme.colorScheme.onBackground)
+                                    .background(LeatherCyan.copy(alpha = if (isDark) 0.18f else 0.14f))
+                                    .border(
+                                        0.8.dp,
+                                        LeatherCyan.copy(alpha = 0.42f),
+                                        RoundedCornerShape(4.dp)
+                                    )
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = "NEXT",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 0.8.sp
                                     ),
-                                    color = MaterialTheme.colorScheme.background
+                                    color = if (isDark) LeatherCyanSoft else LeatherCyan
                                 )
                             }
                         } else if (isPassed) {
@@ -138,11 +165,10 @@ fun PrayerTimeCard(
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal
                                 ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.58f)
                             )
                         }
 
-                        // Marks a time the user set by hand for today.
                         if (prayer.customTime != null) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
@@ -180,7 +206,7 @@ fun PrayerTimeCard(
                 }
             }
 
-            // Right: Time and Notification Toggle Button
+            // Right: Time and Recessed Leather Notification Toggle
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -220,29 +246,34 @@ fun PrayerTimeCard(
                 if (prayer.type.isPrimaryPrayer) {
                     Spacer(modifier = Modifier.width(10.dp))
 
+                    val bellBorder = when {
+                        prayer.notificationEnabled && isNext -> LeatherCyan.copy(alpha = 0.42f)
+                        prayer.notificationEnabled && isDark -> WarmAccent.copy(alpha = 0.22f)
+                        else -> MaterialTheme.colorScheme.outline
+                    }
+                    val bellTint = when {
+                        !prayer.notificationEnabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.36f)
+                        isNext && isDark -> LeatherCyanSoft
+                        isDark -> WarmAccent
+                        else -> MaterialTheme.colorScheme.onBackground
+                    }
+
                     IconButton(
                         onClick = onToggleReminder,
                         modifier = Modifier
                             .size(36.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                if (prayer.notificationEnabled) {
-                                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f)
-                                } else {
-                                    MaterialTheme.colorScheme.surface
-                                }
+                            .leatherWell(
+                                cornerRadius = 9.dp,
+                                isDark = isDark,
+                                borderColor = bellBorder
                             )
                             .testTag("toggle_reminder_${prayer.type.name}")
                     ) {
                         Icon(
                             imageVector = if (prayer.notificationEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
                             contentDescription = if (prayer.notificationEnabled) "Mute reminder for ${prayer.type.englishName}" else "Enable reminder for ${prayer.type.englishName}",
-                            tint = if (prayer.notificationEnabled) {
-                                MaterialTheme.colorScheme.onBackground
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                            },
-                            modifier = Modifier.size(18.dp)
+                            tint = bellTint,
+                            modifier = Modifier.size(17.dp)
                         )
                     }
                 }

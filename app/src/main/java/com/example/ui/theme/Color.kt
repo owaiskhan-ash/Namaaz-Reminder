@@ -2,31 +2,43 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Warm, calm palette inspired by Vaccine Routine.
-val PureBlack = Color(0xFF0E0D0C)
-val PureWhite = Color(0xFFF2EEE7)
-val WarmAccent = Color(0xFFE0C68A)
-val WarmAccentDeep = Color(0xFF8F7638)
+// Subtle Matte Black Leather & Obsidian Suede palette
+val PureBlack = Color(0xFF0A0C0D)
+val PureWhite = Color(0xFFF5F0E6)
+val WarmAccent = Color(0xFFD8C2A0)
+val WarmAccentDeep = Color(0xFF8C7756)
 
-// Dark theme — charcoal surfaces, warm off-white text and a muted gold accent.
-val DarkBackground = Color(0xFF0E0D0C)
-val DarkSurface = Color(0xFF171614)
-val DarkSurfaceVariant = Color(0xFF23201C)
-val DarkBorder = Color(0xFF302D28)
-val DarkBorderSubtle = Color(0xFF24211E)
-val DarkTextPrimary = Color(0xFFF2EEE7)
-val DarkTextSecondary = Color(0xFFCBC4BA)
-val DarkTextTertiary = Color(0xFF9A9288)
+// Restrained material accents (subtle, never loud)
+val LeatherCyan = Color(0xFF00BCC8)
+val LeatherCyanSoft = Color(0xFF7AD6DC)
+val LeatherLime = Color(0xFFD0FF00)
+val LeatherCognac = Color(0xFFB9572D)
+val LeatherCreamPill = Color(0xFFEDE2CE)
+val LeatherCreamInk = Color(0xFF171411)
 
-// Light theme keeps the same warm paper character.
-val LightBackground = Color(0xFFF7F3EC)
-val LightSurface = Color(0xFFFFFCF7)
-val LightSurfaceVariant = Color(0xFFEDE6DB)
-val LightBorder = Color(0xFFD8D0C4)
-val LightBorderSubtle = Color(0xFFE6DED2)
-val LightTextPrimary = Color(0xFF17140F)
-val LightTextSecondary = Color(0xFF625B52)
-val LightTextTertiary = Color(0xFF8A8177)
+// Dark theme — matte jet-black calfskin surfaces, warm ivory ink, quiet borders
+val DarkBackground = Color(0xFF0B0D0E)
+val DarkSurface = Color(0xFF131618)
+val DarkSurfaceVariant = Color(0xFF191E20)
+val DarkWell = Color(0xFF090B0C)
+val DarkNextCard = Color(0xFF131D20)
+val DarkBorder = Color(0xFF252B2E)
+val DarkBorderSubtle = Color(0xFF1C2123)
+val DarkTextPrimary = Color(0xFFF5F0E6)
+val DarkTextSecondary = Color(0xFFC8B99E)
+val DarkTextTertiary = Color(0xFF8A8275)
 
-val AccentInverted = Color(0xFFF4EAD3)
-val AccentDark = Color(0xFF2A2519)
+// Light theme — warm cream suede character when toggled
+val LightBackground = Color(0xFFF5EFE4)
+val LightSurface = Color(0xFFFCF8F1)
+val LightSurfaceVariant = Color(0xFFEBE2D3)
+val LightWell = Color(0xFFE6DCCB)
+val LightNextCard = Color(0xFFE5EFEF)
+val LightBorder = Color(0xFFD5C9B6)
+val LightBorderSubtle = Color(0xFFE3D9C9)
+val LightTextPrimary = Color(0xFF171411)
+val LightTextSecondary = Color(0xFF5E5549)
+val LightTextTertiary = Color(0xFF877D70)
+
+val AccentInverted = Color(0xFFF0E3CC)
+val AccentDark = Color(0xFF1E2628)
