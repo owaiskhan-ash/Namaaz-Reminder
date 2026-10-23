@@ -25,10 +25,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6F5824),
-    onPrimary = Color(0xFFFFFBF3),
-    primaryContainer = Color(0xFFF0DFC0),
-    onPrimaryContainer = Color(0xFF2B210B),
+    primary = Color(0xFF064B4D),
+    onPrimary = Color(0xFFFAF6EE),
+    primaryContainer = Color(0xFFE2ECEB),
+    onPrimaryContainer = Color(0xFF063B3D),
     secondary = LightTextSecondary,
     onSecondary = PureWhite,
     background = LightBackground,

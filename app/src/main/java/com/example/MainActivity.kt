@@ -1,5 +1,6 @@
 package com.example
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        handleAlarmIntent(intent)
 
         // Runtime permissions (POST_NOTIFICATIONS on Android 13+, SCHEDULE_EXACT_ALARM
         // on Android 12+) are requested from NamazScreen to avoid duplicate prompts.
@@ -61,6 +63,19 @@ class MainActivity : ComponentActivity() {
                     NamazScreen(viewModel = viewModel)
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleAlarmIntent(intent)
+    }
+
+    private fun handleAlarmIntent(incoming: Intent?) {
+        if (incoming?.getBooleanExtra(PrayerNotificationManager.EXTRA_STOP_AZAAN_ON_OPEN, false) == true) {
+            PrayerNotificationManager.stopAzaan(applicationContext)
+            incoming.removeExtra(PrayerNotificationManager.EXTRA_STOP_AZAAN_ON_OPEN)
         }
     }
 }

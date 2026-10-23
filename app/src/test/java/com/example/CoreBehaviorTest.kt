@@ -139,4 +139,45 @@ class CoreBehaviorTest {
         assertTrue(CALCULATION_METHODS.any { it.id == 2 && it.name.contains("ISNA") })
         assertTrue(CALCULATION_METHODS.any { it.id == 3 && it.name.contains("MWL") })
     }
+
+    @Test
+    fun `prayer notification channel and stop action work for alarm stream playback`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = UserSettings(
+            selectedCity = "Mumbai",
+            soundEnabled = true,
+            vibrationEnabled = true,
+            azaanSoundId = "madinah"
+        )
+        val channelId = com.example.notification.PrayerNotificationManager.createNotificationChannel(
+            context,
+            settings
+        )
+        assertTrue(channelId.contains("madinah"))
+
+        val notif = com.example.notification.PrayerNotificationManager.buildNotification(
+            context = context,
+            channelId = channelId,
+            notifId = 1001,
+            title = "Time for Fajr Prayer",
+            message = "It is now time for Fajr prayer in Mumbai.",
+            includeStopAction = true
+        )
+        assertEquals(android.app.Notification.CATEGORY_ALARM, notif.category)
+        assertTrue(notif.actions?.any { it.title == "Stop Azaan" } == true)
+
+        com.example.notification.PrayerNotificationManager.stopAzaan(context, 1001)
+    }
+
+    @Test
+    fun `default theme opens in subtle black leather dark mode and texture resource exists`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val freshSettings = PreferencesManager(context).loadSettings()
+        assertEquals("DARK", freshSettings.themeMode)
+        val bmp = android.graphics.BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.leather_black_tile
+        )
+        assertNotNull(bmp)
+    }
 }

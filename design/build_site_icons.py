@@ -222,12 +222,12 @@ def render(text: str, size: int) -> Image.Image:
     return img.resize((size, size), Image.LANCZOS)
 
 
-def svg(embedded_png: bytes, size: int) -> str:
+def svg(embedded_png: bytes, size: int, label: str = "Just Apps") -> str:
     """Favicon SVG: the rendered mark, embedded so it matches the PNG exactly."""
     b64 = base64.b64encode(embedded_png).decode("ascii")
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-        f'viewBox="0 0 {size} {size}" role="img" aria-label="Just Apps">\n'
+        f'viewBox="0 0 {size} {size}" role="img" aria-label="{label}">\n'
         f'  <image width="{size}" height="{size}" '
         f'href="data:image/png;base64,{b64}"/>\n'
         f"</svg>\n"
@@ -235,31 +235,82 @@ def svg(embedded_png: bytes, size: int) -> str:
 
 
 def _brand_source(source_path: str, size: int, remove_white_matte: bool = False) -> Image.Image:
-    """Resize approved brand artwork, optionally removing generated white corners."""
+    """Resize approved brand artwork, cleanly removing only exterior white corner matte."""
     source = Image.open(source_path).convert("RGBA")
-    if not remove_white_matte:
+    if not remove_white_matte or source.getpixel((0, 0))[3] < 16:
         return source.resize((size, size), Image.LANCZOS)
-    pixels = np.array(source).astype(np.float32)
+
+    # Work at 1024x1024 for fast, razor-sharp flood-fill & antialiased edge feathering
+    work = source.resize((1024, 1024), Image.LANCZOS)
+    pixels = np.array(work).astype(np.float32)
     rgb = pixels[..., :3]
-    neutral = rgb.max(axis=2) - rgb.min(axis=2) < 12
-    luminance = rgb.mean(axis=2)
-    # The source plate is charcoal; only the near-white neutral corner matte
-    # reaches this range. Feather its antialiased edge into transparency.
-    matte = neutral * np.clip((luminance - 218.0) / 28.0, 0.0, 1.0)
-    pixels[..., 3] = 255.0 * (1.0 - matte)
+    lum = rgb.mean(axis=2)
+    sat = rgb.max(axis=2) - rgb.min(axis=2)
+
+    # Candidate exterior background pixels: bright neutral white/cast-shadow outside the hide edge
+    bg_cand = (lum > 185.0) & (sat < 16.0)
+
+    # Flood-fill strictly from the outer border so interior cream suede stays 100% opaque!
+    from collections import deque
+    h, w = bg_cand.shape
+    ext = np.zeros((h, w), dtype=bool)
+    q = deque()
+    for x in range(w):
+        if bg_cand[0, x]:
+            ext[0, x] = True
+            q.append((0, x))
+        if bg_cand[h - 1, x]:
+            ext[h - 1, x] = True
+            q.append((h - 1, x))
+    for y in range(h):
+        if bg_cand[y, 0] and not ext[y, 0]:
+            ext[y, 0] = True
+            q.append((y, 0))
+        if bg_cand[y, w - 1] and not ext[y, w - 1]:
+            ext[y, w - 1] = True
+            q.append((y, w - 1))
+
+    while q:
+        cy, cx = q.popleft()
+        for ny, nx in ((cy - 1, cx), (cy + 1, cx), (cy, cx - 1), (cy, cx + 1)):
+            if 0 <= ny < h and 0 <= nx < w and not ext[ny, nx] and bg_cand[ny, nx]:
+                ext[ny, nx] = True
+                q.append((ny, nx))
+
+    # Erode foreground mask by 1px and feather 1.2px to eliminate any white AA fringe on dark backgrounds
+    fg = (~ext).astype(np.uint8) * 255
+    fg_img = Image.fromarray(fg, "L").filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.9))
+    alpha = np.array(fg_img, dtype=np.float32)
+
+    # Decontaminate white fringe from semi-transparent edge pixels
+    edge = (alpha > 4.0) & (alpha < 250.0)
+    a_norm = np.clip(alpha / 255.0, 0.08, 1.0)[..., None]
+    rgb_clean = np.where(edge[..., None], np.clip((rgb - (1.0 - a_norm) * 255.0) / a_norm, 0.0, 255.0), rgb)
+
+    pixels[..., :3] = rgb_clean
+    pixels[..., 3] = alpha
+
+    # Tightly frame the squircle patch with clean uniform 2% breathing margin
     cleaned = Image.fromarray(np.clip(pixels, 0, 255).astype(np.uint8), "RGBA")
+    bbox = cleaned.split()[3].point(lambda p: 255 if p > 16 else 0).getbbox()
+    if bbox:
+        cropped = cleaned.crop(bbox)
+        pad = int(round(max(cropped.size) * 0.02))
+        side = max(cropped.size) + pad * 2
+        framed = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        framed.paste(cropped, ((side - cropped.width) // 2, (side - cropped.height) // 2))
+        cleaned = framed
+
     return cleaned.resize((size, size), Image.LANCZOS)
 
 
 def main() -> None:
     os.makedirs(ASSETS, exist_ok=True)
     for text, prefix, sizes in MARKS:
+        src_path = JA_SOURCE if text == "JA" else NR_SOURCE
+        label = "Just Apps" if text == "JA" else "Namaaz Reminder"
         rendered = {
-            size: (
-                _brand_source(JA_SOURCE, size, remove_white_matte=True)
-                if text == "JA"
-                else _brand_source(NR_SOURCE, size)
-            )
+            size: _brand_source(src_path, size, remove_white_matte=True)
             for size in sizes
         }
         for size, img in rendered.items():
@@ -271,8 +322,169 @@ def main() -> None:
         rendered[max(sizes)].save(buf, "PNG", optimize=True)
         svg_path = os.path.join(ASSETS, f"{prefix}.svg")
         with open(svg_path, "w") as fh:
-            fh.write(svg(buf.getvalue(), max(sizes)))
+            fh.write(svg(buf.getvalue(), max(sizes), label=label))
         print("wrote", os.path.relpath(svg_path, ROOT))
+
+        if prefix == "just-apps-icon":
+            ico_path = os.path.join(ROOT, "docs", "favicon.ico")
+            rendered[256].save(ico_path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
+            print("wrote", os.path.relpath(ico_path, ROOT))
+            _build_social_card(rendered[512])
+        elif prefix == "nr-mark":
+            _build_nr_og_card(rendered[512])
+
+
+def _load_woff2_font(woff2_path: str, size: int):
+    from fontTools.ttLib import TTFont
+    from PIL import ImageFont
+
+    buf = io.BytesIO()
+    tt = TTFont(woff2_path)
+    tt.flavor = None
+    tt.save(buf)
+    buf.seek(0)
+    return ImageFont.truetype(buf, size=size)
+
+
+def _build_social_card(ja_icon_512: Image.Image) -> None:
+    """Render docs/assets/just-apps-social.png (1200x630) with the leather & suede JA mark."""
+    from PIL import ImageDraw
+
+    w, h = 1200, 630
+    bg_tile = Image.open(os.path.join(ASSETS, "materials", "charcoal-leather.webp")).convert("RGB")
+    card = Image.new("RGBA", (w, h), (23, 27, 25, 255))
+    tw, th = bg_tile.size
+    for y in range(0, h, th):
+        for x in range(0, w, tw):
+            card.paste(bg_tile, (x, y))
+
+    # Subtle vignette / reading well so copy stays crisp
+    ov = Image.new("RGBA", (w, h), (14, 18, 17, 178))
+    card = Image.alpha_composite(card, ov)
+
+    # Inner stitched leather frame
+    draw = ImageDraw.Draw(card)
+    pad = 46
+    draw.rounded_rectangle(
+        (pad, pad, w - pad, h - pad),
+        radius=28,
+        fill=(19, 25, 24, 165),
+        outline=(0, 188, 200, 95),
+        width=2,
+    )
+
+    # Tactile JA leather & suede icon on the left with natural contact shadow
+    icon_sz = 310
+    icon_x, icon_y = 108, (h - icon_sz) // 2
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sh_alpha = ja_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS).split()[3]
+    sh_layer = Image.new("RGBA", (icon_sz, icon_sz), (0, 0, 0, 170))
+    sh_layer.putalpha(sh_alpha)
+    shadow.paste(sh_layer, (icon_x, icon_y + 14))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=16))
+    card = Image.alpha_composite(card, shadow)
+
+    ja_resized = ja_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS)
+    card.paste(ja_resized, (icon_x, icon_y), ja_resized)
+
+    # Typography on the right
+    draw = ImageDraw.Draw(card)
+    fonts_dir = os.path.join(ASSETS, "fonts")
+    f_eyebrow = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 17)
+    f_head = _load_woff2_font(os.path.join(fonts_dir, "instrument-serif-latin-400-normal.woff2"), 76)
+    f_sub = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-400-normal.woff2"), 22)
+    f_foot = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 15)
+
+    tx = 472
+    draw.text((tx, 162), "JUST APPS  ·  FREE ANDROID COLLECTION", font=f_eyebrow, fill=(0, 188, 200, 255))
+    draw.text((tx, 212), "Everyday apps,", font=f_head, fill=(247, 242, 232, 255))
+    line2_prefix = "thoughtfully "
+    draw.text((tx, 286), line2_prefix, font=f_head, fill=(247, 242, 232, 255))
+    pw = draw.textlength(line2_prefix, font=f_head)
+    draw.text((tx + pw, 286), "made.", font=f_head, fill=(208, 255, 0, 255))
+
+    draw.text(
+        (tx, 384),
+        "Prayer times, screen breaks, subscriptions, and vaccine records.",
+        font=f_sub,
+        fill=(216, 194, 160, 240),
+    )
+    draw.line([(tx, 444), (w - 104, 444)], fill=(216, 194, 160, 52), width=1)
+    draw.text(
+        (tx, 468),
+        "FREE   ·   NO ADS   ·   NO TRACKING   ·   OFFLINE-READY",
+        font=f_foot,
+        fill=(240, 227, 204, 190),
+    )
+
+    out_path = os.path.join(ASSETS, "just-apps-social.png")
+    card.convert("RGB").save(out_path, "PNG", optimize=True)
+    print("wrote", os.path.relpath(out_path, ROOT))
+
+
+def _build_nr_og_card(nr_icon_512: Image.Image) -> None:
+    """Render docs/assets/og/og-namaaz-reminder.png (1200x630) with the leather & suede NR mark."""
+    from PIL import ImageDraw
+
+    w, h = 1200, 630
+    bg_tile = Image.open(os.path.join(ASSETS, "materials", "charcoal-leather.webp")).convert("RGB")
+    card = Image.new("RGBA", (w, h), (23, 27, 25, 255))
+    tw, th = bg_tile.size
+    for y in range(0, h, th):
+        for x in range(0, w, tw):
+            card.paste(bg_tile, (x, y))
+
+    ov = Image.new("RGBA", (w, h), (14, 18, 17, 178))
+    card = Image.alpha_composite(card, ov)
+
+    draw = ImageDraw.Draw(card)
+    pad = 46
+    draw.rounded_rectangle(
+        (pad, pad, w - pad, h - pad),
+        radius=28,
+        fill=(19, 25, 24, 165),
+        outline=(0, 188, 200, 95),
+        width=2,
+    )
+
+    icon_sz = 304
+    icon_x, icon_y = w - 112 - icon_sz, (h - icon_sz) // 2
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sh_alpha = nr_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS).split()[3]
+    sh_layer = Image.new("RGBA", (icon_sz, icon_sz), (0, 0, 0, 175))
+    sh_layer.putalpha(sh_alpha)
+    shadow.paste(sh_layer, (icon_x, icon_y + 14))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(radius=16))
+    card = Image.alpha_composite(card, shadow)
+
+    nr_resized = nr_icon_512.resize((icon_sz, icon_sz), Image.LANCZOS)
+    card.paste(nr_resized, (icon_x, icon_y), nr_resized)
+
+    draw = ImageDraw.Draw(card)
+    fonts_dir = os.path.join(ASSETS, "fonts")
+    f_eyebrow = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 17)
+    f_head = _load_woff2_font(os.path.join(fonts_dir, "instrument-serif-latin-400-normal.woff2"), 82)
+    f_sub = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-400-normal.woff2"), 24)
+    f_foot = _load_woff2_font(os.path.join(fonts_dir, "plus-jakarta-sans-latin-600-normal.woff2"), 15)
+
+    tx = 104
+    draw.text((tx, 166), "JUST APPS  ·  01  ·  PRAYER", font=f_eyebrow, fill=(0, 188, 200, 255))
+    draw.text((tx, 218), "Namaaz Reminder", font=f_head, fill=(247, 242, 232, 255))
+    draw.text((tx, 336), "Prayer times for your city, and a live", font=f_sub, fill=(216, 194, 160, 240))
+    draw.text((tx, 372), "countdown to the next salah.", font=f_sub, fill=(216, 194, 160, 240))
+    draw.line([(tx, 444), (tx + 590, 444)], fill=(216, 194, 160, 52), width=1)
+    draw.text(
+        (tx, 468),
+        "FREE   ·   NO ADS   ·   NO TRACKING   ·   OFFLINE",
+        font=f_foot,
+        fill=(240, 227, 204, 190),
+    )
+
+    og_dir = os.path.join(ASSETS, "og")
+    os.makedirs(og_dir, exist_ok=True)
+    out_path = os.path.join(og_dir, "og-namaaz-reminder.png")
+    card.convert("RGB").save(out_path, "PNG", optimize=True)
+    print("wrote", os.path.relpath(out_path, ROOT))
 
 
 if __name__ == "__main__":

@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <!-- Lets users optionally allow prayer alarms through Do Not Disturb. Silent
          and vibrate modes are handled by the alarm audio stream regardless. -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
@@ -46,11 +49,17 @@
                 android:resource="@xml/azaan_file_paths" />
         </provider>
 
+        <service
+            android:name=".notification.AzaanPlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <receiver
             android:name=".receiver.PrayerAlarmReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.example.namaztimes.ACTION_PRAYER_REMINDER" />
+                <action android:name="com.example.namaztimes.ACTION_STOP_AZAAN" />
             </intent-filter>
         </receiver>
 

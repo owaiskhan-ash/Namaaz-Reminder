@@ -42,15 +42,73 @@ SAFE_MARK_DP = 58.0           # monogram width; its shadows still fit the 66dp s
 CANVAS_DP = 108.0
 
 
+def _strip_white_matte_if_needed(im: Image.Image) -> Image.Image:
+    """Remove exterior white corner matte while keeping interior cream suede 100% opaque."""
+    from collections import deque
+    import numpy as np
+
+    im = im.convert("RGBA")
+    if im.getpixel((0, 0))[3] < 16:
+        return im
+
+    work = im.resize((1024, 1024), Image.LANCZOS)
+    pixels = np.array(work, dtype=np.float32)
+    rgb = pixels[..., :3]
+    lum = rgb.mean(axis=2)
+    sat = rgb.max(axis=2) - rgb.min(axis=2)
+    bg_cand = (lum > 180.0) & (sat < 18.0)
+
+    h, w = bg_cand.shape
+    ext = np.zeros((h, w), dtype=bool)
+    q = deque()
+    for x in range(w):
+        if bg_cand[0, x]:
+            ext[0, x] = True
+            q.append((0, x))
+        if bg_cand[h - 1, x]:
+            ext[h - 1, x] = True
+            q.append((h - 1, x))
+    for y in range(h):
+        if bg_cand[y, 0] and not ext[y, 0]:
+            ext[y, 0] = True
+            q.append((y, 0))
+        if bg_cand[y, w - 1] and not ext[y, w - 1]:
+            ext[y, w - 1] = True
+            q.append((y, w - 1))
+
+    while q:
+        cy, cx = q.popleft()
+        for ny, nx in ((cy - 1, cx), (cy + 1, cx), (cy, cx - 1), (cy, cx + 1)):
+            if 0 <= ny < h and 0 <= nx < w and not ext[ny, nx] and bg_cand[ny, nx]:
+                ext[ny, nx] = True
+                q.append((ny, nx))
+
+    # Erode 1px + slight feather to eliminate any white AA halo on black leather
+    fg = (~ext).astype(np.uint8) * 255
+    fg_img = (
+        Image.fromarray(fg, "L")
+        .filter(ImageFilter.MinFilter(3))
+        .filter(ImageFilter.GaussianBlur(0.85))
+    )
+    alpha = np.array(fg_img, dtype=np.float32)
+    edge = (alpha > 4.0) & (alpha < 250.0)
+    a_norm = np.clip(alpha / 255.0, 0.08, 1.0)[..., None]
+    rgb_clean = np.where(
+        edge[..., None],
+        np.clip((rgb - (1.0 - a_norm) * 255.0) / a_norm, 0.0, 255.0),
+        rgb,
+    )
+    pixels[..., :3] = rgb_clean
+    pixels[..., 3] = alpha
+    return Image.fromarray(np.clip(pixels, 0, 255).astype(np.uint8), "RGBA")
+
+
 def load_artwork() -> Image.Image:
-    """The artwork, tightly cropped to its opaque plate (outer glow dropped)."""
-    im = Image.open(SRC).convert("RGBA")
-    box = im.getbbox()                      # alpha > 0, includes the soft glow
+    """The artwork, tightly cropped to its opaque plate with a 100% transparent base."""
+    im = _strip_white_matte_if_needed(Image.open(SRC))
     alpha = im.getchannel("A")
-    # Use the solid plate instead of the faint outer glow.
-    solid = alpha.point(lambda v: 255 if v >= 250 else 0)
+    solid = alpha.point(lambda v: 255 if v >= 16 else 0)
     x0, y0, x1, y1 = solid.getbbox()
-    del box
     tile = im.crop((x0, y0, x1, y1))
 
     # Pad to a square without distorting, so every icon keeps the true shape.
@@ -121,14 +179,17 @@ def fit_plate(art: Image.Image, size: int) -> Image.Image:
 
 def extend_plate(art: Image.Image, size: int) -> Image.Image:
     """
-    Adaptive foreground: the artwork itself, full-bleed.
-
-    The launcher mask always cuts a shape inside the 108dp canvas, so it crops
-    the plate's own rounded rim exactly where a mask would cut anyway. The
-    monogram's furthest corner sits at ~47% of the tile, well inside every mask,
-    so nothing important is ever clipped.
+    Adaptive foreground: size the leather & suede squircle to ~79.5dp of the
+    108dp adaptive canvas (73.6% of `size`) so Android's 72dp launcher mask
+    preserves the perimeter saddle stitching, leather inlays, and centered NR
+    monogram, while `ic_launcher_background.xml` fills any outer parallax bleed.
     """
-    return art.resize((size, size), Image.LANCZOS)
+    inner = int(round(size * (318.0 / 432.0)))
+    pad = (size - inner) // 2
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    scaled = art.resize((inner, inner), Image.LANCZOS)
+    canvas.paste(scaled, (pad, pad), scaled)
+    return canvas
 
 
 def adaptive_background(art: Image.Image, size: int) -> Image.Image:
@@ -249,11 +310,10 @@ def monochrome_xml(safe_frac: float = 0.585) -> str:
 
 
 def background_xml(art: Image.Image) -> str:
-    """Adaptive background: two sampled plate tones, top to bottom."""
-    px = art.convert("RGB").load()
-    w, h = art.size
-    top = tuple(sum(px[x, int(h * 0.06)][i] for x in range(int(w * .3), int(w * .7))) // int(w * .4) for i in range(3))
-    bottom = tuple(sum(px[x, int(h * 0.94)][i] for x in range(int(w * .3), int(w * .7))) // int(w * .4) for i in range(3))
+    """Adaptive background: deep cyan-teal suede gradient matching the NR hide."""
+    del art
+    top = (8, 84, 89)
+    bottom = (5, 56, 59)
     hexc = lambda c: "#FF%02X%02X%02X" % c
     return f"""<?xml version="1.0" encoding="utf-8"?>
 <!--

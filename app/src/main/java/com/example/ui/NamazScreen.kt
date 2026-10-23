@@ -14,8 +14,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -61,6 +61,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -78,6 +80,10 @@ import com.example.ui.components.HeroCountdownCard
 import com.example.ui.components.NamazTopBar
 import com.example.ui.components.PrayerTimeCard
 import com.example.ui.components.SettingsSheet
+import com.example.ui.components.blackLeatherCanvas
+import com.example.ui.components.leatherCard
+import com.example.ui.components.rememberBlackLeatherBrush
+import com.example.ui.theme.WarmAccent
 
 @Composable
 fun NamazScreen(
@@ -91,6 +97,7 @@ fun NamazScreen(
         "LIGHT" -> false
         else -> isSystemInDarkTheme()
     }
+    val leatherBrush = rememberBlackLeatherBrush(isDarkTheme)
     val snackbarHostState = remember { SnackbarHostState() }
 
     var hasNotificationPermission by remember {
@@ -122,17 +129,12 @@ fun NamazScreen(
 
     var isAstronomicalExpanded by remember { mutableStateOf(false) }
 
-    // Ask for notification permission on load as required by user prompt
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
-    // Re-check permission states every time the app returns to the foreground.
-    // This keeps the banners honest when permission was granted (or revoked)
-    // from system settings, and upgrades pending inexact alarms to exact ones
-    // as soon as SCHEDULE_EXACT_ALARM becomes available.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -150,7 +152,6 @@ fun NamazScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Handle toast messages
     LaunchedEffect(uiState.toastMessage) {
         uiState.toastMessage?.let { msg ->
             snackbarHostState.showSnackbar(msg)
@@ -174,9 +175,6 @@ fun NamazScreen(
         ).show()
     }
 
-
-    // Long press a card to set a custom time. When one is already set, offer to
-    // change or clear it - otherwise a custom time could never be undone.
     fun showPrayerTimePicker(prayer: PrayerItem) {
         if (prayer.customTime == null) {
             showTimePicker(prayer)
@@ -197,9 +195,11 @@ fun NamazScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .blackLeatherCanvas(isDark = isDarkTheme, grainBrush = leatherBrush),
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             NamazTopBar(
                 modifier = Modifier.statusBarsPadding(),
@@ -207,8 +207,6 @@ fun NamazScreen(
                 currentCity = uiState.settings.selectedCity,
                 currentTheme = if (isDarkTheme) "DARK" else "LIGHT",
                 onToggleTheme = {
-                    // Toggle against the effective theme so a first tap also changes
-                    // appearance when the saved mode was SYSTEM.
                     viewModel.setThemeMode(if (isDarkTheme) "LIGHT" else "DARK")
                 },
                 onOpenCityPicker = { viewModel.openCityPicker(true) },
@@ -221,7 +219,6 @@ fun NamazScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Adaptive max-width container for phones, foldables, and tablets
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -234,9 +231,13 @@ fun NamazScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 4.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                            .leatherCard(
+                                cornerRadius = 12.dp,
+                                isDark = isDarkTheme,
+                                fillColor = MaterialTheme.colorScheme.surfaceVariant,
+                                borderColor = MaterialTheme.colorScheme.outline,
+                                grainBrush = leatherBrush
+                            )
                             .clickable { permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                             .testTag("enable_permission_banner")
@@ -253,7 +254,7 @@ fun NamazScreen(
                                 Icon(
                                     imageVector = Icons.Default.NotificationsActive,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    tint = if (isDarkTheme) WarmAccent else MaterialTheme.colorScheme.onBackground,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -269,14 +270,13 @@ fun NamazScreen(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.sp
                                 ),
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = if (isDarkTheme) WarmAccent else MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
                 }
 
-                // Exact-Alarm Permission Banner (Android 12+; without it reminders
-                // fall back to inexact alarms that can fire minutes-to-hours late)
+                // Exact-Alarm Permission Banner (Android 12+)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                     !canScheduleExactAlarms &&
                     uiState.settings.notificationsEnabled
@@ -285,9 +285,13 @@ fun NamazScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 4.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                            .leatherCard(
+                                cornerRadius = 12.dp,
+                                isDark = isDarkTheme,
+                                fillColor = MaterialTheme.colorScheme.surfaceVariant,
+                                borderColor = MaterialTheme.colorScheme.outline,
+                                grainBrush = leatherBrush
+                            )
                             .clickable { openExactAlarmSettings(context) }
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                             .testTag("exact_alarm_banner")
@@ -304,7 +308,7 @@ fun NamazScreen(
                                 Icon(
                                     imageVector = Icons.Default.Schedule,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    tint = if (isDarkTheme) WarmAccent else MaterialTheme.colorScheme.onBackground,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -320,22 +324,26 @@ fun NamazScreen(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.sp
                                 ),
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = if (isDarkTheme) WarmAccent else MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
                 }
 
-                // Offline Cache Banner (if serving from offline cache)
+                // Offline Cache Banner
                 val schedule = uiState.schedule
                 if (schedule?.isOfflineCache == true) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surface)
+                            .leatherCard(
+                                cornerRadius = 10.dp,
+                                isDark = isDarkTheme,
+                                fillColor = MaterialTheme.colorScheme.surface,
+                                borderColor = MaterialTheme.colorScheme.outline,
+                                grainBrush = leatherBrush
+                            )
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                             .testTag("offline_cache_indicator")
                     ) {
@@ -366,7 +374,7 @@ fun NamazScreen(
                     }
                 }
 
-                // Error State (when no data and network failed)
+                // Error State
                 if (uiState.errorMessage != null && schedule == null) {
                     Box(
                         modifier = Modifier
@@ -404,14 +412,13 @@ fun NamazScreen(
                         }
                     }
                 } else {
-                    // Main Scrollable Content
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                         contentPadding = PaddingValues(bottom = 32.dp)
                     ) {
-                        // Date & Method Header with clickable location selection shortcut
+                        // Date & Method Header Card
                         item {
                             schedule?.let { data ->
                                 DateHeader(
@@ -419,12 +426,14 @@ fun NamazScreen(
                                     dateGregorian = data.dateGregorian,
                                     dateHijri = data.dateHijri,
                                     methodName = data.methodName,
+                                    isDark = isDarkTheme,
+                                    grainBrush = leatherBrush,
                                     onOpenCityPicker = { viewModel.openCityPicker(true) }
                                 )
                             }
                         }
 
-                        // Hero Countdown Card (Highlighted Next Prayer)
+                        // Hero Countdown Card
                         item {
                             HeroCountdownCard(
                                 nextPrayer = uiState.nextPrayer,
@@ -432,6 +441,8 @@ fun NamazScreen(
                                 city = uiState.settings.selectedCity,
                                 reminderOffsetMinutes = uiState.settings.reminderOffsetMinutes,
                                 use24Hour = uiState.settings.is24HourFormat,
+                                isDark = isDarkTheme,
+                                grainBrush = leatherBrush,
                                 onToggleReminder = { prayerName ->
                                     viewModel.togglePrayerNotification(prayerName)
                                 },
@@ -465,7 +476,7 @@ fun NamazScreen(
                             }
                         }
 
-                        // List of 5 Main Prayers
+                        // 5 Main Prayers
                         val primaryPrayers = schedule?.prayers?.filter { it.type.isPrimaryPrayer } ?: emptyList()
                         items(primaryPrayers) { prayer ->
                             Box(
@@ -476,6 +487,8 @@ fun NamazScreen(
                                 PrayerTimeCard(
                                     prayer = prayer,
                                     use24Hour = uiState.settings.is24HourFormat,
+                                    isDark = isDarkTheme,
+                                    grainBrush = leatherBrush,
                                     onToggleReminder = {
                                         viewModel.togglePrayerNotification(prayer.type.name)
                                     },
@@ -484,7 +497,7 @@ fun NamazScreen(
                             }
                         }
 
-                        // Secondary Astronomical Times (Sunrise & Sunset) - Collapsed by default
+                        // Secondary Astronomical Times (Sunrise & Sunset)
                         val secondaryPrayers = schedule?.prayers?.filter { !it.type.isPrimaryPrayer } ?: emptyList()
                         if (secondaryPrayers.isNotEmpty()) {
                             item {
@@ -493,9 +506,13 @@ fun NamazScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp, vertical = 4.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                                        .leatherCard(
+                                            cornerRadius = 12.dp,
+                                            isDark = isDarkTheme,
+                                            fillColor = MaterialTheme.colorScheme.surface,
+                                            borderColor = MaterialTheme.colorScheme.outline,
+                                            grainBrush = leatherBrush
+                                        )
                                         .clickable { isAstronomicalExpanded = !isAstronomicalExpanded }
                                         .padding(horizontal = 14.dp, vertical = 12.dp)
                                         .testTag("astronomical_dropdown_header"),
@@ -506,7 +523,7 @@ fun NamazScreen(
                                         Icon(
                                             imageVector = Icons.Default.WbSunny,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            tint = if (isDarkTheme) WarmAccent else MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.size(16.dp)
                                         )
                                         Spacer(modifier = Modifier.width(10.dp))
@@ -539,6 +556,8 @@ fun NamazScreen(
                                         PrayerTimeCard(
                                             prayer = prayer,
                                             use24Hour = uiState.settings.is24HourFormat,
+                                            isDark = isDarkTheme,
+                                            grainBrush = leatherBrush,
                                             onToggleReminder = {}
                                         )
                                     }
@@ -551,7 +570,6 @@ fun NamazScreen(
         }
     }
 
-    // City Selection Bottom Sheet
     CitySelectionSheet(
         isOpen = uiState.isCityPickerOpen,
         selectedCity = uiState.settings.selectedCity,
@@ -562,7 +580,6 @@ fun NamazScreen(
         onCitySelected = { viewModel.selectCity(it) }
     )
 
-    // Settings Bottom Sheet
     SettingsSheet(
         isOpen = uiState.isSettingsOpen,
         settings = uiState.settings,
@@ -588,17 +605,23 @@ private fun DateHeader(
     dateGregorian: String,
     dateHijri: String,
     methodName: String,
+    isDark: Boolean,
+    grainBrush: Brush?,
     onOpenCityPicker: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+            .leatherCard(
+                cornerRadius = 14.dp,
+                isDark = isDark,
+                fillColor = MaterialTheme.colorScheme.surface,
+                borderColor = MaterialTheme.colorScheme.outline,
+                grainBrush = grainBrush
+            )
             .clickable { onOpenCityPicker() }
-            .padding(14.dp)
+            .padding(horizontal = 15.dp, vertical = 13.dp)
             .testTag("date_header_city_card")
     ) {
         Column {
@@ -611,7 +634,7 @@ private fun DateHeader(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Change City",
-                        tint = MaterialTheme.colorScheme.onBackground,
+                        tint = if (isDark) WarmAccent else MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -652,7 +675,7 @@ private fun DateHeader(
                 Text(
                     text = methodName.split(",").firstOrNull() ?: methodName,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
                 )
             }
         }
@@ -666,11 +689,6 @@ private fun checkNotificationPermission(context: Context): Boolean =
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
 
-/**
- * Opens the system page where the user grants SCHEDULE_EXACT_ALARM
- * ("Alarms & reminders"). Falls back to the app details page on builds
- * where the dedicated settings action is unavailable.
- */
 private fun openExactAlarmSettings(context: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
     val packageUri = Uri.parse("package:${context.packageName}")
@@ -686,7 +704,6 @@ private fun openExactAlarmSettings(context: Context) {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         } catch (ignored: Exception) {
-            // No settings page available on this device; nothing else to do.
         }
     }
 }

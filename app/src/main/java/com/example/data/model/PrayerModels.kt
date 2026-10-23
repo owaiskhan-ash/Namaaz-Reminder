@@ -78,7 +78,7 @@ object AzaanSoundIds {
 data class UserSettings(
     val selectedCity: String = "Delhi",
     val methodId: Int = 1,
-    val themeMode: String = "SYSTEM", // "SYSTEM", "LIGHT", "DARK"
+    val themeMode: String = "DARK", // "SYSTEM", "LIGHT", "DARK" — defaults to Black Leather
     val notificationsEnabled: Boolean = true,
     val reminderOffsetMinutes: Int = 5, // 0, 5, 10, 15, 30
     val soundEnabled: Boolean = true,

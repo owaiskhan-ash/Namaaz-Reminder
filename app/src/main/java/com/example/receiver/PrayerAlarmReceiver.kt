@@ -11,25 +11,32 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Fires a prayer reminder notification, then re-arms the remaining and
- * next-day alarms. The re-arm step keeps reminders going day after day.
+ * Fires a prayer reminder notification (and handles the "Stop Azaan" action),
+ * then re-arms the remaining and next-day alarms.
  */
 class PrayerAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent == null) return
-        // The receiver is not exported, but only act on our own alarm action.
+        val appContext = context.applicationContext
+
+        if (intent.action == PrayerNotificationManager.ACTION_STOP_AZAAN) {
+            val cancelId = intent.getIntExtra(
+                PrayerNotificationManager.EXTRA_CANCEL_NOTIFICATION_ID,
+                0
+            )
+            PrayerNotificationManager.stopAzaan(appContext, cancelId)
+            return
+        }
+
         if (intent.action != PrayerNotificationManager.ACTION_PRAYER_REMINDER) return
 
-        val appContext = context.applicationContext
         val settings = PreferencesManager(appContext).loadSettings()
         val prayerName = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_NAME) ?: "Prayer"
         val prayerTime = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_TIME) ?: ""
         val city = intent.getStringExtra(PrayerNotificationManager.EXTRA_CITY) ?: "India"
         val offset = intent.getIntExtra(PrayerNotificationManager.EXTRA_OFFSET, settings.reminderOffsetMinutes)
 
-        // Settings are read at delivery time so a changed Azaan or sound preference is
-        // applied even if an older one-shot PendingIntent happened to be in flight.
         if (settings.notificationsEnabled) {
             PrayerNotificationManager.showPrayerNotification(
                 context = appContext,

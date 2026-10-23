@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Namaaz Reminder — Mobile App Viewport (v1.6.2)</title>
+<style>
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-latin-700-normal.woff2') format('woff2');
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --studio-bg: #07090A;
+  --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+html, body {
+  min-height: 100%;
+  background: radial-gradient(circle at 50% 18%, #151A1C 0%, #07090A 72%);
+  color: #F5F0E6;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 16px 28px;
+  gap: 14px;
+}
+
+/* Viewport switcher bar above phone */
+.vp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(19, 22, 24, 0.88);
+  border: 1px solid #252B2E;
+  border-radius: 999px;
+  padding: 5px 8px 5px 14px;
+  font-size: 11.5px;
+  color: #C8B99E;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.vp-toolbar-label {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: #8A8275;
+  margin-right: 4px;
+}
+
+.vp-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #C8B99E;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.vp-btn:hover { color: #F5F0E6; }
+.vp-btn.active {
+  background: #1C2427;
+  border-color: rgba(0, 188, 200, 0.42);
+  color: #F5F0E6;
+}
+
+/* Realistic Android Device Frame */
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  border-radius: 44px;
+  padding: 11px;
+  background: linear-gradient(160deg, #2A2F32 0%, #141719 48%, #0D0F10 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 28px 70px rgba(0, 0, 0, 0.78),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16);
+  position: relative;
+  transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1), height 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.phone-frame[data-size="compact"] { width: 360px; height: 780px; }
+.phone-frame[data-size="standard"] { width: 390px; height: 844px; }
+.phone-frame[data-size="large"] { width: 412px; height: 892px; }
+
+/* Screen Canvas matching Compose NamazScreen */
+.phone-screen {
+  --bg: #0B0D0E;
+  --surface: #131618;
+  --surface-var: #191E20;
+  --well: #090B0C;
+  --next-card: #131D20;
+  --border: #252B2E;
+  --text-primary: #F5F0E6;
+  --text-secondary: #C8B99E;
+  --text-tertiary: #8A8275;
+  --cyan: #00BCC8;
+  --cyan-soft: #7AD6DC;
+  --lime: #D0FF00;
+  --cognac: #B9572D;
+  --cream-pill: #EDE2CE;
+  --cream-ink: #171411;
+
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.022) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.36) 100%),
+    url('/res/leather_black_tile.png');
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 256px 256px;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.phone-screen[data-theme="LIGHT"] {
+  --bg: #F5EFE4;
+  --surface: #FCF8F1;
+  --surface-var: #EBE2D3;
+  --well: #E6DCCB;
+  --next-card: #E5EFEF;
+  --border: #D5C9B6;
+  --text-primary: #171411;
+  --text-secondary: #5E5549;
+  --text-tertiary: #877D70;
+  --cream-pill: #171411;
+  --cream-ink: #FCF8F1;
+  background-image: none;
+}
+
+/* Whisper-quiet vertical side saddle-stitch seams (matching blackLeatherCanvas) */
+.phone-screen[data-theme="DARK"]::before,
+.phone-screen[data-theme="DARK"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(216, 194, 160, 0.075) 0px,
+    rgba(216, 194, 160, 0.075) 5px,
+    transparent 5px,
+    transparent 9.5px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+.phone-screen[data-theme="DARK"]::before { left: 6px; }
+.phone-screen[data-theme="DARK"]::after { right: 6px; }
+
+/* Android Status Bar */
+.status-bar {
+  height: 34px;
+  padding: 8px 22px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  opacity: 0.88;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.camera-punch {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #040506;
+  box-shadow: inset 0 0 0 1.5px #1B2022;
+  position: absolute;
+  left: 50%;
+  top: 11px;
+  transform: translateX(-50%);
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* NamazTopBar (exact v1.6.1 layout: 34dp transparent NR logo, 32dp icons, 10dp spacing) */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.top-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.top-title-col {
+  flex: 1;
+  min-width: 0;
+  margin-left: 11px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.top-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.top-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.top-dot {
+  width: 4.5px;
+  height: 4.5px;
+  border-radius: 50%;
+  background: rgba(185, 87, 45, 0.85);
+  flex-shrink: 0;
+}
+
+.top-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.55px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.leather-well {
+  background-color: var(--well);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.phone-screen[data-theme="LIGHT"] .leather-well {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.hdr-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.hdr-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(216, 194, 160, 0.38);
+}
+.hdr-btn:active { transform: scale(0.94); }
+.hdr-btn svg { width: 15px; height: 15px; }
+
+/* Scrollable body */
+.scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 28px;
+  scrollbar-width: none;
+}
+.scroll-body::-webkit-scrollbar { display: none; }
+
+/* Subtle Padded Leather Card */
+.leather-card {
+  position: relative;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.036) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.24) 100%),
+    url('/res/leather_black_tile.png');
+  background-size: 100% 100%, 256px 256px;
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.065), 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+.phone-screen[data-theme="LIGHT"] .leather-card {
+  background-image: none;
+  box-shadow: 0 3px 10px rgba(23, 20, 17, 0.05);
+}
+
+/* Date Header Card */
+.date-card {
+  margin: 6px 16px;
+  padding: 13px 15px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.16s ease;
+}
+.date-card:hover { border-color: rgba(216, 194, 160, 0.34); }
+
+.date-top, .date-bot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.date-city-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.date-city-wrap svg {
+  width: 15px;
+  height: 15px;
+  color: #D8C2A0;
+}
+.phone-screen[data-theme="LIGHT"] .date-city-wrap svg { color: var(--text-primary); }
+
+.date-hijri {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.date-bot {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.date-method {
+  font-size: 11px;
+  opacity: 0.74;
+}
+
+/* Hero Countdown Card */
+.hero-card {
+  margin: 8px 16px;
+  padding: 21px;
+  border-radius: 20px;
+  border-color: rgba(0, 188, 200, 0.28);
+}
+.phone-screen[data-theme="DARK"] .hero-card::after {
+  content: '';
+  position: absolute;
+  inset: 4.5px;
+  border-radius: 15.5px;
+  border: 1px dashed rgba(216, 194, 160, 0.15);
+  pointer-events: none;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.next-pill {
+  background: var(--cream-pill);
+  color: var(--cream-ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  padding: 4px 11px;
+  border-radius: 999px;
+}
+.city-pill {
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.hero-mid {
+  margin-top: 15px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.hero-prayer-name {
+  font-size: 35px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1.08;
+}
+.hero-starts {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.hero-arabic {
+  font-size: 28px;
+  color: var(--text-secondary);
+  line-height: 1.1;
+}
+
+.hero-well {
+  margin-top: 18px;
+  padding: 13px 15px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.well-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  color: var(--text-secondary);
+}
+.well-timer {
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--text-primary);
+}
+.reminder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(237, 226, 206, 0.11);
+  border: 1px solid rgba(216, 194, 160, 0.34);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.14s ease;
+}
+.reminder-chip.muted {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+.reminder-chip:active { transform: scale(0.96); }
+.reminder-chip svg { width: 14px; height: 14px; color: #D8C2A0; }
+
+/* Section row */
+.sec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 18px 7px;
+}
+.sec-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+.sec-fmt {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Prayer cards */
+.prayer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.prayer-card {
+  border-radius: 14px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prayer-card.is-passed {
+  opacity: 0.56;
+}
+.prayer-card.is-next {
+  background-color: var(--next-card);
+  border-color: rgba(0, 188, 200, 0.46);
+}
+.phone-screen[data-theme="DARK"] .prayer-card.is-next::after {
+  content: '';
+  position: absolute;
+  inset: 4.2px;
+  border-radius: 10px;
+  border: 1px dashed rgba(0, 188, 200, 0.17);
+  pointer-events: none;
+}
+
+.p-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.p-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(185, 87, 45, 0.58);
+  flex-shrink: 0;
+}
+.prayer-card.is-passed .p-dot { background: rgba(216, 194, 160, 0.32); }
+.prayer-card.is-next .p-dot {
+  background: var(--lime);
+  box-shadow: 0 0 8px rgba(208, 255, 0, 0.38);
+}
+
+.p-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.p-name {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.prayer-card.is-next .p-name { font-weight: 700; }
+
+.p-badge-next {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 188, 200, 0.18);
+  border: 1px solid rgba(0, 188, 200, 0.42);
+  color: var(--cyan-soft);
+}
+.p-done {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+.p-arabic {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.p-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.p-time {
+  font-size: 16.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.prayer-card.is-next .p-time { font-weight: 700; }
+
+.bell-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #D8C2A0;
+  transition: transform 0.14s ease, border-color 0.15s ease;
+}
+.prayer-card.is-next .bell-btn {
+  border-color: rgba(0, 188, 200, 0.42);
+  color: var(--cyan-soft);
+}
+.bell-btn.muted {
+  color: var(--text-tertiary);
+  opacity: 0.55;
+}
+.bell-btn:active { transform: scale(0.92); }
+.bell-btn svg { width: 16.5px; height: 16.5px; }
+
+/* Astronomical dropdown */
+.astro-header {
+  margin: 12px 16px 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.astro-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+}
+.astro-left svg { width: 15px; height: 15px; color: #D8C2A0; }
+.astro-chev { width: 18px; height: 18px; color: var(--text-secondary); transition: transform 0.2s ease; }
+.astro-header.open .astro-chev { transform: rotate(180deg); }
+
+.astro-list {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 16px 0;
+}
+.astro-list.open { display: flex; }
+
+/* Heads-up Alarm Notification Preview Banner */
+.notif-banner {
+  position: absolute;
+  top: 40px;
+  left: 12px;
+  right: 12px;
+  background: #171C1E;
+  border: 1px solid rgba(0, 188, 200, 0.52);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75);
+  z-index: 30;
+  transform: translateY(-150%);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+}
+.notif-banner.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+.notif-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.notif-row img { width: 32px; height: 32px; flex-shrink: 0; }
+.notif-title { font-size: 12.5px; font-weight: 700; color: #F5F0E6; }
+.notif-body { font-size: 11px; color: #C8B99E; margin-top: 2px; line-height: 1.35; }
+.notif-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.notif-stop {
+  background: rgba(0, 188, 200, 0.16);
+  border: 1px solid rgba(0, 188, 200, 0.45);
+  color: #7AD6DC;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* Modal Bottom Sheets (City Picker & Settings) */
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  z-index: 20;
+  display: none;
+  align-items: flex-end;
+}
+.sheet-backdrop.open { display: flex; }
+
+.sheet {
+  width: 100%;
+  max-height: 82%;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-radius: 22px 22px 0 0;
+  padding: 16px 18px 26px;
+  overflow-y: auto;
+}
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.sheet-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.sheet-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+.city-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.city-chip {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--well);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.city-chip.active {
+  background: var(--cream-pill);
+  color: var(--cream-ink);
+  border-color: var(--cream-pill);
+  font-weight: 700;
+}
+
+.set-group { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.set-label { font-size: 10.5px; font-weight: 700; letter-spacing: 1.1px; color: var(--text-secondary); margin-bottom: 8px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; }
+.set-row-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.chip-row { display: flex; gap: 6px; margin-top: 6px; }
+.opt-chip {
+  flex: 1;
+  text-align: center;
+  padding: 7px 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--well);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.opt-chip.active {
+  background: var(--cream-pill);
+  color: var(--cream-ink);
+  border-color: var(--cream-pill);
+}
+.test-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 188, 200, 0.42);
+  background: rgba(0, 188, 200, 0.10);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gesture-pill {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gesture-pill span {
+  width: 116px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(245, 240, 230, 0.24);
+}
+.phone-screen[data-theme="LIGHT"] .gesture-pill span {
+  background: rgba(23, 20, 17, 0.22);
+}
+
+@media (max-width: 440px) {
+  .stage { padding: 0; }
+  .vp-toolbar { display: none; }
+  .phone-frame, .phone-frame[data-size] {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .phone-screen { border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="vp-toolbar" role="toolbar" aria-label="Viewport size">
+    <span class="vp-toolbar-label">Viewport</span>
+    <button class="vp-btn" data-vp="compact" type="button">360 × 780</button>
+    <button class="vp-btn active" data-vp="standard" type="button">390 × 844</button>
+    <button class="vp-btn" data-vp="large" type="button">412 × 892</button>
+  </div>
+
+  <div class="phone-frame" id="phoneFrame" data-size="standard">
+    <div class="phone-screen" id="phoneScreen" data-theme="DARK">
+      <!-- Android Status Bar -->
+      <div class="status-bar">
+        <span id="statusClock">02:26</span>
+        <span class="camera-punch" aria-hidden="true"></span>
+        <span class="status-icons" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7 3 2.7 5.1 0 8.4L12 22 24 8.4C21.3 5.1 17 3 12 3z"/></svg>
+          <svg width="14" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M15.7 4H14V2h-4v2H8.3C7.6 4 7 4.6 7 5.3v15.3c0 .7.6 1.4 1.3 1.4h7.3c.7 0 1.4-.6 1.4-1.4V5.3c0-.7-.6-1.3-1.3-1.3z"/></svg>
+        </span>
+      </div>
+
+      <!-- Heads-up Notification Preview -->
+      <div class="notif-banner" id="notifBanner">
+        <div class="notif-row">
+          <img src="/res/ic_app_icon.png" alt="">
+          <div>
+            <div class="notif-title" id="notifTitle">Test Reminder: Asr Prayer</div>
+            <div class="notif-body" id="notifBody">Madinah Azaan playing on Alarm stream (audible in Silent mode).</div>
+          </div>
+        </div>
+        <div class="notif-actions">
+          <button class="notif-stop" id="stopAzaanBtn" type="button">Stop Azaan</button>
+        </div>
+      </div>
+
+      <!-- NamazTopBar (34px transparent NR badge + 32px icons + 10px spacing) -->
+      <header class="top-bar">
+        <img class="top-logo" src="/res/ic_app_icon.png" alt="Namaaz Reminder logo">
+        <div class="top-title-col" id="openCityFromTop">
+          <div class="top-title">NAMAAZ REMINDER</div>
+          <div class="top-sub-row">
+            <span class="top-dot"></span>
+            <span class="top-sub" id="topCityText">MUMBAI, INDIA</span>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="hdr-btn leather-well" id="btnLocation" type="button" title="Select City" aria-label="Select City">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 1 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          </button>
+          <button class="hdr-btn leather-well" id="btnTheme" type="button" title="Toggle theme" aria-label="Toggle theme">
+            <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+          </button>
+          <button class="hdr-btn leather-well" id="btnSettings" type="button" title="Open Settings" aria-label="Open Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="scroll-body">
+        <!-- Date Header Card -->
+        <div class="leather-card date-card" id="dateHeaderCard">
+          <div class="date-top">
+            <div class="date-city-wrap">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+              <span id="cardCityText">MUMBAI, INDIA</span>
+            </div>
+            <span class="date-hijri">11 Jumada al-Ula 1448</span>
+          </div>
+          <div class="date-bot">
+            <span>Friday, 23 Oct 2026</span>
+            <span class="date-method">University of Islamic Sciences</span>
+          </div>
+        </div>
+
+        <!-- Hero Countdown Card -->
+        <section class="leather-card hero-card">
+          <div class="hero-top">
+            <span class="next-pill">NEXT PRAYER</span>
+            <span class="city-pill" id="heroCityPill">MUMBAI</span>
+          </div>
+          <div class="hero-mid">
+            <div>
+              <div class="hero-prayer-name" id="heroPrayerName">ASR</div>
+              <div class="hero-starts" id="heroPrayerStarts">Starts at 3:44 PM</div>
+            </div>
+            <div class="hero-arabic" id="heroPrayerArabic">العصر</div>
+          </div>
+          <div class="leather-well hero-well">
+            <div>
+              <div class="well-label">TIME REMAINING</div>
+              <div class="well-timer" id="countdownTimer">01h 18m 42s</div>
+            </div>
+            <button class="reminder-chip" id="heroReminderChip" type="button">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+              <span id="heroOffsetText">5m after</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Section Header -->
+        <div class="sec-row">
+          <span class="sec-title">TODAY'S PRAYERS</span>
+          <span class="sec-fmt" id="fmtLabel">12-Hour AM/PM</span>
+        </div>
+
+        <!-- Primary Prayers -->
+        <div class="prayer-list" id="prayerList"></div>
+
+        <!-- Astronomical Dropdown -->
+        <div class="leather-card astro-header" id="astroToggle">
+          <div class="astro-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            <span>ASTRONOMICAL TIMES (SUNRISE &amp; SUNSET)</span>
+          </div>
+          <svg class="astro-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="astro-list" id="astroList"></div>
+      </div>
+
+      <!-- City Picker Sheet -->
+      <div class="sheet-backdrop" id="citySheet">
+        <div class="sheet">
+          <div class="sheet-head">
+            <span class="sheet-title">SELECT CITY IN INDIA</span>
+            <button class="sheet-close" data-close="citySheet" type="button">&times;</button>
+          </div>
+          <div class="city-chips" id="cityChips"></div>
+        </div>
+      </div>
+
+      <!-- Settings Sheet -->
+      <div class="sheet-backdrop" id="settingsSheet">
+        <div class="sheet">
+          <div class="sheet-head">
+            <span class="sheet-title">SETTINGS</span>
+            <button class="sheet-close" data-close="settingsSheet" type="button">&times;</button>
+          </div>
+          <div>
+            <div class="set-label">REMINDER TIMING (AFTER PRAYER)</div>
+            <div class="chip-row" id="offsetChips">
+              <button class="opt-chip" data-off="0" type="button">At Adhan</button>
+              <button class="opt-chip active" data-off="5" type="button">5m after</button>
+              <button class="opt-chip" data-off="10" type="button">10m after</button>
+              <button class="opt-chip" data-off="15" type="button">15m after</button>
+            </div>
+            <div class="set-row" style="margin-top:10px">
+              <div>
+                <div style="font-size:13px;font-weight:600">Madinah Azaan (Alarm Stream)</div>
+                <div class="set-row-sub">Plays even when phone is on Silent or Vibrate</div>
+              </div>
+            </div>
+            <button class="test-btn" id="sendTestBtn" type="button">Send Test Reminder Notification</button>
+          </div>
+
+          <div class="set-group">
+            <div class="set-label">THEME &amp; FORMAT</div>
+            <div class="chip-row" id="themeChips">
+              <button class="opt-chip active" data-th="DARK" type="button">Black Leather</button>
+              <button class="opt-chip" data-th="LIGHT" type="button">Cream Light</button>
+            </div>
+            <div class="chip-row" style="margin-top:8px" id="fmtChips">
+              <button class="opt-chip active" data-24="0" type="button">12-Hour AM/PM</button>
+              <button class="opt-chip" data-24="1" type="button">24-Hour</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gesture-pill"><span aria-hidden="true"></span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CITIES = {
+  Mumbai:    { Fajr: '05:21', Sunrise: '06:35', Dhuhr: '12:25', Asr: '15:46', Sunset: '18:14', Maghrib: '18:14', Isha: '19:28' },
+  Delhi:     { Fajr: '05:08', Sunrise: '06:27', Dhuhr: '12:06', Asr: '15:21', Sunset: '17:45', Maghrib: '17:45', Isha: '19:04' },
+  Bengaluru: { Fajr: '05:02', Sunrise: '06:12', Dhuhr: '12:04', Asr: '15:24', Sunset: '17:56', Maghrib: '17:56', Isha: '19:07' },
+  Hyderabad: { Fajr: '05:00', Sunrise: '06:12', Dhuhr: '12:01', Asr: '15:22', Sunset: '17:50', Maghrib: '17:50', Isha: '19:03' },
+  Lucknow:   { Fajr: '04:53', Sunrise: '06:11', Dhuhr: '11:51', Asr: '15:07', Sunset: '17:31', Maghrib: '17:31', Isha: '18:49' },
+  Kolkata:   { Fajr: '04:24', Sunrise: '05:38', Dhuhr: '11:22', Asr: '14:40', Sunset: '17:06', Maghrib: '17:06', Isha: '18:20' },
+  Chennai:   { Fajr: '04:51', Sunrise: '06:01', Dhuhr: '11:53', Asr: '15:13', Sunset: '17:45', Maghrib: '17:45', Isha: '18:55' },
+  Srinagar:  { Fajr: '05:24', Sunrise: '06:50', Dhuhr: '12:18', Asr: '15:24', Sunset: '17:46', Maghrib: '17:46', Isha: '19:11' }
+};
+
+const ARABIC = {
+  Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر', Asr: 'العصر',
+  Sunset: 'الغروب', Maghrib: 'المغرب', Isha: 'العشاء'
+};
+
+const PRIMARY = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+const ASTRO = ['Sunrise', 'Sunset'];
+
+let state = {
+  city: 'Mumbai',
+  theme: 'DARK',
+  is24: false,
+  offset: 5,
+  muted: new Set(),
+  astroOpen: false
+};
+
+function fmtTime(hhmm) {
+  const [hStr, mStr] = hhmm.split(':');
+  const h = parseInt(hStr, 10);
+  if (state.is24) return `${String(h).padStart(2, '0')}:${mStr}`;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${mStr} ${ampm}`;
+}
+
+function istNowMinutesAndSeconds() {
+  const now = new Date();
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+  const ist = new Date(utcMs + 5.5 * 3600000);
+  return {
+    h: ist.getHours(),
+    m: ist.getMinutes(),
+    s: ist.getSeconds(),
+    totalSec: ist.getHours() * 3600 + ist.getMinutes() * 60 + ist.getSeconds()
+  };
+}
+
+function computeNext() {
+  const sched = CITIES[state.city];
+  const { totalSec } = istNowMinutesAndSeconds();
+  for (const p of PRIMARY) {
+    const [ph, pm] = sched[p].split(':').map(Number);
+    const pSec = ph * 3600 + pm * 60;
+    if (pSec > totalSec) return { name: p, diffSec: pSec - totalSec };
+  }
+  const [fh, fm] = sched.Fajr.split(':').map(Number);
+  return { name: 'Fajr', diffSec: (24 * 3600 - totalSec) + fh * 3600 + fm * 60, wrapped: true };
+}
+
+function bellSvg(enabled) {
+  return enabled
+    ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 18.69L7.84 6.14 5.27 3.49 4 4.76l2.8 2.8v.01c-.52.99-.8 2.16-.8 3.42v5l-2 2v1h13.73l2 2L21 19.72l-1-1.03zM12 22c1.11 0 2-.89 2-2h-4c0 1.11.89 2 2 2zm6-7.32V11c0-3.08-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68c-.15.03-.29.08-.42.12-.1.03-.2.07-.3.11L18 14.68z"/></svg>';
+}
+
+function render() {
+  const screen = document.getElementById('phoneScreen');
+  screen.dataset.theme = state.theme;
+
+  const sched = CITIES[state.city];
+  const { h, m, totalSec } = istNowMinutesAndSeconds();
+  document.getElementById('statusClock').textContent =
+    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
+  const upperCity = state.city.toUpperCase();
+  document.getElementById('topCityText').textContent = `${upperCity}, INDIA`;
+  document.getElementById('cardCityText').textContent = `${upperCity}, INDIA`;
+  document.getElementById('heroCityPill').textContent = upperCity;
+  document.getElementById('fmtLabel').textContent = state.is24 ? '24-Hour' : '12-Hour AM/PM';
+
+  const nextInfo = computeNext();
+  document.getElementById('heroPrayerName').textContent = nextInfo.name.toUpperCase();
+  document.getElementById('heroPrayerStarts').textContent = `Starts at ${fmtTime(sched[nextInfo.name])}`;
+  document.getElementById('heroPrayerArabic').textContent = ARABIC[nextInfo.name];
+
+  const hh = Math.floor(nextInfo.diffSec / 3600);
+  const mm = Math.floor((nextInfo.diffSec % 3600) / 60);
+  const ss = nextInfo.diffSec % 60;
+  document.getElementById('countdownTimer').textContent =
+    `${String(hh).padStart(2, '0')}h ${String(mm).padStart(2, '0')}m ${String(ss).padStart(2, '0')}s`;
+
+  const nextMuted = state.muted.has(nextInfo.name);
+  const heroChip = document.getElementById('heroReminderChip');
+  heroChip.classList.toggle('muted', nextMuted);
+  document.getElementById('heroOffsetText').textContent = nextMuted
+    ? 'Muted'
+    : (state.offset === 0 ? 'At Adhan' : `${state.offset}m after`);
+
+  const listEl = document.getElementById('prayerList');
+  listEl.innerHTML = PRIMARY.map(p => {
+    const [ph, pm] = sched[p].split(':').map(Number);
+    const passed = !nextInfo.wrapped && (ph * 3600 + pm * 60 <= totalSec);
+    const isNext = p === nextInfo.name && !nextInfo.wrapped || (nextInfo.wrapped && p === 'Fajr');
+    const enabled = !state.muted.has(p);
+    return `
+      <div class="leather-card prayer-card ${isNext ? 'is-next' : (passed ? 'is-passed' : '')}">
+        <div class="p-left">
+          <span class="p-dot"></span>
+          <div>
+            <div class="p-name-row">
+              <span class="p-name">${p}</span>
+              ${isNext ? '<span class="p-badge-next">NEXT</span>' : (passed ? '<span class="p-done">Done</span>' : '')}
+            </div>
+            <div class="p-arabic">${ARABIC[p]}</div>
+          </div>
+        </div>
+        <div class="p-right">
+          <span class="p-time">${fmtTime(sched[p])}</span>
+          <button class="leather-well bell-btn ${enabled ? '' : 'muted'}" data-prayer="${p}" type="button" aria-label="Toggle ${p} reminder">
+            ${bellSvg(enabled)}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  listEl.querySelectorAll('.bell-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.prayer;
+      if (state.muted.has(p)) state.muted.delete(p); else state.muted.add(p);
+      render();
+    });
+  });
+
+  const astroEl = document.getElementById('astroList');
+  astroEl.innerHTML = ASTRO.map(p => `
+    <div class="leather-card prayer-card">
+      <div class="p-left">
+        <span class="p-dot"></span>
+        <div>
+          <div class="p-name-row"><span class="p-name">${p}</span></div>
+          <div class="p-arabic">${ARABIC[p]}</div>
+        </div>
+      </div>
+      <div class="p-right"><span class="p-time">${fmtTime(sched[p])}</span></div>
+    </div>
+  `).join('');
+
+  const chipsEl = document.getElementById('cityChips');
+  chipsEl.innerHTML = Object.keys(CITIES).map(c => `
+    <button class="city-chip ${c === state.city ? 'active' : ''}" data-city="${c}" type="button">${c}</button>
+  `).join('');
+  chipsEl.querySelectorAll('.city-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      state.city = b.dataset.city;
+      document.getElementById('citySheet').classList.remove('open');
+      render();
+    });
+  });
+}
+
+// Viewport size buttons
+document.querySelectorAll('.vp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vp-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('phoneFrame').dataset.size = btn.dataset.vp;
+  });
+});
+
+// Header & sheet interactions
+const openCity = () => document.getElementById('citySheet').classList.add('open');
+document.getElementById('btnLocation').addEventListener('click', openCity);
+document.getElementById('openCityFromTop').addEventListener('click', openCity);
+document.getElementById('dateHeaderCard').addEventListener('click', openCity);
+document.getElementById('heroCityPill').addEventListener('click', openCity);
+
+document.getElementById('btnTheme').addEventListener('click', () => {
+  state.theme = state.theme === 'DARK' ? 'LIGHT' : 'DARK';
+  document.querySelectorAll('#themeChips .opt-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.th === state.theme);
+  });
+  render();
+});
+
+document.getElementById('btnSettings').addEventListener('click', () => {
+  document.getElementById('settingsSheet').classList.add('open');
+});
+
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById(btn.dataset.close).classList.remove('open');
+  });
+});
+document.querySelectorAll('.sheet-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+});
+
+document.getElementById('heroReminderChip').addEventListener('click', () => {
+  const next = computeNext().name;
+  if (state.muted.has(next)) state.muted.delete(next); else state.muted.add(next);
+  render();
+});
+
+document.getElementById('astroToggle').addEventListener('click', () => {
+  state.astroOpen = !state.astroOpen;
+  document.getElementById('astroToggle').classList.toggle('open', state.astroOpen);
+  document.getElementById('astroList').classList.toggle('open', state.astroOpen);
+});
+
+document.querySelectorAll('#offsetChips .opt-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.offset = parseInt(btn.dataset.off, 10);
+    document.querySelectorAll('#offsetChips .opt-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.querySelectorAll('#themeChips .opt-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.theme = btn.dataset.th;
+    document.querySelectorAll('#themeChips .opt-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.querySelectorAll('#fmtChips .opt-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.is24 = btn.dataset['24'] === '1';
+    document.querySelectorAll('#fmtChips .opt-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.getElementById('sendTestBtn').addEventListener('click', () => {
+  document.getElementById('settingsSheet').classList.remove('open');
+  const next = computeNext().name;
+  document.getElementById('notifTitle').textContent = `Test Reminder: ${next} Prayer`;
+  document.getElementById('notifBody').textContent =
+    `Notification & Madinah Azaan alarm stream active (${fmtTime(CITIES[state.city][next])} in ${state.city}).`;
+  document.getElementById('notifBanner').classList.add('visible');
+});
+document.getElementById('stopAzaanBtn').addEventListener('click', () => {
+  document.getElementById('notifBanner').classList.remove('visible');
+});
+
+render();
+setInterval(render, 1000);
+</script>
+</body>
+</html>

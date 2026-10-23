@@ -1,5 +1,10 @@
 package com.example.ui.components
 
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -319,6 +325,15 @@ fun SettingsSheet(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Sound Toggle
+                val context = LocalContext.current
+                val dndBypassGranted = remember(isOpen) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                        true
+                    } else {
+                        (context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)
+                            ?.isNotificationPolicyAccessGranted == true
+                    }
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -326,11 +341,18 @@ fun SettingsSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Play Sound with Reminder",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                        Text(
+                            text = "Play Sound with Reminder",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Plays on the Alarm stream — audible even in Silent or Vibrate mode",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     Switch(
                         checked = settings.soundEnabled,
                         onCheckedChange = onToggleSound,
@@ -340,6 +362,29 @@ fun SettingsSheet(
                         ),
                         modifier = Modifier.testTag("sound_toggle_switch")
                     )
+                }
+
+                if (settings.soundEnabled && !dndBypassGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedButton(
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            }
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("dnd_bypass_button")
+                    ) {
+                        Text("Allow Azaan through Do Not Disturb")
+                    }
                 }
 
                 // Vibration Toggle
@@ -397,7 +442,7 @@ fun SettingsSheet(
             // reminders can use it without depending on the source file remaining selected.
             SectionTitle(title = "AZAAN SOUND")
             Text(
-                text = "Madinah Azaan is saved automatically. You can also use another Azaan audio file from your device.",
+                text = "Madinah Azaan is built in and plays even when your phone is on Silent or Vibrate. You can also choose another audio file from your device.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -454,7 +499,7 @@ fun SettingsSheet(
             )
             Spacer(modifier = Modifier.height(6.dp))
 
-            val themeOptions = listOf("SYSTEM" to "System Auto", "LIGHT" to "Pure Light", "DARK" to "Deep Dark")
+            val themeOptions = listOf("DARK" to "Black Leather", "LIGHT" to "Cream Light", "SYSTEM" to "System Auto")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
