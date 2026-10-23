@@ -2,15 +2,13 @@
 """
 Just Apps — site icon pipeline.
 
-The Just Apps "JA" mark is drawn in exactly the style of the Namaaz Reminder
-app icon (design/source/NR-icon.png): the same rounded-squircle plate, the
-same dark plate lighting with a lit top rim, and the same *engraved* monogram
-— a recessed letter whose floor is lighter than the plate, with a black
-contact shadow under the top edges and a bright chamfer along the bottom.
+The approved Just Apps "JA" artwork lives at design/source/JA-icon.png. It
+uses the same rounded block-letter composition as the Namaaz Reminder icon,
+with a larger first letter, smaller second letter and thin inset frame, in a
+black and graphite palette. This pipeline removes the generator's white
+corner matte and derives every website size from that single source.
 
-Every value below is measured from that artwork (plate tones, squircle
-exponent, rim height, monogram cap height and tracking), so "JA" reads as the
-sibling of "NR" rather than a different icon family.
+The procedural renderer below remains for the monochrome NR privacy-page mark.
 
 Outputs (docs/assets):
   just-apps-icon-{32,64,128,256,512}.png   favicon, header logo, apple-touch
@@ -51,8 +49,10 @@ GLYPH_XSCALE = 1.075      # NR sets its monogram almost edge to edge
 TRACK_FRAC = -0.030       # letter spacing, share of cap height
 BLUE_TINT = 2.0           # the artwork is neutral with a ~2/255 blue lift
 
+JA_SOURCE = os.path.join(ROOT, "design", "source", "JA-icon.png")
+
 MARKS = [
-    ("JA", "just-apps-icon", [32, 64, 128, 256, 512]),
+    ("JA", "just-apps-icon", [32, 64, 128, 180, 256, 512]),
     ("NR", "nr-mark-header", [64, 128]),
 ]
 
@@ -232,10 +232,28 @@ def svg(embedded_png: bytes, size: int) -> str:
     )
 
 
+def _ja_source(size: int) -> Image.Image:
+    """Resize the approved JA artwork and remove its generated white corner mat."""
+    source = Image.open(JA_SOURCE).convert("RGBA")
+    pixels = np.array(source).astype(np.float32)
+    rgb = pixels[..., :3]
+    neutral = rgb.max(axis=2) - rgb.min(axis=2) < 12
+    luminance = rgb.mean(axis=2)
+    # The source plate is charcoal; only the near-white neutral corner matte
+    # reaches this range. Feather its antialiased edge into transparency.
+    matte = neutral * np.clip((luminance - 218.0) / 28.0, 0.0, 1.0)
+    pixels[..., 3] = 255.0 * (1.0 - matte)
+    cleaned = Image.fromarray(np.clip(pixels, 0, 255).astype(np.uint8), "RGBA")
+    return cleaned.resize((size, size), Image.LANCZOS)
+
+
 def main() -> None:
     os.makedirs(ASSETS, exist_ok=True)
     for text, prefix, sizes in MARKS:
-        rendered = {size: render(text, size) for size in sizes}
+        rendered = {
+            size: (_ja_source(size) if text == "JA" else render(text, size))
+            for size in sizes
+        }
         for size, img in rendered.items():
             path = os.path.join(ASSETS, f"{prefix}-{size}.png")
             img.save(path, "PNG", optimize=True)
