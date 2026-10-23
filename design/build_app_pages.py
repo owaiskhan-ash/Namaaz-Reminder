@@ -15,6 +15,7 @@ import os
 
 BASE = "https://www.justsimpleapps.online"
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
+STAGES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generated_stages.json")
 
 
 def shot(src, alt, caption, width, height, srcset=None, sizes=None):
@@ -449,7 +450,7 @@ TEMPLATE = """<!DOCTYPE html>
 <meta name="description" content="{description}">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="{base}/{slug}">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#064B4D">
 <meta name="color-scheme" content="dark light">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{base}/{slug}">
@@ -481,14 +482,22 @@ TEMPLATE = """<!DOCTYPE html>
 
 <a class="skip-link" href="#main">Skip to content</a>
 
+<div class="page-shell">
+<div class="leather-stage leather-stage-sub" aria-hidden="true">
+{stage_sub}
+</div>
+<div class="leather-stage leather-stage-bot" aria-hidden="true">
+{stage_bot}
+</div>
+
 <header class="nav">
   <div class="wrap nav-inner">
     <a class="nav-brand" href="/" aria-label="Just Apps home">
-      <img class="nav-logo" src="/assets/just-apps-icon-64.png" srcset="/assets/just-apps-icon-64.png 1x, /assets/just-apps-icon-128.png 2x" alt="" width="30" height="30">
+      <span class="nav-ja" aria-hidden="true">JA</span>
       <span class="nav-title">JUST APPS</span>
     </a>
     <nav class="nav-links" id="primary-nav" aria-label="Primary">
-      <a href="/#apps">All apps</a>
+      <a href="/#apps">Apps</a>
       <a href="/#features">Our approach</a>
       <a href="/#faq">FAQ</a>
       <a class="nav-cta" href="/#apps">Explore apps</a>
@@ -514,6 +523,7 @@ TEMPLATE = """<!DOCTYPE html>
 </header>
 
 <main class="wrap app-page" id="main">
+  <div class="doc-card">
 
   <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="/">Just Apps</a>
@@ -553,12 +563,13 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
   <p style="margin-top:26px"><a href="/">← Back to all four apps</a></p>
 
+  </div>
 </main>
 
 <footer>
   <div class="wrap foot-inner">
-    <div style="display:flex;align-items:center;gap:11px">
-      <img src="/assets/just-apps-icon-64.png" alt="" width="24" height="24" style="border-radius:6px">
+    <div class="foot-brand">
+      <span class="nav-ja" aria-hidden="true" style="width:26px;height:26px;font-size:10px;border-radius:7px">JA</span>
       <span>{name} · Free · no ads · no tracking</span>
     </div>
     <nav class="foot-links" aria-label="Footer">
@@ -568,6 +579,7 @@ TEMPLATE = """<!DOCTYPE html>
     </nav>
   </div>
 </footer>
+</div>
 
 <script src="/nav.js"></script>
 <script src="/motion.js"></script>
@@ -651,6 +663,9 @@ def build_related(app):
 
 
 def main():
+    with open(STAGES_PATH, "r", encoding="utf-8") as sf:
+        stages = json.load(sf)
+
     for app in APPS:
         faq_html = "\n".join(
             f"    <details><summary>{html.escape(q)}</summary><p>{html.escape(a)}</p></details>"
@@ -674,6 +689,8 @@ def main():
             faq=faq_html,
             related=build_related(app),
             jsonld=build_jsonld(app),
+            stage_sub=stages["sub"],
+            stage_bot=stages["bot"],
         )
         page = "\n".join(line.rstrip() for line in page.splitlines()) + "\n"
         os.makedirs(ROOT, exist_ok=True)

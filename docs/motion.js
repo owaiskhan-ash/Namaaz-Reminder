@@ -1,13 +1,12 @@
-/* Slow, silky interactions for the Just Apps pages.
+/* Tactile, silky interactions for the Just Apps pages.
 
-   1. Inertia scrolling — wheel input is eased into a long glide, so the page
-      eases in and coastes to a stop instead of jumping.
-   2. A dark dot cursor — a small dark disc with a light halo that follows the
-      pointer and opens into a ring over links and buttons.
+   1. Active section indicator (#7) — highlights current nav link on scroll.
+   2. Smooth FAQ unfold (#5) — eases <details> height open and closed.
+   3. Gentle depth parallax (#2) — subtle differential motion between hides.
+   4. Soft studio light follow (#4) — subtle grazing sheen across cards.
+   5. Inertia scrolling & precision cursor — opt-in for fine pointers.
 
-   Both are opt-in per device: they only run for a precise pointer (mouse or
-   trackpad) and only when the visitor has not asked for reduced motion.
-   Keyboard, scrollbar dragging and touch scrolling keep working natively. */
+   Respects prefers-reduced-motion and degrades gracefully without JS. */
 
 (function () {
   'use strict';
@@ -17,14 +16,175 @@
     return window.matchMedia ? window.matchMedia(q).matches : false;
   };
 
-  if (query('(prefers-reduced-motion: reduce)')) return;
-  if (!query('(hover: hover) and (pointer: fine)')) return;
+  var reducedMotion = query('(prefers-reduced-motion: reduce)');
+  var finePointer = query('(hover: hover) and (pointer: fine)');
+
+  /* --------------------------------------- #7 active nav tab indicator -- */
+
+  var navLinks = Array.prototype.slice.call(
+    document.querySelectorAll('.nav-links a[href^="#"]:not(.nav-cta)')
+  );
+  var trackedSections = [];
+  for (var i = 0; i < navLinks.length; i++) {
+    var href = navLinks[i].getAttribute('href');
+    var sec = href && href.length > 1 ? document.querySelector(href) : null;
+    if (sec) trackedSections.push({ link: navLinks[i], section: sec });
+  }
+
+  function updateActiveNav() {
+    if (!trackedSections.length) return;
+    var scrollPos = (window.pageYOffset || 0) + window.innerHeight * 0.28;
+    var active = null;
+
+    for (var j = 0; j < trackedSections.length; j++) {
+      var rect = trackedSections[j].section.getBoundingClientRect();
+      var top = rect.top + (window.pageYOffset || 0);
+      if (scrollPos >= top) {
+        active = trackedSections[j].link;
+      }
+    }
+
+    for (var k = 0; k < trackedSections.length; k++) {
+      var lnk = trackedSections[k].link;
+      var isCurrent = lnk === active;
+      lnk.classList.toggle('is-current', isCurrent);
+      if (isCurrent) {
+        lnk.setAttribute('aria-current', 'true');
+      } else {
+        lnk.removeAttribute('aria-current');
+      }
+    }
+  }
+
+  /* ------------------------------------- #2 gentle leather parallax ----- */
+
+  var stages = Array.prototype.slice.call(
+    document.querySelectorAll('.leather-stage')
+  );
+
+  function updateParallax() {
+    if (reducedMotion || !stages.length) return;
+    var y = window.pageYOffset || 0;
+    var vh = window.innerHeight || 900;
+
+    for (var s = 0; s < stages.length; s++) {
+      var el = stages[s];
+      var r = el.getBoundingClientRect();
+      if (r.bottom < -120 || r.top > vh + 120) continue;
+
+      var progress;
+      if (el.classList.contains('leather-stage-top')) {
+        // Anchored at 0 on initial paint, gently separates as you scroll down
+        progress = Math.min(1.2, Math.max(0, y / Math.max(480, vh)));
+      } else {
+        var centerOffset = (vh * 0.5 - (r.top + r.height * 0.5)) / vh;
+        progress = Math.min(1.2, Math.max(-1.2, centerOffset));
+      }
+
+      el.style.setProperty('--py-base', (progress * 3.5).toFixed(2) + 'px');
+      el.style.setProperty('--py-under', (progress * 6.5).toFixed(2) + 'px');
+      el.style.setProperty('--py-over', (progress * -9.5).toFixed(2) + 'px');
+    }
+  }
+
+  var scrollTicking = false;
+  function onScrollScene() {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(function () {
+      scrollTicking = false;
+      updateActiveNav();
+      updateParallax();
+    });
+  }
+
+  window.addEventListener('scroll', onScrollScene, { passive: true });
+  window.addEventListener('resize', onScrollScene, { passive: true });
+  updateActiveNav();
+  updateParallax();
+
+  if (reducedMotion) return;
+
+  /* ------------------------------- #5 smooth FAQ accordion unfold ------- */
+
+  var accordions = document.querySelectorAll('.faq-list details');
+  Array.prototype.forEach.call(accordions, function (details) {
+    var summary = details.querySelector('summary');
+    if (!summary || !details.animate) return;
+    var anim = null;
+
+    summary.addEventListener('click', function (event) {
+      event.preventDefault();
+      if (anim) anim.cancel();
+
+      var startHeight = details.offsetHeight;
+
+      if (details.open) {
+        var closedHeight = summary.offsetHeight;
+        anim = details.animate(
+          [{ height: startHeight + 'px' }, { height: closedHeight + 'px' }],
+          { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+        );
+        anim.onfinish = function () {
+          details.open = false;
+          details.style.height = '';
+          anim = null;
+        };
+        anim.oncancel = function () {
+          details.style.height = '';
+          anim = null;
+        };
+      } else {
+        details.style.height = startHeight + 'px';
+        details.open = true;
+        var fullHeight = details.scrollHeight;
+        anim = details.animate(
+          [{ height: startHeight + 'px' }, { height: fullHeight + 'px' }],
+          { duration: 270, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+        );
+        anim.onfinish = function () {
+          details.style.height = '';
+          anim = null;
+        };
+        anim.oncancel = function () {
+          details.style.height = '';
+          anim = null;
+        };
+      }
+    });
+  });
+
+  if (!finePointer) return;
+
+  /* ----------------------------- #4 soft studio light follow on cards --- */
+
+  var cards = document.querySelectorAll('.app-card, .feature');
+  Array.prototype.forEach.call(cards, function (card) {
+    card.addEventListener(
+      'pointermove',
+      function (event) {
+        if (event.pointerType && event.pointerType !== 'mouse') return;
+        var rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (event.clientX - rect.left).toFixed(1) + 'px');
+        card.style.setProperty('--my', (event.clientY - rect.top).toFixed(1) + 'px');
+        card.style.setProperty('--sheen', '1');
+      },
+      { passive: true }
+    );
+    card.addEventListener(
+      'pointerleave',
+      function () {
+        card.style.setProperty('--sheen', '0');
+      },
+      { passive: true }
+    );
+  });
 
   /* ---------------------------------------------------------- inertia ---- */
 
-  var EASE = 0.075;          // lower = slower, longer glide
-  var WHEEL_STEP = 0.95;     // wheel distance multiplier
-  var SNAP_LIMIT = 0.4;      // px below which we settle
+  var EASE = 0.075;
+  var WHEEL_STEP = 0.95;
+  var SNAP_LIMIT = 0.4;
 
   var target = window.pageYOffset || 0;
   var current = target;
@@ -48,6 +208,8 @@
 
     lastWritten = current;
     window.scrollTo(0, current);
+    updateActiveNav();
+    updateParallax();
 
     frame = current === target ? null : window.requestAnimationFrame(tick);
   }
@@ -59,11 +221,11 @@
   window.addEventListener(
     'wheel',
     function (event) {
-      if (event.ctrlKey) return;                       // pinch zoom
-      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;  // horizontal rail
+      if (event.ctrlKey) return;
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
 
       var delta = event.deltaY;
-      if (event.deltaMode === 1) delta *= 18;          // lines
+      if (event.deltaMode === 1) delta *= 18;
       else if (event.deltaMode === 2) delta *= window.innerHeight;
 
       if (maxScroll() === 0) return;
@@ -79,13 +241,11 @@
     { passive: false }
   );
 
-  // Anything that moves the page by itself (keys, scrollbar, find-in-page)
-  // takes over from the glide instead of fighting it.
   window.addEventListener(
     'scroll',
     function () {
       var y = window.pageYOffset || 0;
-      if (Math.abs(y - lastWritten) < 1.5) return;      // our own write
+      if (Math.abs(y - lastWritten) < 1.5) return;
 
       if (frame !== null) window.cancelAnimationFrame(frame);
       frame = null;
@@ -101,7 +261,6 @@
     }
   });
 
-  // In-page links glide too, over the same easing.
   document.addEventListener('click', function (event) {
     var link = event.target.closest && event.target.closest('a[href^="#"]');
     if (!link) return;

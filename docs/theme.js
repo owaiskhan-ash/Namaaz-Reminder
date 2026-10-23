@@ -20,7 +20,7 @@
 
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', theme === 'dark' ? '#0A0A0A' : '#E4E4E6');
+      meta.setAttribute('content', theme === 'dark' ? '#064B4D' : '#F0E3CC');
     }
 
     var next = theme === 'dark' ? 'light' : 'dark';
