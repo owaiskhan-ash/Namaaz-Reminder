@@ -22,7 +22,7 @@ object PrayerNotificationManager {
      * The sound and vibration toggles are baked into the channel, so changing
      * either creates a new channel; the old ones are deleted on creation.
      */
-    private const val CHANNEL_ID_PREFIX = "namaz_prayer_reminders"
+    private const val CHANNEL_ID_PREFIX = "namaz_prayer_alarms_v2"
     const val ACTION_PRAYER_REMINDER = "com.example.namaztimes.ACTION_PRAYER_REMINDER"
 
     const val EXTRA_PRAYER_NAME = "extra_prayer_name"
@@ -44,8 +44,10 @@ object PrayerNotificationManager {
             else -> "Prayer Reminders — ${AzaanSoundStore.soundName(settings)}"
         }
         val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            // Prayer reminders are scheduled alarms, not ordinary messages. The alarm
+            // audio stream remains audible when the phone's ringer is set to silent.
+            .setUsage(AudioAttributes.USAGE_ALARM)
             .build()
         val channel = NotificationChannel(
             channelId,
@@ -56,6 +58,12 @@ object PrayerNotificationManager {
             enableVibration(settings.vibrationEnabled)
             vibrationPattern = longArrayOf(0, 400, 200, 400)
             setSound(soundUri, audioAttributes)
+            // If the user has granted notification-policy access, also permit the
+            // prayer alarm through Do Not Disturb. Silent/vibrate mode itself does
+            // not require this access because USAGE_ALARM uses alarm volume.
+            if (notificationManager.isNotificationPolicyAccessGranted) {
+                setBypassDnd(true)
+            }
         }
         notificationManager.createNotificationChannel(channel)
 
@@ -65,7 +73,10 @@ object PrayerNotificationManager {
         // the system notification settings fills up with stale duplicates.
         notificationManager.notificationChannels
             .map { it.id }
-            .filter { it.startsWith("${CHANNEL_ID_PREFIX}_") && it != channelId }
+            .filter {
+                (it.startsWith("${CHANNEL_ID_PREFIX}_") || it.startsWith("namaz_prayer_reminders_")) &&
+                    it != channelId
+            }
             .forEach(notificationManager::deleteNotificationChannel)
     }
 

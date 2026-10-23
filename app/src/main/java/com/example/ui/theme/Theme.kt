@@ -5,12 +5,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PureWhite,
+    primary = WarmAccent,
     onPrimary = PureBlack,
-    primaryContainer = DarkSurfaceVariant,
-    onPrimaryContainer = PureWhite,
+    primaryContainer = AccentDark,
+    onPrimaryContainer = AccentInverted,
     secondary = DarkTextSecondary,
     onSecondary = PureBlack,
     background = DarkBackground,
@@ -24,10 +25,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PureBlack,
-    onPrimary = PureWhite,
-    primaryContainer = LightSurfaceVariant,
-    onPrimaryContainer = PureBlack,
+    primary = Color(0xFF6F5824),
+    onPrimary = Color(0xFFFFFBF3),
+    primaryContainer = Color(0xFFF0DFC0),
+    onPrimaryContainer = Color(0xFF2B210B),
     secondary = LightTextSecondary,
     onSecondary = PureWhite,
     background = LightBackground,

@@ -42,11 +42,12 @@ fun HeroCountdownCard(
     onOpenCityPicker: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    // Inverted high contrast styling for maximum focal hierarchy
-    val cardBackground = MaterialTheme.colorScheme.onBackground
-    val cardTextColor = MaterialTheme.colorScheme.background
-    val subtleTextColor = cardTextColor.copy(alpha = 0.75f)
-    val pillBorderColor = cardTextColor.copy(alpha = 0.35f)
+    // Warm layered card treatment shared with Vaccine Routine: quiet charcoal/paper
+    // surfaces, soft borders and one restrained gold accent.
+    val cardBackground = MaterialTheme.colorScheme.surface
+    val cardTextColor = MaterialTheme.colorScheme.onSurface
+    val subtleTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val pillBorderColor = MaterialTheme.colorScheme.outline
 
     Box(
         modifier = modifier

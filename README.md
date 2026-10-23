@@ -11,7 +11,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
   calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
   default), which is when the adhan ends and the salah begins.
 
-Current version: **1.3.1** (`versionCode` 5).
+Current version: **1.4.0** (`versionCode` 6).
 
 ## The website
 
@@ -95,7 +95,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.3.1-release.apk
+adb install -r NamaazReminder-1.4.0-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
@@ -134,8 +134,8 @@ own upload key instead.
 
 ## Brand
 
-The app icon is the original **NR** artwork — a heavy block monogram debossed
-into a dark, top-lit tile (`design/source/NR-icon.png`).
+The app icon is the approved **NR** artwork — a rounded block monogram in vivid
+coral and pink, set inside a matching neon frame on charcoal (`design/source/NR-icon.png`).
 
 `design/build_icons.py` derives every icon from that one file, so the launcher
 icon, the themed icon and the in-app header can never drift apart:
