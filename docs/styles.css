@@ -1079,12 +1079,14 @@ html[data-theme="light"] .feature:focus-within::after {
 
 .apps-section .namaaz-preview,
 .apps-section .screentime-preview,
+.apps-section .subscriptions-preview,
 .apps-section .vaccine-preview {
   gap: 10px;
 }
 
 .apps-section .namaaz-preview img,
 .apps-section .screentime-preview img,
+.apps-section .subscriptions-preview img,
 .apps-section .vaccine-preview img {
   height: 88%;
   max-width: 29%;
@@ -1094,12 +1096,14 @@ html[data-theme="light"] .feature:focus-within::after {
 
 .apps-section .namaaz-preview img:nth-child(2),
 .apps-section .screentime-preview img:nth-child(2),
+.apps-section .subscriptions-preview img:nth-child(2),
 .apps-section .vaccine-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
 .apps-section .app-card:hover .namaaz-preview img:nth-child(2),
 .apps-section .app-card:hover .screentime-preview img:nth-child(2),
+.apps-section .app-card:hover .subscriptions-preview img:nth-child(2),
 .apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
   transform: translateY(-10px);
 }
@@ -1155,7 +1159,8 @@ html[data-theme="light"] .apps-section .app-content::before {
 }
 
 #namaaz-reminder .app-icon,
-#screentime .app-icon {
+#screentime .app-icon,
+#subscription-tracker .app-icon {
   border-radius: 0;
 }
 

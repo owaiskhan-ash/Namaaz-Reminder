@@ -275,19 +275,28 @@ APPS = [
         "h1": "Every subscription and recurring bill, in one place.",
         "lede": "Subscription Tracker is a free Android app for keeping track of what renews, when, and what it really costs. Add subscriptions and bills by hand, see a monthly and yearly total you can compare, and get a reminder before each renewal.",
         "answer": "<p><strong>In one line:</strong> Subscription Tracker is a free, offline Android app that records your recurring bills, converts them into comparable monthly and yearly totals, and reminds you before a renewal — without connecting to your bank.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/tag/v1.1.0">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Subscription-Tracker">Source on GitHub</a>""",
-        "cta_note": "Version 1.1.0, free, Android 8.0 and later. Distributed as a signed APK from the project’s GitHub releases.",
+        "cta_note": "Version 1.2.0, free, Android 8.0 and later. Distributed as a signed APK from the project’s GitHub releases.",
         "shots": [
-            shot("/assets/subscriptions/today.svg",
-                 "Subscription Tracker monthly overview with upcoming renewals",
-                 "This month’s total, and what renews next.", 390, 820),
-            shot("/assets/subscriptions/all.svg",
-                 "List of tracked subscriptions with their billing cycles",
-                 "Every entry keeps its own billing cycle.", 390, 820),
-            shot("/assets/subscriptions/settings.svg",
-                 "Subscription Tracker reminder and display settings",
-                 "Reminders are optional and local.", 390, 820),
+            shot("/assets/subscriptions/today-400.webp",
+                 "Subscription Tracker monthly overview with stitched petrol suede card and upcoming renewals",
+                 "This month’s total, and what renews next.",
+                 400, 866,
+                 "/assets/subscriptions/today-400.webp 400w, /assets/subscriptions/today-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/subscriptions/all-400.webp",
+                 "Subscription Tracker list of tracked subscriptions across stitched suede cards",
+                 "Every entry keeps its own billing cycle.",
+                 400, 866,
+                 "/assets/subscriptions/all-400.webp 400w, /assets/subscriptions/all-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/subscriptions/settings-400.webp",
+                 "Subscription Tracker currency, monthly budget and local reminder settings",
+                 "Reminders are optional and local.",
+                 400, 866,
+                 "/assets/subscriptions/settings-400.webp 400w, /assets/subscriptions/settings-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
         ],
         "body": """
         <h2>What it does</h2>
@@ -319,7 +328,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 8.0 (API 26) and later.</dd>
-          <dt>Version</dt><dd>1.1.0.</dd>
+          <dt>Version</dt><dd>1.2.0.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
           <dt>Bank access</dt><dd>None. Entries are added by hand and stored on the device.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Subscription-Tracker">Subscription-Tracker repository on GitHub</a></dd>
@@ -342,12 +351,13 @@ APPS = [
             "name": "Subscription Tracker",
             "applicationCategory": "FinanceApplication",
             "operatingSystem": "Android 8.0 and later",
-            "softwareVersion": "1.1.0",
+            "softwareVersion": "1.2.0",
             "description": "Manually track subscriptions and recurring bills, view normalized monthly and yearly spending, and get on-device renewal reminders. Free, offline and private, with no bank connection.",
-            "image": BASE + "/assets/subscriptions/icon.png",
+            "image": BASE + "/assets/subscriptions/icon-512.png",
             "screenshot": [
-                BASE + "/assets/subscriptions/today.svg",
-                BASE + "/assets/subscriptions/all.svg",
+                BASE + "/assets/subscriptions/today-780.webp",
+                BASE + "/assets/subscriptions/all-780.webp",
+                BASE + "/assets/subscriptions/settings-780.webp",
             ],
             "featureList": [
                 "One list of subscriptions and recurring bills",
@@ -357,10 +367,10 @@ APPS = [
                 "Works offline",
                 "No bank connection, no account, no ads",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/tag/v1.1.0",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest",
             "sameAs": ["https://github.com/owaiskhan-ash/Subscription-Tracker"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/tag/v1.1.0",
+        "cta_primary": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest",
     },
     {
         "slug": "vaccine-routine",
