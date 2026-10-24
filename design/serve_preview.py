@@ -6,8 +6,8 @@ locally are the links that ship:
 
   * ``/privacy`` resolves to ``docs/privacy.html``   (cleanUrls)
   * ``/`` resolves to ``docs/index.html``
-  * ``/namaaz-reminder``, ``/screen-time-reminder``, ``/subscription-tracker``
-    and ``/vaccine-routine`` resolve to their ``.html`` files
+  * ``/namaaz-reminder``, ``/screen-time-reminder``, ``/subscription-tracker``,
+    ``/vaccine-routine`` and ``/step-reminder`` resolve to their ``.html`` files
   * a missing path returns ``docs/404.html`` with a real 404 status
 
 The server binds 0.0.0.0 so the sandbox preview proxy can reach it, and it
