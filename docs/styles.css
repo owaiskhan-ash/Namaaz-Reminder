@@ -1822,6 +1822,22 @@ html[data-theme="light"] .foot-links a:hover {
 .nav-toggle[aria-expanded="true"] .icon-close { display: block; }
 .nav-toggle[aria-expanded="true"] .icon-menu { display: none; }
 
+/* Menu sheet slides in from the header; the page behind it is locked. */
+@keyframes nav-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html.nav-open {
+  overflow: hidden;
+}
+
 @media (max-width: 940px) {
   .nav-links {
     display: none;
@@ -1829,9 +1845,13 @@ html[data-theme="light"] .foot-links a:hover {
   .nav-toggle {
     display: inline-grid;
     margin-left: auto;
+    width: 40px;
+    height: 40px;
   }
   .theme-toggle {
     margin-left: 4px;
+    width: 40px;
+    height: 40px;
   }
   .nav-links.is-open {
     display: flex;
@@ -1843,11 +1863,20 @@ html[data-theme="light"] .foot-links a:hover {
     align-items: stretch;
     gap: 0;
     padding: 8px 24px 20px;
+    max-height: calc(100dvh - 64px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--surface);
     border-bottom: 1px solid var(--line);
-    box-shadow: var(--shadow-card);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 24px 48px rgba(2, 6, 6, 0.46);
+    animation: nav-sheet-in 0.2s ease both;
   }
   .nav-links.is-open a:not(.nav-cta) {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
     padding: 14px 0;
     font-size: 15px;
     border-bottom: 1px solid var(--line-soft);
@@ -1861,8 +1890,12 @@ html[data-theme="light"] .foot-links a:hover {
   }
   .nav-links.is-open .nav-cta {
     margin-top: 16px;
-    padding: 12px 18px;
+    padding: 14px 18px;
+    min-height: 48px;
     text-align: center;
+  }
+  .nav-links.is-open .nav-cta:active {
+    transform: translateY(1px) scale(0.99);
   }
 
   .hero {
@@ -1871,45 +1904,450 @@ html[data-theme="light"] .foot-links a:hover {
   .grid {
     grid-template-columns: 1fr;
   }
+
+  /* --- The collection becomes one stacked deck of leather panels --------
+     Below the two-column breakpoint the four cards are laid on top of each
+     other instead of a loose grid. Short viewports (see the pinned-stack
+     block near the end of this file) simply tuck each panel up under the one
+     above it; tall viewports pin them and slide the next panel over, which
+     is the effect most people scroll through. The footer padding is grown by
+     the tuck distance so no content is ever hidden beneath the next panel. */
+  .apps-section {
+    --stack-overlap: 24px;
+  }
+  /* A column flex stack (not a grid) so a negative top margin really pulls
+     each panel over the one above it instead of just re-sizing a grid row. */
+  .apps-section .apps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .apps-section .app-card {
+    border-radius: 20px;
+  }
+  .apps-section .app-card + .app-card {
+    margin-top: calc(-1 * var(--stack-overlap));
+    box-shadow:
+      0 -12px 26px rgba(2, 6, 6, 0.5),
+      var(--shadow-card);
+  }
+  html[data-theme="light"] .apps-section .app-card + .app-card {
+    box-shadow:
+      0 -12px 26px rgba(56, 37, 30, 0.18),
+      var(--shadow-card);
+  }
+  /* The focused panel lifts clear of the deck, so a keyboard or tap target is
+     never left tucked under the card below it. */
+  .apps-section .app-card:focus-within {
+    z-index: 5;
+  }
+  .apps-section .app-content {
+    padding-bottom: calc(var(--stack-overlap) + 12px);
+  }
 }
 
 @media (max-width: 740px) {
   .wrap {
     padding: 0 20px;
   }
-  .apps-section .apps {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
+  .section {
+    padding: 60px 0;
+  }
+  .section-head {
+    max-width: 100%;
+    margin-bottom: 36px;
+  }
+  .section-head .kicker {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+  .section-head h2 {
+    font-size: clamp(30px, 8.2vw, 42px);
+    margin: 12px 0;
+  }
+  .section-head p {
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  /* ---- Hero: tighter rhythm so the first card stays in reach --------- */
+  .hero {
+    padding: 44px 20px 52px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 9.8vw, 52px);
+    margin-bottom: 18px;
+  }
+  .hero-message > p {
+    font-size: 15px;
+    line-height: 1.62;
+  }
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    margin-bottom: 16px;
+  }
+
+  /* ---- The stacked deck: one panel per app, tuned for thumbs --------- */
+  .apps-section {
+    padding-top: 44px;
+    padding-bottom: 68px;
   }
   .apps-section .app-preview {
-    height: 248px;
-    min-height: 216px;
+    height: 226px;
+    min-height: 196px;
+  }
+  .apps-section .app-preview img {
+    border-radius: 10px;
+  }
+  .apps-section .namaaz-preview,
+  .apps-section .screentime-preview,
+  .apps-section .subscriptions-preview,
+  .apps-section .vaccine-preview {
+    gap: 8px;
+  }
+  .apps-section .preview-label {
+    left: 10px;
+    bottom: 10px;
+    max-width: calc(100% - 20px);
+    padding: 5px 9px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
   }
   .apps-section .app-content {
-    padding: 22px 22px 20px;
+    padding: 20px 20px calc(var(--stack-overlap) + 12px);
   }
-  .section {
-    padding: 68px 0;
+  .apps-section .app-content::before {
+    top: 15px;
+    right: 17px;
+    font-size: 32px;
   }
-  .apps-section {
-    padding-top: 50px;
-    padding-bottom: 76px;
+  .app-head {
+    gap: 12px;
+    padding-right: 40px;
   }
-  .faq-list {
-    padding: 4px 20px;
+  .app-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
   }
-  .facts {
-    grid-template-columns: 1fr;
+  .app-id h3 {
+    font-size: 23px;
   }
-  .facts dt {
-    padding-bottom: 4px;
+  .app-sub {
+    font-size: 12px;
   }
-  .facts dd {
-    padding-top: 4px;
+  .app-desc {
+    margin-top: 14px;
+    max-width: none;
+    font-size: 14px;
+    line-height: 1.62;
+  }
+  .tags {
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .tags span {
+    padding: 4px 8px;
+    letter-spacing: 0.1em;
+  }
+  .app-foot {
+    gap: 8px;
+    padding-top: 18px;
   }
   .app-foot .btn {
-    flex: 1;
+    flex: 1 1 100%;
+    min-height: 44px;
+    padding: 12px 16px;
     justify-content: center;
+    text-align: center;
+  }
+  .app-meta {
+    margin-top: 14px;
+    padding-top: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  /* ---- FAQ / principles / footer ------------------------------------ */
+  .faq-list {
+    padding: 4px 18px;
+  }
+  .faq-list summary {
+    min-height: 48px;
+    padding: 18px 34px 18px 0;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .faq-list summary::after {
+    top: 14px;
+    right: 0;
+  }
+  .faq-list details p {
+    margin: 0 0 18px;
+    font-size: 14px;
+    line-height: 1.64;
+  }
+  .feature {
+    padding: 22px 20px 24px;
+  }
+  .feature .ico {
+    margin-bottom: 14px;
+  }
+  .feature h3 {
+    font-size: 22px;
+  }
+  .feature p {
+    font-size: 13.5px;
+  }
+  .studio-note {
+    margin-top: 22px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  footer {
+    padding: 30px 0 40px;
+  }
+  .foot-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .foot-brand {
+    align-items: flex-start;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .foot-links {
+    gap: 8px 18px;
+  }
+  .foot-links a {
+    min-height: 38px;
+  }
+
+  /* ---- Facts table stacks into label / value pairs ------------------- */
+  .facts {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .facts dt,
+  .facts dd {
+    padding: 0 16px;
+  }
+  .facts dt {
+    padding-top: 14px;
+    border-top: 1px solid var(--line-soft);
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .facts dt:first-child {
+    border-top: none;
+  }
+  .facts dd {
+    padding-top: 2px;
+    padding-bottom: 16px;
+  }
+
+  /* ---- Detail pages & legal docs ------------------------------------ */
+  .doc,
+  .app-page {
+    padding: 40px 20px 72px;
+  }
+  .doc-card {
+    padding: 22px 18px 26px;
+  }
+  .breadcrumb {
+    gap: 7px;
+    margin-bottom: 22px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+  .doc h2,
+  .app-page h2 {
+    margin-top: 34px;
+    padding-top: 20px;
+  }
+  .doc p,
+  .doc li,
+  .app-page p,
+  .app-page li {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .shots {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .cta-row .btn {
+    flex: 1 1 100%;
+    min-height: 44px;
+  }
+  .related {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small phones: keep everything above the fold compact and tappable. */
+@media (max-width: 480px) {
+  .wrap {
+    padding: 0 16px;
+  }
+  .nav-title {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+  }
+  .hero {
+    padding-top: 36px;
+    padding-bottom: 44px;
+  }
+  .hero h1 {
+    font-size: clamp(33px, 10.4vw, 44px);
+  }
+  .section-head h2 {
+    font-size: clamp(28px, 8.6vw, 36px);
+  }
+  .apps-section .app-preview {
+    height: 204px;
+    min-height: 178px;
+  }
+  .apps-section .app-preview .preview-label {
+    font-size: 8.5px;
+  }
+  .apps-section .app-content {
+    padding: 18px 16px calc(var(--stack-overlap) + 12px);
+  }
+  .app-head {
+    padding-right: 40px;
+  }
+  .app-icon {
+    width: 44px;
+    height: 44px;
+  }
+  .app-id h3 {
+    font-size: 21px;
+  }
+  .apps-section .app-content::before {
+    top: 13px;
+    right: 12px;
+    font-size: 27px;
+  }
+  .tags span {
+    font-size: 9.5px;
+  }
+  .faq-list {
+    padding: 4px 16px;
+  }
+  .foot-links {
+    gap: 6px 16px;
+  }
+}
+
+/* ==========================================================================
+   The Collection Deck — Apple-style pinned card stack (phones & tablet)
+   ==========================================================================
+
+   On a single-column layout with enough height to hold one panel, each app
+   panel pins just under the sticky header and the next panel scrolls up and
+   over it. Pinning stops naturally at the end of the deck, where the panels
+   telescope away with the section, so nothing reaches the following section.
+
+   Each panel pins a little lower than the one before it, which keeps a thin
+   stitched edge of every covered panel visible at the top of the stack —
+   the "deck of cards" read — and guarantees the incoming panel is painted
+   above the one it covers without needing any script.
+
+   The height gate matters: a pinned panel that is taller than the viewport
+   would sit with its footer below the fold and out of reach for the whole
+   time it is pinned, so the deck only engages when a whole panel fits. Under
+   720px the deck falls back to the tucked stack above, which works at any
+   height (this is the iPhone SE / landscape case). */
+
+@media (max-width: 940px) and (min-height: 720px) {
+  .apps-section {
+    --stack-top: 72px;   /* clears the 64px sticky header */
+    --stack-step: 12px;  /* visible edge of each covered panel */
+    --stack-gap: 22px;   /* scroll travel between panels */
+  }
+
+  .apps-section .apps {
+    gap: var(--stack-gap);
+    padding-bottom: 0;
+  }
+
+  .apps-section .app-card {
+    position: sticky;
+    top: var(--stack-top);
+    margin-top: 0;
+    /* Safety net for unusually long copy: a pinned panel may never be taller
+       than the band it is pinned in. The button row comes before the meta
+       line, so even a clipped panel still exposes its links. */
+    max-height: calc(100dvh - var(--stack-top) - var(--stack-step) * 3 - 16px);
+    /* An upward shadow reads as the edge of a panel resting on the previous
+       one; the panel below sits over it in the paint order. */
+    box-shadow:
+      0 -14px 34px rgba(2, 6, 6, 0.46),
+      var(--shadow-card);
+  }
+
+  html[data-theme="light"] .apps-section .app-card {
+    box-shadow:
+      0 -14px 34px rgba(56, 37, 30, 0.16),
+      var(--shadow-card);
+  }
+
+  .apps-section .app-card + .app-card {
+    margin-top: 0;
+    box-shadow:
+      0 -14px 34px rgba(2, 6, 6, 0.46),
+      var(--shadow-card);
+  }
+
+  html[data-theme="light"] .apps-section .app-card + .app-card {
+    box-shadow:
+      0 -14px 34px rgba(56, 37, 30, 0.16),
+      var(--shadow-card);
+  }
+
+  /* Later panels must cover earlier ones, so the deck is ordered explicitly
+     rather than relying on the paint order of positioned siblings. */
+  .apps-section .app-card:nth-child(1) { top: var(--stack-top); z-index: 1; }
+  .apps-section .app-card:nth-child(2) { top: calc(var(--stack-top) + var(--stack-step)); z-index: 2; }
+  .apps-section .app-card:nth-child(3) { top: calc(var(--stack-top) + var(--stack-step) * 2); z-index: 3; }
+  .apps-section .app-card:nth-child(4) { top: calc(var(--stack-top) + var(--stack-step) * 3); z-index: 4; }
+
+  /* A panel being read with the keyboard comes to the front of the deck. */
+  .apps-section .app-card:focus-within {
+    z-index: 6;
+  }
+
+  /* No tuck to guard against here, so the panel footer goes back to a normal
+     rhythm. The screenshot area is driven by the viewport instead of a fixed
+     height, and the spacing is pulled in a little, so the pinned panel always
+     ends above the fold with its buttons reachable. */
+  .apps-section .app-content {
+    padding-bottom: 18px;
+  }
+
+  .apps-section .app-desc {
+    margin-top: 12px;
+  }
+
+  .apps-section .tags {
+    margin-top: 12px;
+  }
+
+  .apps-section .app-foot {
+    padding-top: 14px;
+  }
+
+  .apps-section .app-meta {
+    margin-top: 12px;
+    padding-top: 10px;
+  }
+
+  .apps-section .app-preview {
+    height: clamp(176px, 25dvh, 236px);
   }
 }
 
@@ -1984,6 +2422,29 @@ html.has-custom-cursor * {
   *::before,
   *::after {
     transition: none !important;
+    animation: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Touch Devices — keep the tactile hover lift from sticking after a tap
+   ========================================================================== */
+
+@media (hover: none) {
+  .app-card:hover,
+  .feature:hover,
+  .related a:hover {
+    transform: none;
+  }
+  .app-card:hover::after,
+  .feature:hover::after {
+    opacity: 0;
+  }
+  .apps-section .app-card:hover .app-preview img {
+    transform: none;
+  }
+  .apps-section .app-card:hover .app-preview img:nth-child(2) {
+    transform: translateY(-7px);
   }
 }
