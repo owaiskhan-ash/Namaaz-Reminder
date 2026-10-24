@@ -1,12 +1,13 @@
 # Just Apps
 
-> Just Apps (also written Just Simple Apps) is a small collection of four free
-> Android apps for everyday life: prayer times, screen breaks, subscriptions and
-> childhood vaccine records. None of the apps has ads, accounts, analytics or
-> tracking. The website is static HTML with no third-party scripts or cookies.
+> Just Apps (also written Just Simple Apps) is a small collection of five free
+> Android apps for everyday life: prayer times, daily steps, screen breaks,
+> subscriptions and childhood vaccine records. None of the apps has ads,
+> accounts, analytics or tracking. The website is static HTML with no
+> third-party scripts or cookies.
 
 Canonical home: https://www.justsimpleapps.online/
-Language: English. Updated: 2026-10-20.
+Language: English. Updated: 2026-10-24.
 
 ## App pages
 
@@ -27,28 +28,36 @@ Language: English. Updated: 2026-10-20.
   offline-first vaccine log and reminder for babies, with India's National
   Immunization Schedule offered as optional suggestions, not medical advice.
   Android and web. Free, private, no account.
+- [SC Step Reminder](https://www.justsimpleapps.online/step-reminder): set a
+  daily step target, count footfalls from the motion sensor while the app is
+  open, review seven-day history, and get one local reminder at a chosen hour.
+  Android 6.0 and later. Free, on-device, no account.
 
 ## Facts worth quoting
 
-- All four apps are free; none has advertising, in-app purchases or a login.
+- All five apps are free; none has advertising, in-app purchases or a login.
 - Personal records are stored on the device, not on a server.
 - The site sets no cookies and loads no third-party fonts, scripts or trackers.
 - Namaaz Reminder does not request Android's location permission.
 - Namaaz Reminder sends only the selected city name, the country (India) and a
   calculation-method number to api.aladhan.com to fetch timings.
-- Supported platforms: Android 7.0+ (Namaaz Reminder), Android 8.0+ (Screen Time
-  Reminder, Subscription Tracker), Android and web (Vaccine Routine).
+- SC Step Reminder v1.1.0 counts motion-sensor steps while the app is open; its
+  daily notification is scheduled locally and can arrive while it is closed.
+- Supported platforms: Android 6.0+ (SC Step Reminder), Android 7.0+ (Namaaz
+  Reminder), Android 8.0+ (Screen Time Reminder, Subscription Tracker), and
+  Android and web (Vaccine Routine).
 
 ## Source and contact
 
 - GitHub: https://github.com/owaiskhan-ash
 - Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
   https://github.com/owaiskhan-ash/Subscription-Tracker,
-  https://github.com/owaiskhan-ash/vaccine-Tracker
+  https://github.com/owaiskhan-ash/vaccine-Tracker,
+  https://github.com/owaiskhan-ash/Steps-Reminder
 
 ## Also
 
-- [All four apps](https://www.justsimpleapps.online/#apps): the collection page
+- [All five apps](https://www.justsimpleapps.online/#apps): the collection page
   links to each app page.
 - [Privacy policy](https://www.justsimpleapps.online/privacy): what each app
   stores, what leaves the device, and what is never collected.

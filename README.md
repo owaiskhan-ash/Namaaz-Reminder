@@ -27,13 +27,14 @@ sitemap and JSON-LD URL must use that host: `owaiskhan-ash.github.io` does not s
 | Screen Time Reminder | `docs/screen-time-reminder.html` | `/screen-time-reminder` |
 | Subscription Tracker | `docs/subscription-tracker.html` | `/subscription-tracker` |
 | Vaccine Routine | `docs/vaccine-routine.html` | `/vaccine-routine` |
+| SC Step Reminder | `docs/step-reminder.html` | `/step-reminder` |
 | Privacy policy | `docs/privacy.html` | `/privacy` |
 
 The extensions are stripped by `cleanUrls` in `docs/vercel.json`, which also sets the asset
 cache headers, the security headers and the 308 from the `vercel.app` alias to the custom
 domain. `docs/404.html` is the branded not-found page.
 
-The four app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
+The five app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
 facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML by hand:
 
 ```bash
@@ -60,18 +61,19 @@ EOF
 files next to each screenshot are the responsive variants referenced from the pages; the
 original PNG/JPG files next to them are kept as the source for regenerating those variants.
 
-Adding a fifth app means one more entry in `APPS`, its screenshots and social card under
+Adding another app means one more entry in `APPS`, its screenshots and social card under
 `docs/assets/`, a card on the landing page and a URL in `docs/sitemap.xml`.
 
 ## The other apps
 
-Both public apps share the same promise — free to use, no ads, no clutter, no accounts:
+The other apps share the same promise — free to use, no ads, no clutter, no accounts:
 
 | # | App | Source |
 | --- | --- | --- |
 | 02 | **Screen Time Reminder** | <https://github.com/owaiskhan-ash/ScreenTime-Reminder> |
 | 03 | **Subscription Tracker** | <https://github.com/owaiskhan-ash/Subscription-Tracker> |
 | 04 | **Vaccine Routine** | <https://github.com/owaiskhan-ash/vaccine-Tracker> |
+| 05 | **SC Step Reminder** | <https://github.com/owaiskhan-ash/Steps-Reminder> |
 
 ## Getting the APKs
 

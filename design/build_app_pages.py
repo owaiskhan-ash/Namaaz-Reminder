@@ -4,7 +4,7 @@
 Each page is written to docs/<slug>/index.html and is served as
 https://www.justsimpleapps.online/<slug> (Vercel `cleanUrls`). The pages share
 the markup in TEMPLATE, so a link or metadata change is made once here instead
-of four times by hand.
+of repeating it across every app page by hand.
 
     python3 design/build_app_pages.py
 """
@@ -470,6 +470,117 @@ APPS = [
         },
         "cta_primary": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest",
     },
+    {
+        "slug": "step-reminder",
+        "name": "SC Step Reminder",
+        "kicker": "05 · Movement",
+        "nav_cta": "Get the app",
+        "title": "SC Step Reminder — Daily Step Goals | Just Apps",
+        "description": "A free Android step counter with a daily target, motion-sensor counting while the app is open, seven-day history and one local reminder at your chosen hour.",
+        "og": "og-step-reminder.png",
+        "h1": "A daily step target, and one gentle nudge to keep moving.",
+        "lede": "SC Step Reminder counts footfalls from your phone’s motion sensor while the app is open, shows how far you are from your daily target, and sends a local reminder at the hour you choose. Your goal and history stay on the device.",
+        "answer": "<p><strong>In one line:</strong> SC Step Reminder is a free Android app with a daily step target, motion-sensor counting while the app is open, a seven-day history and one scheduled reminder — without an account, ads or cloud storage.</p>",
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.1.0">Download v1.1.0</a>
+          <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Steps-Reminder/tree/v1.1.0">Source on GitHub</a>""",
+        "cta_note": "Version 1.1.0 for Android 6.0 and later. Free, signed APK from the project’s GitHub release.",
+        "shots": [
+            shot("/assets/steps/today-400.webp",
+                 "SC Step Reminder today screen with a daily progress dial, remaining steps and local reminder",
+                 "Today: your target, remaining steps and next reminder.",
+                 400, 866,
+                 "/assets/steps/today-400.webp 400w, /assets/steps/today-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/steps/history-400.webp",
+                 "SC Step Reminder trail screen with weekly totals and a daily step ledger",
+                 "Trail: the last seven days and your daily ledger.",
+                 400, 866,
+                 "/assets/steps/history-400.webp 400w, /assets/steps/history-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/steps/settings-400.webp",
+                 "SC Step Reminder settings for daily target, reminder time, sensor sensitivity and stride length",
+                 "Tune: target, reminder hour, sensitivity and stride.",
+                 400, 866,
+                 "/assets/steps/settings-400.webp 400w, /assets/steps/settings-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+        ],
+        "body": """
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>A daily target you choose</strong> — anywhere from 2,000 to 20,000 steps, with simple presets.</li>
+          <li><strong>A clear progress dial</strong> with steps remaining, an estimated walking time, distance and energy.</li>
+          <li><strong>One daily reminder</strong> at your chosen hour, with copy that reflects the steps still missing.</li>
+          <li><strong>A seven-day view and daily ledger</strong>, plus goal streaks and your best day.</li>
+          <li><strong>Adjustable sensor sensitivity and stride length</strong>, so the counting and distance estimate can suit your pace.</li>
+        </ul>
+
+        <h2>How step counting works</h2>
+        <p>The Android app reads the phone’s accelerometer and uses a peak detector to identify footfalls.
+        Gravity tracking, a sensitivity threshold and a short interval between accepted peaks help prevent
+        ordinary movement from being counted over and over. Version 1.1.0 counts these sensor steps
+        <strong>while the app is open</strong>; it is not presented as an always-on background pedometer.</p>
+        <p>Your stride setting turns the count into an estimated distance, and the target setting drives the
+        progress dial and reminder copy. On a desktop or a device without a supported motion sensor, Demo
+        Walk can preview the interface without pretending to be a real walk.</p>
+
+        <h2>A reminder scheduled on the phone</h2>
+        <p>Choose the hour when a nudge would be useful. The Android release schedules a repeating local
+        notification and updates its message as your count changes, so it can say how many of your target
+        steps remain. There is no push server and no engagement feed — just the one reminder you asked for.</p>
+
+        <h2>What stays on your phone</h2>
+        <p>Your target, reminder time, stride, sensitivity and daily history are stored locally. The app has
+        no account, cloud sync, advertising or analytics, and its own runtime code makes no network calls.
+        Uninstalling removes the app’s private storage.</p>
+
+        <h2>Compatibility and version</h2>
+        <dl class="facts">
+          <dt>Platform</dt><dd>Android 6.0 (API 23) and later, targeting Android 15 (API 35).</dd>
+          <dt>Version</dt><dd>1.1.0 (versionCode 2).</dd>
+          <dt>Sensor</dt><dd>Accelerometer, used for step counting while the app is open.</dd>
+          <dt>Reminders</dt><dd>Local daily notification at the time you choose.</dd>
+          <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Steps-Reminder/tree/v1.1.0">Steps-Reminder v1.1.0 source on GitHub</a></dd>
+          <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
+        </dl>
+        """,
+        "faq": [
+            ("Does SC Step Reminder count steps in the background?",
+             "Version 1.1.0 counts motion-sensor steps while the app is open. The daily reminder is scheduled locally and can still arrive when the app is closed."),
+            ("Does it need an account or an internet connection?",
+             "No. There is no account, and your target, settings and history are stored on the device. The app’s own runtime code makes no network calls."),
+            ("Can I choose my daily target and reminder time?",
+             "Yes. Targets range from 2,000 to 20,000 steps, and you can choose the hour of the daily reminder. Sensor sensitivity and stride length are adjustable too."),
+            ("What does the history view show?",
+             "The Trail view brings together the last seven days, a daily ledger, your best day, goal completions and your current goal streak."),
+            ("Is it free?",
+             "Yes. SC Step Reminder is free to download and use, with no ads, subscription, in-app purchases or account."),
+        ],
+        "software": {
+            "name": "SC Step Reminder",
+            "applicationCategory": "HealthApplication",
+            "operatingSystem": "Android 6.0 and later",
+            "description": "A daily step target, motion-sensor counting while the app is open, seven-day history and one local reminder at a chosen hour. Free and on-device.",
+            "softwareVersion": "1.1.0",
+            "image": BASE + "/assets/steps/icon-512.png",
+            "screenshot": [
+                BASE + "/assets/steps/today-780.webp",
+                BASE + "/assets/steps/history-780.webp",
+                BASE + "/assets/steps/settings-780.webp",
+            ],
+            "featureList": [
+                "Daily step target from 2,000 to 20,000",
+                "Accelerometer step counting while the app is open",
+                "One local reminder at a chosen hour",
+                "Seven-day history and daily ledger",
+                "Distance, energy and goal streak estimates",
+                "No account, ads, analytics or cloud sync",
+            ],
+            "downloadUrl": "https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.1.0",
+            "sameAs": ["https://github.com/owaiskhan-ash/Steps-Reminder"],
+        },
+        "cta_primary": "https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.1.0",
+    },
 ]
 
 TEMPLATE = """<!DOCTYPE html>
@@ -594,7 +705,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="related">
 {related}
   </div>
-  <p style="margin-top:26px"><a href="/">← Back to all four apps</a></p>
+  <p style="margin-top:26px"><a href="/">← Back to all five apps</a></p>
 
   </div>
 </main>
@@ -644,7 +755,7 @@ def build_jsonld(app):
             "about": {"@id": url + "#software"},
             "primaryImageOfPage": {"@id": url + "#primaryimage"},
             "inLanguage": "en",
-            "dateModified": "2026-10-20",
+            "dateModified": "2026-10-24",
             "breadcrumb": {"@id": url + "#breadcrumb"},
         },
         {

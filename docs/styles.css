@@ -932,7 +932,7 @@ html[data-theme="light"] .section-divider::after {
 }
 
 /* ==========================================================================
-   Four App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
+   Five App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
    ========================================================================== */
 
 .apps-section .apps {
@@ -1080,14 +1080,16 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview,
 .apps-section .screentime-preview,
 .apps-section .subscriptions-preview,
-.apps-section .vaccine-preview {
+.apps-section .vaccine-preview,
+.apps-section .steps-preview {
   gap: 10px;
 }
 
 .apps-section .namaaz-preview img,
 .apps-section .screentime-preview img,
 .apps-section .subscriptions-preview img,
-.apps-section .vaccine-preview img {
+.apps-section .vaccine-preview img,
+.apps-section .steps-preview img {
   height: 88%;
   max-width: 29%;
   border-radius: 10px;
@@ -1097,14 +1099,16 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview img:nth-child(2),
 .apps-section .screentime-preview img:nth-child(2),
 .apps-section .subscriptions-preview img:nth-child(2),
-.apps-section .vaccine-preview img:nth-child(2) {
+.apps-section .vaccine-preview img:nth-child(2),
+.apps-section .steps-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
 .apps-section .app-card:hover .namaaz-preview img:nth-child(2),
 .apps-section .app-card:hover .screentime-preview img:nth-child(2),
 .apps-section .app-card:hover .subscriptions-preview img:nth-child(2),
-.apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
+.apps-section .app-card:hover .vaccine-preview img:nth-child(2),
+.apps-section .app-card:hover .steps-preview img:nth-child(2) {
   transform: translateY(-10px);
 }
 
@@ -1114,6 +1118,26 @@ html[data-theme="light"] .feature:focus-within::after {
   flex: 1;
   flex-direction: column;
   padding: 26px 28px 24px;
+}
+
+/* The fifth app completes the collection with a wide, side-by-side showcase. */
+@media (min-width: 941px) {
+  .apps-section #step-reminder {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  }
+
+  .apps-section #step-reminder .app-preview {
+    height: auto;
+    min-height: 394px;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .apps-section #step-reminder .app-content {
+    padding: 30px 32px 28px;
+  }
 }
 
 /* #1 Blind-debossed hot-stamped numeral in the leather corner */
@@ -1168,7 +1192,7 @@ html[data-theme="light"] .apps-section .app-content::before {
   min-width: 0;
 }
 
-/* #1 Stamped recessed leather tag for 01..04 */
+/* #1 Stamped recessed leather tag for 01..05 */
 .app-no {
   display: inline-flex;
   align-items: center;
