@@ -405,13 +405,13 @@ def _build_social_card(ja_icon_512: Image.Image) -> None:
 
     draw.text(
         (tx, 378),
-        "Prayer times, screen breaks, and water reminders.",
+        "Prayer times, screen breaks, and step goals.",
         font=f_sub,
         fill=(216, 194, 160, 240),
     )
     draw.text(
         (tx, 405),
-        "Subscriptions and vaccine records.",
+        "Water, subscriptions, and vaccine records.",
         font=f_sub,
         fill=(216, 194, 160, 240),
     )

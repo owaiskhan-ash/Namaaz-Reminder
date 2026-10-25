@@ -1057,6 +1057,11 @@ html[data-theme="light"] .feature:focus-within::after {
   transform: translateY(-3px);
 }
 
+.apps-section .steps-preview img {
+  height: 68%;
+  max-width: 68%;
+}
+
 .apps-section .preview-label {
   position: absolute;
   z-index: 2;

@@ -1,9 +1,10 @@
 # Just Apps
 
-> Just Apps (also written Just Simple Apps) is a small collection of five free
-> apps for everyday life: prayer times, screen breaks, water reminders,
-> subscriptions and childhood vaccine records. None has ads, accounts, analytics
-> or tracking. The website is static HTML with no third-party scripts or cookies.
+> Just Apps (also written Just Simple Apps) is a small collection of six free
+> apps for everyday life: prayer times, screen breaks, step goals, water
+> reminders, subscriptions and childhood vaccine records. None has ads, accounts,
+> analytics or tracking. The website is static HTML with no third-party scripts
+> or cookies.
 
 Canonical home: https://www.justsimpleapps.online/
 Language: English. Updated: 2026-10-25.
@@ -32,31 +33,42 @@ Language: English. Updated: 2026-10-25.
   clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM–8 AM).
   It has no intake logging, counters or charts, and makes no network requests.
   Android 7.0 and later. Free, no account. [Project](https://github.com/owaiskhan-ash/Water-Reminder) and [Water Reminder v1.0.0 release](https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0).
+- [Step Reminder](https://www.justsimpleapps.online/#steps-reminder): a daily
+  step counter with a chosen target (2,000–20,000), one reminder at a chosen
+  hour, and an on-device seven-day history. Android 6.0+ and web; web reminders
+  fire only while the app is open. No account, cloud, analytics, Google Fit or
+  Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and
+  [Step Reminder v1.3.5 release](https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.3.5).
 
 ## Facts worth quoting
 
-- All five apps are free and ad-free; none has in-app purchases or requires a login.
+- All six apps are free and ad-free; none has in-app purchases or requires a login.
 - Personal records are stored on the device, not on a server.
 - Water Reminder schedules local notifications and makes no network requests.
+- Step Reminder makes no runtime network requests; step data, goals and history
+  stay on the device.
 - The site sets no cookies and loads no third-party fonts, scripts or trackers.
 - Namaaz Reminder does not request Android's location permission.
 - Namaaz Reminder sends only the selected city name, the country (India) and a
   calculation-method number to api.aladhan.com to fetch timings.
 - Supported platforms: Android 7.0+ (Namaaz Reminder and Water Reminder),
-  Android 8.0+ (Screen Time Reminder and Subscription Tracker), Android and web
-  (Vaccine Routine).
+  Android 8.0+ (Screen Time Reminder and Subscription Tracker), Android 6.0+
+  and web (Step Reminder), Android and web (Vaccine Routine).
 
 ## Source and contact
 
 - GitHub: https://github.com/owaiskhan-ash
 - Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
   https://github.com/owaiskhan-ash/Subscription-Tracker,
-  https://github.com/owaiskhan-ash/vaccine-Tracker
+  https://github.com/owaiskhan-ash/vaccine-Tracker,
+  https://github.com/owaiskhan-ash/Steps-Reminder
 - Water Reminder project and releases: https://github.com/owaiskhan-ash/Water-Reminder
 
 ## Also
 
-- [All five apps](https://www.justsimpleapps.online/#apps): the collection page
+- [All six apps](https://www.justsimpleapps.online/#apps): the collection page
   links to each app and its download or project page.
 - [Privacy policy](https://www.justsimpleapps.online/privacy): what Namaaz
   Reminder and this site store, what leaves the device, and what is never collected.
+
+---
