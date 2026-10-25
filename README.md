@@ -80,13 +80,16 @@ and run `python3 design/seo_check.py`.
 
 ## The other apps
 
-Both public apps share the same promise — free to use, no ads, no clutter, no accounts:
+All public apps in the collection share the same promise — free to use, no ads, no clutter, no accounts:
 
 | # | App | Source |
 | --- | --- | --- |
 | 02 | **Screen Time Reminder** | <https://github.com/owaiskhan-ash/ScreenTime-Reminder> |
 | 03 | **Subscription Tracker** | <https://github.com/owaiskhan-ash/Subscription-Tracker> |
 | 04 | **Vaccine Routine** | <https://github.com/owaiskhan-ash/vaccine-Tracker> |
+| 05 | **Water Reminder** | <https://github.com/owaiskhan-ash/Water-Reminder> |
+| 06 | **Step Reminder** | <https://github.com/owaiskhan-ash/Steps-Reminder> |
+| 07 | **RemindME** | <https://github.com/owaiskhan-ash/RemindME> |
 
 ## Getting the APKs
 
