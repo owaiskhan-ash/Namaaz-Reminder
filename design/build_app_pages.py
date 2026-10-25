@@ -29,7 +29,7 @@ ORGANIZATION = {
     "name": "Just Apps",
     "alternateName": "Just Simple Apps",
     "url": BASE + "/",
-    "description": "A small studio making free, quiet Android apps for everyday life: prayer times, screen breaks, step goals, water reminders, subscriptions and childhood vaccine records.",
+    "description": "A small studio making free, quiet Android apps for everyday life: prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions and childhood vaccine records.",
     "slogan": "Free apps for everyday life, quietly.",
     "foundingLocation": {"@type": "Place", "name": "Mumbai, India"},
     "logo": {
@@ -54,6 +54,7 @@ ORGANIZATION = {
         "https://github.com/owaiskhan-ash/vaccine-Tracker",
         "https://github.com/owaiskhan-ash/Steps-Reminder",
         "https://github.com/owaiskhan-ash/Water-Reminder",
+        "https://github.com/owaiskhan-ash/RemindME",
     ],
 }
 WEBSITE = {
@@ -62,7 +63,7 @@ WEBSITE = {
     "url": BASE + "/",
     "name": "Just Apps",
     "alternateName": "Just Simple Apps",
-    "description": "Free, ad-free apps for prayer times, screen breaks, step goals, water reminders, subscriptions and vaccine records.",
+    "description": "Free, ad-free apps for prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions and vaccine records.",
     "publisher": {"@id": BASE + "/#organization"},
     "inLanguage": "en",
 }
@@ -652,7 +653,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="related">
 {related}
   </div>
-  <p style="margin-top:26px"><a href="/">← Back to all six apps</a></p>
+  <p style="margin-top:26px"><a href="/">← Back to all seven apps</a></p>
 
   </div>
 </main>

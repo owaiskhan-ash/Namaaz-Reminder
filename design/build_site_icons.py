@@ -416,7 +416,7 @@ def _build_social_card(ja_icon_512: Image.Image) -> None:
 
     draw.text(
         (tx, 378),
-        "Prayer times, screen breaks, and step goals.",
+        "Prayer times, screen breaks, steps, and reminders.",
         font=f_sub,
         fill=(216, 194, 160, 240),
     )

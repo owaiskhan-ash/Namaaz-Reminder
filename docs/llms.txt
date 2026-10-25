@@ -1,14 +1,15 @@
 # Just Apps
 
 > Just Apps (also written Just Simple Apps) is an independent studio in Mumbai,
-> India, founded by Owais Khan. It makes six free apps for everyday life:
-> prayer times, screen breaks, step goals, water reminders, subscriptions and
-> childhood vaccine records. None has ads, accounts, analytics or tracking. The
-> website is static HTML with no third-party scripts or cookies.
+> India, founded by Owais Khan. It makes seven free apps for everyday life:
+> prayer times, screen breaks, step goals, water reminders, conversational
+> reminders, subscriptions and childhood vaccine records. None has ads,
+> accounts, analytics or tracking. The website is static HTML with no
+> third-party scripts or cookies.
 
-In one line: Just Apps makes six free Android apps — prayer times, screen-time
-breaks, step and water reminders, subscription tracking and vaccine records —
-with no ads, no accounts and no tracking.
+In one line: Just Apps makes seven free Android apps — prayer times, screen-time
+breaks, step, water and conversational reminders, subscription tracking and
+vaccine records — with no ads, no accounts and no tracking.
 
 Canonical home: https://www.justsimpleapps.online/
 Language: English. Updated: 2026-10-25.
@@ -44,21 +45,35 @@ Language: English. Updated: 2026-10-25.
   fire only while the app is open. No account, cloud, analytics, Google Fit or
   Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and
   [Step Reminder v1.3.5 release](https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.3.5).
+- [RemindME](https://www.justsimpleapps.online/#remindme): a conversational
+  reminder app that parses natural-language phrases with an explicit date and
+  time and schedules alarms on Android's alarm audio stream so silent or
+  vibrate mode never mutes a reminder. Supports seven languages (English,
+  Bahasa Indonesia, Español, Português, हिन्दी, العربية with RTL, and 简体中文),
+  includes Snooze 10 min and Mark done notification actions, a persistent
+  three-tab bottom dock (Home, Previous, Settings), dark mode by default, and
+  automatic alarm restoration after reboot. Reminder text and settings stay in
+  local storage on the phone. Android 8.0 and later. Free, no account.
+  [Project](https://github.com/owaiskhan-ash/RemindME) and
+  [RemindME v1.0.5 release](https://github.com/owaiskhan-ash/RemindME/releases/tag/v1.0.5).
 
 ## Facts worth quoting
 
-- All six apps are free and ad-free; none has in-app purchases or requires a login.
+- All seven apps are free and ad-free; none has in-app purchases or requires a login.
 - Personal records are stored on the device, not on a server.
 - Water Reminder schedules local notifications and makes no network requests.
 - Step Reminder makes no runtime network requests; step data, goals and history
   stay on the device.
+- RemindME parses and stores reminders entirely on the device; it only uses the
+  network if you opt into the RemindME alarm sound instead of the default
+  device alarm, falling back to the device alarm when offline.
 - The site sets no cookies and loads no third-party fonts, scripts or trackers.
 - Namaaz Reminder does not request Android's location permission.
 - Namaaz Reminder sends only the selected city name, the country (India) and a
   calculation-method number to api.aladhan.com to fetch timings.
 - Supported platforms: Android 7.0+ (Namaaz Reminder and Water Reminder),
-  Android 8.0+ (Screen Time Reminder and Subscription Tracker), Android 6.0+
-  and web (Step Reminder), Android and web (Vaccine Routine).
+  Android 8.0+ (Screen Time Reminder, Subscription Tracker and RemindME),
+  Android 6.0+ and web (Step Reminder), Android and web (Vaccine Routine).
 
 ## Source and contact
 
@@ -66,12 +81,13 @@ Language: English. Updated: 2026-10-25.
 - Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
   https://github.com/owaiskhan-ash/Subscription-Tracker,
   https://github.com/owaiskhan-ash/vaccine-Tracker,
-  https://github.com/owaiskhan-ash/Steps-Reminder
-- Water Reminder project and releases: https://github.com/owaiskhan-ash/Water-Reminder
+  https://github.com/owaiskhan-ash/Steps-Reminder,
+  https://github.com/owaiskhan-ash/Water-Reminder,
+  https://github.com/owaiskhan-ash/RemindME
 
 ## Also
 
-- [All six apps](https://www.justsimpleapps.online/#apps): the collection page
+- [All seven apps](https://www.justsimpleapps.online/#apps): the collection page
   links to each app and its download or project page.
 - [Privacy policy](https://www.justsimpleapps.online/privacy): what Namaaz
   Reminder and this site store, what leaves the device, and what is never collected.
