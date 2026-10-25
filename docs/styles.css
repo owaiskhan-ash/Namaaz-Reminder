@@ -932,7 +932,7 @@ html[data-theme="light"] .section-divider::after {
 }
 
 /* ==========================================================================
-   Four App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
+   App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
    ========================================================================== */
 
 .apps-section .apps {
@@ -941,6 +941,14 @@ html[data-theme="light"] .section-divider::after {
   gap: 24px;
   align-items: stretch;
   counter-reset: app-stamp;
+}
+
+@media (min-width: 941px) {
+  .apps-section .app-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 24px) / 2);
+  }
 }
 
 .app-card {
@@ -1168,7 +1176,7 @@ html[data-theme="light"] .apps-section .app-content::before {
   min-width: 0;
 }
 
-/* #1 Stamped recessed leather tag for 01..04 */
+/* #1 Stamped recessed leather tag for the app collection */
 .app-no {
   display: inline-flex;
   align-items: center;

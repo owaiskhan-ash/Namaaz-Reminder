@@ -594,7 +594,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="related">
 {related}
   </div>
-  <p style="margin-top:26px"><a href="/">← Back to all four apps</a></p>
+  <p style="margin-top:26px"><a href="/">← Back to all five apps</a></p>
 
   </div>
 </main>
