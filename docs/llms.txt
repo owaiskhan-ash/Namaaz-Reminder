@@ -31,7 +31,7 @@ Language: English. Updated: 2026-10-25.
   water-drinking nudge, every two hours by default and aligned to the local
   clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM–8 AM).
   It has no intake logging, counters or charts, and makes no network requests.
-  Android 7.0 and later. Free, no account. [Project and latest release](https://github.com/owaiskhan-ash/Water-Reminder).
+  Android 7.0 and later. Free, no account. [Project](https://github.com/owaiskhan-ash/Water-Reminder) and [Water Reminder v1.0.0 release](https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0).
 
 ## Facts worth quoting
 
