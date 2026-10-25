@@ -404,14 +404,20 @@ def _build_social_card(ja_icon_512: Image.Image) -> None:
     draw.text((tx + pw, 286), "made.", font=f_head, fill=(208, 255, 0, 255))
 
     draw.text(
-        (tx, 384),
-        "Prayer times, screen breaks, subscriptions, and vaccine records.",
+        (tx, 378),
+        "Prayer times, screen breaks, and step goals.",
         font=f_sub,
         fill=(216, 194, 160, 240),
     )
-    draw.line([(tx, 444), (w - 104, 444)], fill=(216, 194, 160, 52), width=1)
     draw.text(
-        (tx, 468),
+        (tx, 405),
+        "Water, subscriptions, and vaccine records.",
+        font=f_sub,
+        fill=(216, 194, 160, 240),
+    )
+    draw.line([(tx, 450), (w - 104, 450)], fill=(216, 194, 160, 52), width=1)
+    draw.text(
+        (tx, 474),
         "FREE   ·   NO ADS   ·   NO TRACKING   ·   OFFLINE-READY",
         font=f_foot,
         fill=(240, 227, 204, 190),

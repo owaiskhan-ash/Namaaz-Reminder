@@ -932,7 +932,7 @@ html[data-theme="light"] .section-divider::after {
 }
 
 /* ==========================================================================
-   Four App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
+   App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
    ========================================================================== */
 
 .apps-section .apps {
@@ -941,6 +941,14 @@ html[data-theme="light"] .section-divider::after {
   gap: 24px;
   align-items: stretch;
   counter-reset: app-stamp;
+}
+
+@media (min-width: 941px) {
+  .apps-section .app-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 24px) / 2);
+  }
 }
 
 .app-card {
@@ -1080,14 +1088,16 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview,
 .apps-section .screentime-preview,
 .apps-section .subscriptions-preview,
-.apps-section .vaccine-preview {
+.apps-section .vaccine-preview,
+.apps-section .steps-preview {
   gap: 10px;
 }
 
 .apps-section .namaaz-preview img,
 .apps-section .screentime-preview img,
 .apps-section .subscriptions-preview img,
-.apps-section .vaccine-preview img {
+.apps-section .vaccine-preview img,
+.apps-section .steps-preview img {
   height: 88%;
   max-width: 29%;
   border-radius: 10px;
@@ -1097,15 +1107,36 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview img:nth-child(2),
 .apps-section .screentime-preview img:nth-child(2),
 .apps-section .subscriptions-preview img:nth-child(2),
-.apps-section .vaccine-preview img:nth-child(2) {
+.apps-section .vaccine-preview img:nth-child(2),
+.apps-section .steps-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
 .apps-section .app-card:hover .namaaz-preview img:nth-child(2),
 .apps-section .app-card:hover .screentime-preview img:nth-child(2),
 .apps-section .app-card:hover .subscriptions-preview img:nth-child(2),
-.apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
+.apps-section .app-card:hover .vaccine-preview img:nth-child(2),
+.apps-section .app-card:hover .steps-preview img:nth-child(2) {
   transform: translateY(-10px);
+}
+
+/* Leave room for the preview caption so it never obscures the app screens. */
+.apps-section .steps-preview img {
+  height: 75%;
+  max-width: 24%;
+  transform: translateY(-11px);
+}
+
+.apps-section .steps-preview img:nth-child(2) {
+  transform: translateY(-18px);
+}
+
+.apps-section .app-card:hover .steps-preview img {
+  transform: translateY(-14px);
+}
+
+.apps-section .app-card:hover .steps-preview img:nth-child(2) {
+  transform: translateY(-21px);
 }
 
 .apps-section .app-content {
@@ -1168,7 +1199,7 @@ html[data-theme="light"] .apps-section .app-content::before {
   min-width: 0;
 }
 
-/* #1 Stamped recessed leather tag for 01..04 */
+/* #1 Stamped recessed leather tag for the app collection */
 .app-no {
   display: inline-flex;
   align-items: center;
@@ -1968,7 +1999,8 @@ html.nav-open {
   .apps-section .namaaz-preview,
   .apps-section .screentime-preview,
   .apps-section .subscriptions-preview,
-  .apps-section .vaccine-preview {
+  .apps-section .vaccine-preview,
+  .apps-section .steps-preview {
     gap: 8px;
   }
   .apps-section .preview-label {

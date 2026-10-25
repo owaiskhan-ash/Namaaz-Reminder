@@ -1,14 +1,15 @@
 # Just Apps
 
-> Just Apps (also written Just Simple Apps) is a small collection of four free
-> Android apps for everyday life: prayer times, screen breaks, subscriptions and
-> childhood vaccine records. None of the apps has ads, accounts, analytics or
-> tracking. The website is static HTML with no third-party scripts or cookies.
+> Just Apps (also written Just Simple Apps) is a small collection of six free
+> apps for everyday life: prayer times, screen breaks, step goals, water
+> reminders, subscriptions and childhood vaccine records. None has ads, accounts,
+> analytics or tracking. The website is static HTML with no third-party scripts
+> or cookies.
 
 Canonical home: https://www.justsimpleapps.online/
-Language: English. Updated: 2026-10-20.
+Language: English. Updated: 2026-10-25.
 
-## App pages
+## Apps in the collection
 
 - [Namaaz Reminder](https://www.justsimpleapps.online/namaaz-reminder): daily
   prayer times for cities in India, a live countdown to the next salah, and
@@ -27,28 +28,47 @@ Language: English. Updated: 2026-10-20.
   offline-first vaccine log and reminder for babies, with India's National
   Immunization Schedule offered as optional suggestions, not medical advice.
   Android and web. Free, private, no account.
+- [Water Reminder](https://www.justsimpleapps.online/#water-reminder): a simple
+  water-drinking nudge, every two hours by default and aligned to the local
+  clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM–8 AM).
+  It has no intake logging, counters or charts, and makes no network requests.
+  Android 7.0 and later. Free, no account. [Project](https://github.com/owaiskhan-ash/Water-Reminder) and [Water Reminder v1.0.0 release](https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0).
+- [Step Reminder](https://www.justsimpleapps.online/#steps-reminder): a daily
+  step counter with a chosen target (2,000–20,000), one reminder at a chosen
+  hour, and an on-device seven-day history. Android 6.0+ and web; web reminders
+  fire only while the app is open. No account, cloud, analytics, Google Fit or
+  Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and
+  [Step Reminder v1.3.5 release](https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.3.5).
 
 ## Facts worth quoting
 
-- All four apps are free; none has advertising, in-app purchases or a login.
+- All six apps are free and ad-free; none has in-app purchases or requires a login.
 - Personal records are stored on the device, not on a server.
+- Water Reminder schedules local notifications and makes no network requests.
+- Step Reminder makes no runtime network requests; step data, goals and history
+  stay on the device.
 - The site sets no cookies and loads no third-party fonts, scripts or trackers.
 - Namaaz Reminder does not request Android's location permission.
 - Namaaz Reminder sends only the selected city name, the country (India) and a
   calculation-method number to api.aladhan.com to fetch timings.
-- Supported platforms: Android 7.0+ (Namaaz Reminder), Android 8.0+ (Screen Time
-  Reminder, Subscription Tracker), Android and web (Vaccine Routine).
+- Supported platforms: Android 7.0+ (Namaaz Reminder and Water Reminder),
+  Android 8.0+ (Screen Time Reminder and Subscription Tracker), Android 6.0+
+  and web (Step Reminder), Android and web (Vaccine Routine).
 
 ## Source and contact
 
 - GitHub: https://github.com/owaiskhan-ash
 - Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
   https://github.com/owaiskhan-ash/Subscription-Tracker,
-  https://github.com/owaiskhan-ash/vaccine-Tracker
+  https://github.com/owaiskhan-ash/vaccine-Tracker,
+  https://github.com/owaiskhan-ash/Steps-Reminder
+- Water Reminder project and releases: https://github.com/owaiskhan-ash/Water-Reminder
 
 ## Also
 
-- [All four apps](https://www.justsimpleapps.online/#apps): the collection page
-  links to each app page.
-- [Privacy policy](https://www.justsimpleapps.online/privacy): what each app
-  stores, what leaves the device, and what is never collected.
+- [All six apps](https://www.justsimpleapps.online/#apps): the collection page
+  links to each app and its download or project page.
+- [Privacy policy](https://www.justsimpleapps.online/privacy): what Namaaz
+  Reminder and this site store, what leaves the device, and what is never collected.
+
+---
