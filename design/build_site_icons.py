@@ -12,7 +12,8 @@ The procedural renderer below remains for the monochrome NR privacy-page mark.
 
 Outputs (docs/assets):
   just-apps-icon-{32,64,128,256,512}.png   favicon, header logo, apple-touch
-  just-apps-icon.svg                       favicon / schema logo
+  just-apps-icon.svg                       favicon (vector copy of
+                                           design/source/just-apps-icon-vector.svg)
   nr-mark-header-{64,128}.png, .svg        the privacy page header mark
 
 Run:  python3 design/build_site_icons.py
@@ -318,11 +319,21 @@ def main() -> None:
             img.save(path, "PNG", optimize=True)
             print("wrote", os.path.relpath(path, ROOT))
 
-        buf = io.BytesIO()
-        rendered[max(sizes)].save(buf, "PNG", optimize=True)
         svg_path = os.path.join(ASSETS, f"{prefix}.svg")
-        with open(svg_path, "w") as fh:
-            fh.write(svg(buf.getvalue(), max(sizes), label=label))
+        if prefix == "just-apps-icon":
+            # Copy the hand-authored vector favicon instead of embedding the
+            # 512px raster — that produced a ~600 KB SVG (SEO_AUDIT P5).
+            # Source of truth: design/source/just-apps-icon-vector.svg.
+            vector_src = os.path.join(ROOT, "design", "source",
+                                      "just-apps-icon-vector.svg")
+            with open(vector_src, encoding="utf-8") as src, \
+                    open(svg_path, "w", encoding="utf-8") as fh:
+                fh.write(src.read())
+        else:
+            buf = io.BytesIO()
+            rendered[max(sizes)].save(buf, "PNG", optimize=True)
+            with open(svg_path, "w") as fh:
+                fh.write(svg(buf.getvalue(), max(sizes), label=label))
         print("wrote", os.path.relpath(svg_path, ROOT))
 
         if prefix == "just-apps-icon":

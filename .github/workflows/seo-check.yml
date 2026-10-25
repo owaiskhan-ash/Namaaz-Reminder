@@ -1,0 +1,40 @@
+name: SEO check
+
+# Guards the static site in docs/ against the regressions the SEO audit found:
+# canonical host drift, titles/descriptions out of range, FAQ schema that no
+# longer matches the visible questions, sitemap entries without a page, dead
+# internal links or llms.txt URLs, and per-page entity graphs that stop
+# resolving on their own. Runs whenever the site or its generator changes.
+on:
+  push:
+    branches:
+      - main
+      - 'arena/**'
+    paths:
+      - 'docs/**'
+      - 'design/build_app_pages.py'
+      - 'design/seo_check.py'
+      - '.github/workflows/seo-check.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'design/build_app_pages.py'
+      - 'design/seo_check.py'
+      - '.github/workflows/seo-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seo:
+    name: Pages, schema & links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run SEO/AISO checks
+        run: python3 design/seo_check.py

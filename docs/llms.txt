@@ -1,10 +1,14 @@
 # Just Apps
 
-> Just Apps (also written Just Simple Apps) is a small collection of six free
-> apps for everyday life: prayer times, screen breaks, step goals, water
-> reminders, subscriptions and childhood vaccine records. None has ads, accounts,
-> analytics or tracking. The website is static HTML with no third-party scripts
-> or cookies.
+> Just Apps (also written Just Simple Apps) is an independent studio in Mumbai,
+> India, founded by Owais Khan. It makes six free apps for everyday life:
+> prayer times, screen breaks, step goals, water reminders, subscriptions and
+> childhood vaccine records. None has ads, accounts, analytics or tracking. The
+> website is static HTML with no third-party scripts or cookies.
+
+In one line: Just Apps makes six free Android apps — prayer times, screen-time
+breaks, step and water reminders, subscription tracking and vaccine records —
+with no ads, no accounts and no tracking.
 
 Canonical home: https://www.justsimpleapps.online/
 Language: English. Updated: 2026-10-25.
@@ -15,7 +19,8 @@ Language: English. Updated: 2026-10-25.
   prayer times for cities in India, a live countdown to the next salah, and
   optional adhan reminders. Works offline from the last saved schedule. No
   location permission is requested; the chosen city name is the only location
-  data. Android 7.0 and later. Free, no ads, no account.
+  data. Android 7.0 and later. Free, no ads, no account. Not yet published on
+  Google Play — its page carries the current status.
 - [Screen Time Reminder](https://www.justsimpleapps.online/screen-time-reminder): counts
   continuous phone use and sends one gentle break reminder when a session runs
   long, with a 7-day history. No streaks or scores. Android 8.0 and later. Free
