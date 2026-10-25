@@ -4,9 +4,9 @@
 | --- | --- |
 | **Site audited** | <https://www.justsimpleapps.online/> (production) |
 | **Source** | `docs/` in this repository, deployed by Vercel with `docs` as the project root |
-| **Date** | 20 October 2026 |
+| **Date** | 20 October 2026; round 3 on 25 October 2026 |
 | **Pages in scope** | `/` (landing), `/privacy`, `robots.txt`, `sitemap.xml`, structured data, social metadata |
-| **Fixes applied on** | branch `arena/a79b5946-namaaz-reminder`, rounds 1 and 2 |
+| **Fixes applied on** | branch `arena/a79b5946-namaaz-reminder` (rounds 1–2), `arena/a06fb430-namaaz-reminder` (round 3) |
 
 > **AISO** here means AI search / answer-engine optimisation (also called AEO or GEO): being
 > crawlable, understandable and quotable by ChatGPT, Claude, Perplexity, Gemini, Copilot and
@@ -20,7 +20,7 @@
 **47 / 100 at the start of the audit. 89 / 100 now.**
 Everything that can be fixed in this repository is fixed and deployed-ready. The eleven points
 that remain are not code: they need an account, a listing or a decision that only you can make
-(see §1.3).
+(see §1.4).
 
 | Area | Weight | Start | Now | What moved it |
 | --- | --- | --- | --- | --- |
@@ -49,7 +49,29 @@ Round 1 fixed the critical metadata faults. Round 2 built the structure those fi
 | Home page | `CollectionPage` + `hasPart` linking the four app pages, an “About Just Apps” section with a visible review date, internal links from every card, WebP previews |
 | `docs/vercel.json` | Content-Security-Policy and `X-DNS-Prefetch-Control` alongside the round-1 headers |
 
-### 1.2 What was deliberately not done
+### 1.2 What was done in round 3
+
+Round 3 targeted per-page rankings and answer-engine quotation, and added a guard so the
+fixes cannot silently regress:
+
+| Change | What it does |
+| --- | --- |
+| Landing title rewritten | “Free Android Apps: Prayer Times, Reminders, Bills \| Just Apps” (61 chars) replaces the mood line “Free Android Apps, Quietly”; description front-loaded with the six categories (157 chars); OG/Twitter/JSON-LD `CollectionPage` all mirrored |
+| Hero “In one line” answer box | One quotable sentence on the landing page naming the studio, the six apps and the no-ads/no-accounts/no-tracking claim — the passage answer engines lift; added to `speakable` |
+| Landing FAQ grown 11 → 15 | Added Play Store status, who is behind Just Apps, offline behaviour, and how the privacy claims are checkable — and the FAQ schema is now generated from the visible `<details>`, so the five drifted answers found in round 3 (Water ×2, Step ×2, account question) are byte-identical again |
+| H1s now contain the product name | Each app page H1 was a slogan (“A gentle nudge…”); it now starts “Screen Time Reminder: …”, “Namaaz Reminder: …” etc., so title, H1 and entity agree |
+| Self-contained entity graph | Every app page and the privacy page now carries the full `Organization` + `WebSite` nodes (identical `@id`/values to the home page) — a crawler fetching one URL resolves the entity instead of hitting a dangling `@id` |
+| `Organization.founder` + expanded `sameAs` | Person node “Owais Khan” (GitHub URL) plus the five public repo URLs as `sameAs`, on all six pages — entity corroboration across page and GitHub |
+| `author` on every page | `WebPage.author` → Person “Owais Khan” on all six pages; E-E-A-T signal the audit asked for, especially on the vaccine page |
+| Named maker in visible copy | “Made by Owais Khan (Just Apps) …” with a link to the GitHub profile, in the compatibility table of all four app pages |
+| Namaaz FAQ: Play Store status | New visible + schema question “Is Namaaz Reminder on Google Play?” with the honest status, so AI answers don’t guess a download link |
+| Privacy page | `dateModified` fixed (was 2026-10-19 while the page said 25 October), breadcrumb added, description front-loaded, internal links to the Subscription Tracker and Vaccine Routine pages (previously linked only off-site), `Organization`/`WebSite`/`author` added |
+| `llms.txt` | Studio + founder named, one-line summary added, Namaaz Play-not-yet-published stated explicitly |
+| `sitemap.xml` | All six `lastmod` bumped to 2026-10-25 |
+| `design/seo_check.py` | Offline validator: canonical host, title/description lengths, one h1, robots/canonical/og:url agreement, social image existence, JSON-LD parse, FAQ schema ≡ visible `<details>`, internal link + anchor resolution, sitemap ↔ pages, robots AI allow list, llms.txt URL resolution, cross-page entity equality |
+| `.github/workflows/seo-check.yml` | Runs `seo_check.py` on every push/PR that touches `docs/` or the generator |
+
+### 1.3 What was deliberately not done
 
 - **No fake ratings.** `aggregateRating` stays absent until there are real reviews. Inventing one
   is a guidelines violation that can cost you the rich result entirely.
@@ -62,7 +84,7 @@ Round 1 fixed the critical metadata faults. Round 2 built the structure those fi
 - **No Play Store links.** They do not exist yet, and a 404 CTA is worse than an honest
   “Coming to Google Play” pill.
 
-### 1.3 Why this is 89 and not 100
+### 1.4 Why this is 89 and not 100
 
 No honest audit gives a website 100, and no single score exists across Google, Bing and the AI
 answer engines. Here is exactly what stands between this site and the remaining points, and none
@@ -80,7 +102,7 @@ Everything else — canonical host, crawl paths, schema, content depth, internal
 weight, headers, accessibility — is done and validated. Push the branch, then work the checklist
 in §7.
 
-### 1.4 Already good — keep it
+### 1.5 Already good — keep it
 
 
 - **No web fonts, no third-party scripts, no cookies, no tag manager.** First load is ~67 KB
@@ -264,27 +286,30 @@ specific, factual, quotable — which is why it is worth turning each app into i
 Measured by byte weight, not field data (Lighthouse is unavailable in this environment and the
 PageSpeed Insights API quota was exhausted — see §9).
 
-| Metric | Start | Now |
+| Metric | Start | Now (round 4 re-measure) |
 | --- | --- | --- |
-| HTML (`index.html`) | 27.1 KB raw / 5.5 KB gzip | 30.3 KB raw / **6.3 KB gzip** |
-| CSS | 34.7 KB raw / 7.3 KB gzip | 39.6 KB raw / **8.1 KB gzip** |
-| JS (`theme.js` + `nav.js` + `motion.js`) | 8.4 KB raw / 2.9 KB gzip | 9.6 KB raw / **3.5 KB gzip** |
-| Blocking first paint (HTML + CSS + theme.js) | ~67 KB raw / ~15 KB gzip | ~72 KB raw / **~15 KB gzip** |
+| HTML (`index.html`) | 27.1 KB raw / 5.5 KB gzip | 96.8 KB raw / **18.1 KB gzip** |
+| CSS | 34.7 KB raw / 7.3 KB gzip | 50.1 KB raw / **10.4 KB gzip** |
+| JS (`theme.js` + `nav.js` + `motion.js`) | 8.4 KB raw / 2.9 KB gzip | 15.2 KB raw / **4.7 KB gzip** |
+| Blocking first paint (HTML + CSS + theme.js) | ~67 KB raw / ~15 KB gzip | ~149 KB raw / **~29 KB gzip** |
 | Images referenced by a full scroll | 479 KB | **~300 KB** (WebP + `srcset`) |
-| App pages | — | 17–19 KB raw / **~5.3 KB gzip** each |
-| Web fonts | none | none — still none |
+| App pages | — | 45–49 KB raw / **~10–11 KB gzip** each |
+| Web fonts | none | 7 `@font-face` files referenced (~112 KB), plus 3 orphan woff2 (58 KB) deployed but unused |
+| Favicon SVG (`just-apps-icon.svg`) | — | 1.3 KB raw / 0.55 KB gzip — **was 617 KB raw / 467 KB gzip before round 4** |
 
-The extra 5 KB of HTML bought four indexable pages and a `CollectionPage` graph; the extra 5 KB
-of CSS bought a working mobile menu and the app-page layout. Every byte is still same-origin and
-cached for a year.
+The HTML grew because round 3 bought four indexable pages' worth of entity graph, founder/FAQ
+content and the CollectionPage — round 4 added a few hundred bytes of `sameAs`/`softwareVersion`
+parity. The favicon row is the round-4 win: every page that fetches the SVG saves 466 KB gzip.
+The blocking-paint figure is honest but dominated by the inline material textures, which are an
+art-direction decision, not a byte-tweak (see §10).
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
 | P1 | Screenshots were 4–7× the size they are displayed | Medium | **Fixed** — WebP at two widths, 708 KB → 386 KB |
 | P2 | No WebP/AVIF and no `srcset` | Medium | **Fixed** — WebP + `srcset`/`sizes` |
 | P3 | No explicit cache headers | Medium | **Fixed** — `/assets/*` is `max-age=31536000, immutable` |
-| P4 | No security headers | Low | **Fixed** — `nosniff`, `Referrer-Policy`, `Permissions-Policy` |
-| P5 | `just-apps-icon.svg` is 57 KB — larger than the entire HTML page | Low | Open (only the favicon uses it) |
+| P4 | No security headers | Low | **Fixed** — `nosniff`, `Referrer-Policy`, `Permissions-Policy`; round 4 added `frame-ancestors 'none'`, `X-Frame-Options: DENY` and HSTS |
+| P5 | `just-apps-icon.svg` embedded the full raster — 57 KB when first flagged, 617 KB (467 KB gzip) by round 4 | Low | **Fixed (round 4)** — replaced with a hand-authored 1.3 KB vector; the icon pipeline now copies `design/source/just-apps-icon-vector.svg` instead of re-embedding the raster |
 | P6 | ~711 KB of screenshots and icons deployed but never requested | Low | Partly fixed — originals kept as the source for the WebP variants |
 | P7 | Images had no intrinsic `width`/`height` | Low | **Fixed** |
 | P8 | `theme.js` blocks rendering | Info | Intentional — 1.9 KB, prevents a theme flash; leave it |
@@ -360,6 +385,14 @@ unchanged; the H1 is the only visible copy change on the landing page.
 | `docs/nav.js` | **New.** Mobile menu toggle, Escape to close, `aria-expanded` in sync |
 | `docs/index.html` | Round 2: `CollectionPage` + `hasPart`, About section with a review date, internal links from every card, WebP previews, mobile menu, new H1 |
 
+| `docs/index.html` | Round 3: keyword title/description, hero answer box, 4 new FAQs (schema generated from visible copy), `Organization.founder` + 6 `sameAs`, `author`, `speakable` updated |
+| `design/build_app_pages.py` | Round 3: product-name H1s, trimmed descriptions, `DATE_MODIFIED`, full `Organization`/`WebSite`/`author` graph per page, Play Store FAQ, named maker line |
+| `docs/privacy.html` | Round 3: `dateModified` corrected, visible breadcrumb, richer description, internal links to two more app pages, full entity graph + `author` |
+| `docs/llms.txt` | Round 3: founder, one-line summary, explicit Play Store status for Namaaz |
+| `docs/sitemap.xml` | Round 3: all `lastmod` → 2026-10-25 |
+| `design/seo_check.py` | **New.** SEO/AISO validator, exit 1 on any regression |
+| `.github/workflows/seo-check.yml` | **New.** CI job running the validator on site changes |
+
 **Validation run:** `html-validate` (recommended preset) — clean; JSON-LD parses and the FAQ
 schema now matches the visible text exactly; `sitemap.xml` and the manifest parse; every
 internal link resolves; every image has an `alt`.
@@ -373,11 +406,11 @@ the hub; each app has its own page and its own intent cluster.
 
 | URL | Intent cluster | `<title>` (length) | `<h1>` |
 | --- | --- | --- | --- |
-| `/` | brand + "free Android apps" | Free Android Apps, Quietly \| Just Apps (38) | Free Android apps, quietly made. |
-| `/namaaz-reminder` | namaz / prayer times app India, adhan reminder, offline prayer times | Namaaz Reminder — Prayer Times for India \| Just Apps (53) | Prayer times for your city, and a countdown to the next salah. |
-| `/screen-time-reminder` | screen time reminder Android, break reminder app | Screen Time Reminder — Break Reminder \| Just Apps (51) | A gentle nudge to look up from your phone. |
-| `/subscription-tracker` | subscription tracker, recurring bills tracker | Subscription Tracker — Recurring Bills \| Just Apps (52) | Every subscription and recurring bill, in one place. |
-| `/vaccine-routine` | baby vaccine tracker India, vaccination record | Vaccine Routine — Baby Vaccine Log \| Just Apps (49) | A calm, offline vaccine log for little ones. |
+| `/` | brand + "free android apps" + collection terms | Free Android Apps: Prayer Times, Reminders \| Just Apps (54, trimmed in round 4) | Free Android apps, quietly made. |
+| `/namaaz-reminder` | namaz / prayer times app India, adhan reminder, offline prayer times | Namaaz Reminder — Prayer Times for India \| Just Apps (52) | Namaaz Reminder: prayer times and a countdown to the next salah. |
+| `/screen-time-reminder` | screen time reminder Android, break reminder app | Screen Time Reminder — Break Reminder \| Just Apps (49) | Screen Time Reminder: a gentle nudge to look up from your phone. |
+| `/subscription-tracker` | subscription tracker, recurring bills tracker | Subscription Tracker — Recurring Bills \| Just Apps (50) | Subscription Tracker: every subscription and recurring bill in one place. |
+| `/vaccine-routine` | baby vaccine tracker India, vaccination record | Vaccine Routine — Baby Vaccine Log \| Just Apps (46) | Vaccine Routine: a calm, offline vaccine log for little ones. |
 
 Each page carries a one-sentence answer at the top (the passage an AI answer engine is most
 likely to lift), 3–3 screenshots with captions, what it does, how it works, a privacy table,
@@ -402,7 +435,7 @@ lowest-CTR pages first.
 
 ## 6. Copy
 
-The H1 was the one visible copy change, and it now matches the `<title>`:
+The landing H1 was the visible copy change in round 2, and it shares its first line with the `<title>`; round 3 added the hero answer box and four FAQ entries, and gave every app page an H1 that starts with the product name:
 
 ```html
 <h1 id="mission-title">Free Android apps,<br>quietly made.</h1>
@@ -412,16 +445,21 @@ It keeps the two-line rhythm and the serif scale of the original, while putting 
 ("Android apps") in the strongest on-page position. The old line, *Useful apps for everyday
 life.*, described a mood rather than a product and shared no phrase with the title.
 
-**Titles now in place**
+**Titles now in place** (re-measured in round 4)
 
 | Page | Title | Length |
 | --- | --- | --- |
-| `/` | Free Android Apps, Quietly \| Just Apps | 38 |
-| `/namaaz-reminder` | Namaaz Reminder — Prayer Times for India \| Just Apps | 53 |
-| `/screen-time-reminder` | Screen Time Reminder — Break Reminder \| Just Apps | 51 |
-| `/subscription-tracker` | Subscription Tracker — Recurring Bills \| Just Apps | 52 |
-| `/vaccine-routine` | Vaccine Routine — Baby Vaccine Log \| Just Apps | 49 |
+| `/` | Free Android Apps: Prayer Times, Reminders \| Just Apps | 54 |
+| `/namaaz-reminder` | Namaaz Reminder — Prayer Times for India \| Just Apps | 52 |
+| `/screen-time-reminder` | Screen Time Reminder — Break Reminder \| Just Apps | 49 |
+| `/subscription-tracker` | Subscription Tracker — Recurring Bills \| Just Apps | 50 |
+| `/vaccine-routine` | Vaccine Routine — Baby Vaccine Log \| Just Apps | 46 |
 | `/privacy` | Privacy policy: Namaaz Reminder \| Just Apps | 43 |
+
+Round 4 trimmed the home title from 61 to 54 characters to remove the SERP-truncation risk
+(600 px ≈ 58–62 chars depending on font). The dropped term was "Bills" — it stays in the
+collection copy, the meta description and `/subscription-tracker`'s own title, while the home
+keeps the two higher-value targets, "free android apps" and "prayer times".
 
 **One copy question still open:** the privacy page headline is branded "NAMAAZ REMINDER" while
 the site header is "JUST APPS", which is confusing when a visitor arrives from search. Either
@@ -547,7 +585,76 @@ Search:
 
 ---
 
-## 10. Sources
+## 10. Round 4 — quick wins (2026-10-25)
+
+Scope: the seven ranked weaknesses reported at the end of round 3's follow-up audit, minus the
+items that need product decisions. What could be fixed in the repo was fixed; what could not is
+recorded below with the exact payload so it can be applied later.
+
+### 10.1 Fixes applied
+
+| # | Fix | Evidence |
+| --- | --- | --- |
+| 1 | **Favicon SVG** — the 617,043 B PNG-in-SVG wrapper was replaced by a hand-authored 1,348 B vector (`docs/assets/just-apps-icon.svg`, source of truth `design/source/just-apps-icon-vector.svg`, verified against the raster at 256 px and 32 px). The icon pipeline (`design/build_site_icons.py`) now copies that vector instead of re-embedding the raster, so a rerun cannot regress it. | gzip 466.5 KB → 0.55 KB on every page that fetches the SVG; all 7 pages keep their `rel="icon" type="image/svg+xml"` link |
+| 2 | **Schema split closed** — home `ItemList` `@id`s now use the canonical fragment form `…/slug#software` (trailing slash dropped on the four app entries); home items gained the `sameAs` their app pages already had (plus Water/Steps → their public repos); Vaccine gained `softwareVersion: "1.0"` on both sides, matching release tag `v1.0` ("Vaccine Routine 1.0"). | regenerating the app pages was idempotent — only `vaccine-routine.html` changed (+1 line) |
+| 3 | **Regression guard** — `design/seo_check.py` grew `check_itemlist_parity()`: for the four paged apps, the home `ItemList` entry must equal the page's `SoftwareApplication` on `@id`, `softwareVersion`, `downloadUrl` and `sameAs`. | negative test: re-introducing the slash bug fails with `ItemList[…].@id = … but … has …`; clean run passes (6 pages + sitemap + robots + llms.txt) |
+| 4 | **README version drift** — 1.4.0 → 1.6.2, `versionCode` 6 → 10, adb artifact → `NamaazReminder-1.6.2-release.apk`, matching `app/build.gradle.kts`. | `README.md` lines 14 and 113 |
+| 5 | **Headers** — CSP gained `frame-ancestors 'none'`, plus `X-Frame-Options: DENY` and `Strict-Transport-Security: max-age=63072000` (deliberately no `includeSubDomains` — unknown subdomains). | `docs/vercel.json` |
+| 6 | **Home title** — trimmed 61 → 54 chars, "Free Android Apps: Prayer Times, Reminders \| Just Apps", mirrored at `<title>`, `og:title`, `twitter:title` and the `CollectionPage` name. | all four mirrors identical; seo_check's 20–65 gate passes |
+| 7 | **Stale audit rows** — §3.5 re-measured (HTML/CSS/JS/app pages), the "no web fonts" claim corrected (7 faces exist), P4/P5 status updated, titles table re-measured. | this document |
+
+### 10.2 Blocked: GitHub profile and repo metadata
+
+`gh api` PATCH attempts authenticated as `owaiskhan-ash` returned **403
+`Resource not accessible by integration`** for both `PATCH /user` and `PATCH /repos/…` — reads
+work, writes do not; the connection lacks write scope. Reconnect GitHub in Arena (or apply
+manually) and re-run with these exact payloads:
+
+**Profile (`PATCH /user`):**
+
+- `name`: `Owais Khan`
+- `blog`: `https://www.justsimpleapps.online`
+- `bio`: `Maker of Just Apps — six free, quiet Android apps. No ads, no accounts, no tracking.`
+
+**Repos (`PATCH /repos/owaiskhan-ash/<name>`)** — homepage set on all six; description set where
+the current one is weak (Subscription Tracker keeps its existing text and only gains the brand
+suffix — it is already good):
+
+| Repo | homepage | description |
+| --- | --- | --- |
+| `Namaaz-Reminder` | `https://www.justsimpleapps.online/namaaz-reminder` | Prayer times for India with a live countdown and optional adhan reminders. Free Android app by Just Apps. |
+| `ScreenTime-Reminder` | `https://www.justsimpleapps.online/screen-time-reminder` | Screen-time break reminders: a live count of continuous use and one gentle nudge when a session runs long. Free Android app by Just Apps. |
+| `Subscription-Tracker` | `https://www.justsimpleapps.online/subscription-tracker` | *(existing text)* + ` Free Android app by Just Apps.` |
+| `vaccine-Tracker` | `https://www.justsimpleapps.online/vaccine-routine` | Child vaccine records and reminders with India's National Immunization Schedule as optional suggestions. Free Android app by Just Apps. |
+| `Steps-Reminder` | `https://www.justsimpleapps.online/#steps-reminder` | Daily step target, seven-day history, and one reminder at the hour you choose. Free Android app by Just Apps. |
+| `Water-Reminder` | `https://www.justsimpleapps.online/#water-reminder` | Water intake reminder at the interval you choose, with optional overnight quiet hours. Free Android app by Just Apps. |
+
+The Namaaz repo's homepage is currently the stale `namaaz-reminder.vercel.app` alias; the
+`vercel.json` redirect already points that host at the canonical domain, but the repo field
+should be updated regardless.
+
+### 10.3 The seven reported weaknesses — status after round 4
+
+| # | Weakness (as reported, ranked by impact) | Status |
+| --- | --- | --- |
+| 1 | **Conversion dead-ends** — Namaaz page has no obtain path (no Play, private repo, no APK); home hero has zero links; Water/Steps cards are GitHub-only; 5 of 6 apps are sideload-only, so most visitors install nothing | **Open** — needs a distribution decision (Play listing, public APK hosting, or consciously accepting GitHub-only) |
+| 2 | **~1.4 MB first visit, ~90 % decorative** — 752 KB of material textures (610 KB of it eagerly loaded by non-lazy inline SVG `<image>`, not reducible by `loading=lazy`), ~112 KB fonts, `feDropShadow`/`feGaussianBlur` filters; no preload/preconnect | **Half fixed** — the favicon (467 KB gzip) was the easy half; the textures need art-direction decisions (fewer leather textures, flatten filters, or ship a texture-free light path) |
+| 3 | **Off-site entity empty/contradictory** — profile has no name/bio/blog, 5/5 repos had `homepage: null`, Namaaz's homepage was the stale alias, READMEs drift (fixed), backlink picture ~zero (indicative only) | **Open — blocked** by §10.2 (403); plus the four other repos' READMEs still need site links |
+| 4 | **Schema split** — `…/slug/#software` vs `…slug#software`, home items missing `sameAs`, Vaccine missing `softwareVersion` | **Fixed** (§10.1 rows 1–3) |
+| 5 | **Flying blind** — no Search Console/Bing/field CWV | **Open** — account action; Search Console would not violate the privacy page's no-analytics promise (first-party, no cookies, aggregate) |
+| 6 | **A11y X4/X5** — global `cursor: none` custom dot (kills the I-beam) and wheel-`preventDefault` scroll hijack on desktop | **Open** — needs the suggested preference-gating plus runtime testing neither the sandbox nor this audit can do |
+| 7 | **Headers/hygiene** — no frame-ancestors/XFO/HSTS, 61-char title, stale perf rows, dark-only `theme-color`, `og:locale` vs `lang`, no `twitter:site`, 3 orphan woff2 (58 KB), 404 page without meta description | **Mostly fixed** — frame-ancestors/XFO/HSTS ✓, title 54 ✓, audit rows ✓. Still open: theme-color, og:locale, twitter:site, orphan fonts, 404 description |
+
+Everything else from the report remains green and was re-verified this round: skip links ×7, no
+duplicate DOM ids, `alt`+`width`+`height` on images, one H1 per page, text-only hero LCP,
+reduced-motion overrides, release tags ↔ `downloadUrl` parity, canonical/trailing-slash
+consistency, no fake `aggregateRating`/HowTo/Review, and (new) `ItemList` ↔
+`SoftwareApplication` parity enforced in CI. The e2e pass across all 7 pages found 0 dead
+links, 0 dead anchors, 0 JSON-LD parse errors and 0 dangling `@id`s.
+
+---
+
+## 11. Sources
 
 - Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) —
   <https://developers.google.com/search/blog/2023/08/howto-faq-changes>

@@ -11,7 +11,7 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
   calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
   default), which is when the adhan ends and the salah begins.
 
-Current version: **1.4.0** (`versionCode` 6).
+Current version: **1.6.2** (`versionCode` 10).
 
 ## The website
 
@@ -40,6 +40,19 @@ facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML 
 python3 design/build_app_pages.py
 ```
 
+After changing anything under `docs/`, run the SEO/AISO validator. It checks canonical host,
+title/description lengths, `og:url`/canonical agreement, social-image existence, JSON-LD
+parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
+`robots.txt`, `llms.txt` URLs and that every page resolves the same `Organization` node:
+
+```bash
+python3 design/seo_check.py
+```
+
+CI runs the same script on any push or PR that touches the site
+(`.github/workflows/seo-check.yml`), so a metadata regression fails the build instead of
+reaching production. `SEO_AUDIT.md` records the full audit history.
+
 Screenshots come from the other apps' repositories. Each one is also written as two WebP
 variants (400 px and 780 px wide) that the pages reference through `srcset`; regenerate them
 with Pillow (`pip install pillow`) whenever a screenshot changes:
@@ -61,7 +74,9 @@ files next to each screenshot are the responsive variants referenced from the pa
 original PNG/JPG files next to them are kept as the source for regenerating those variants.
 
 Adding a fifth app means one more entry in `APPS`, its screenshots and social card under
-`docs/assets/`, a card on the landing page and a URL in `docs/sitemap.xml`.
+`docs/assets/`, a card on the landing page, a URL in `docs/sitemap.xml` and an app entry in
+`docs/llms.txt` — then bump `DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap
+and run `python3 design/seo_check.py`.
 
 ## The other apps
 
@@ -95,7 +110,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.4.0-release.apk
+adb install -r NamaazReminder-1.6.2-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.

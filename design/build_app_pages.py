@@ -17,6 +17,61 @@ BASE = "https://www.justsimpleapps.online"
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
 STAGES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generated_stages.json")
 
+# Bump whenever any copy in this file changes; it feeds WebPage.dateModified
+# and should agree with the <lastmod> for the same URL in docs/sitemap.xml.
+DATE_MODIFIED = "2026-10-25"
+
+# The publisher entity, defined here so every app page resolves it on its own.
+# The same @ids and field values are used on docs/index.html; keep them equal.
+ORGANIZATION = {
+    "@type": "Organization",
+    "@id": BASE + "/#organization",
+    "name": "Just Apps",
+    "alternateName": "Just Simple Apps",
+    "url": BASE + "/",
+    "description": "A small studio making free, quiet Android apps for everyday life: prayer times, screen breaks, step goals, water reminders, subscriptions and childhood vaccine records.",
+    "slogan": "Free apps for everyday life, quietly.",
+    "foundingLocation": {"@type": "Place", "name": "Mumbai, India"},
+    "logo": {
+        "@type": "ImageObject",
+        "@id": BASE + "/#logo",
+        "url": BASE + "/assets/just-apps-icon-512.png",
+        "contentUrl": BASE + "/assets/just-apps-icon-512.png",
+        "width": 512,
+        "height": 512,
+        "caption": "Just Apps",
+    },
+    "image": {"@id": BASE + "/#logo"},
+    "founder": {
+        "@type": "Person",
+        "name": "Owais Khan",
+        "url": "https://github.com/owaiskhan-ash",
+    },
+    "sameAs": [
+        "https://github.com/owaiskhan-ash",
+        "https://github.com/owaiskhan-ash/ScreenTime-Reminder",
+        "https://github.com/owaiskhan-ash/Subscription-Tracker",
+        "https://github.com/owaiskhan-ash/vaccine-Tracker",
+        "https://github.com/owaiskhan-ash/Steps-Reminder",
+        "https://github.com/owaiskhan-ash/Water-Reminder",
+    ],
+}
+WEBSITE = {
+    "@type": "WebSite",
+    "@id": BASE + "/#website",
+    "url": BASE + "/",
+    "name": "Just Apps",
+    "alternateName": "Just Simple Apps",
+    "description": "Free, ad-free apps for prayer times, screen breaks, step goals, water reminders, subscriptions and vaccine records.",
+    "publisher": {"@id": BASE + "/#organization"},
+    "inLanguage": "en",
+}
+AUTHOR = {
+    "@type": "Person",
+    "name": "Owais Khan",
+    "url": "https://github.com/owaiskhan-ash",
+}
+
 
 def shot(src, alt, caption, width, height, srcset=None, sizes=None):
     ss = f' srcset="{srcset}" sizes="{sizes}"' if srcset else ""
@@ -34,9 +89,9 @@ APPS = [
         "kicker": "01 · Prayer",
         "nav_cta": "See the app",
         "title": "Namaaz Reminder — Prayer Times for India | Just Apps",
-        "description": "Free Android app with daily prayer times for any city in India, a live countdown to the next salah and optional adhan reminders. No ads, no account, no location permission.",
+        "description": "Free Android prayer-times app for India: daily salah times for your city, a live countdown, optional adhan reminders. No ads, no account, no location permission.",
         "og": "og-namaaz-reminder.png",
-        "h1": "Prayer times for your city, and a countdown to the next salah.",
+        "h1": "Namaaz Reminder: prayer times and a countdown to the next salah.",
         "lede": "Namaaz Reminder shows today’s Fajr, Dhuhr, Asr, Maghrib and Isha times for your city in India, counts down to the next prayer, and can remind you at adhan. It is free, has no ads, and asks for no account.",
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders — without ads, accounts or a location permission.</p>",
         "cta": """          <span class="pill"><span class="dot"></span>Coming to Google Play</span>
@@ -116,7 +171,7 @@ APPS = [
           <dt>Version</dt><dd>1.6.2 (versionCode 10).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible — there is no sign-in.</dd>
-          <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
         "faq": [
@@ -132,6 +187,8 @@ APPS = [
              "Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account."),
             ("Which cities are supported?",
              "Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone."),
+            ("Is Namaaz Reminder on Google Play?",
+             "Not yet. The app is being prepared for the Play Store, and this page shows the current status. It will be free when the listing goes live, with no ads and no account."),
         ],
         "software": {
             "name": "Namaaz Reminder",
@@ -164,9 +221,9 @@ APPS = [
         "kicker": "02 · Wellbeing",
         "nav_cta": "Get the app",
         "title": "Screen Time Reminder — Break Reminder | Just Apps",
-        "description": "A free Android app that counts continuous phone use and sends one calm break reminder when a session runs long. Seven-day history, no streaks, no ads, no internet permission.",
+        "description": "Free Android app that counts continuous phone use and sends one gentle break reminder. Seven-day history, no streaks, no ads, no internet permission.",
         "og": "og-screen-time-reminder.png",
-        "h1": "A gentle nudge to look up from your phone.",
+        "h1": "Screen Time Reminder: a gentle nudge to look up from your phone.",
         "lede": "Screen Time Reminder counts how long you have been using your phone in one stretch, and sends a single calm reminder when a session runs long. There are no streaks, no scores and no guilt — just one honest number and a reason to put the phone down for a minute.",
         "answer": "<p><strong>In one line:</strong> Screen Time Reminder is a free Android app that tracks continuous phone use and sends one gentle break reminder when a session runs long, keeping a seven-day history and asking for no account, no ads and no internet access.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/latest">Download the APK</a>
@@ -224,7 +281,7 @@ APPS = [
           <dt>Internet</dt><dd>Not requested. The app cannot connect to a network.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">ScreenTime-Reminder repository on GitHub</a></dd>
-          <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
         "faq": [
@@ -270,9 +327,9 @@ APPS = [
         "kicker": "03 · Money",
         "nav_cta": "Get the app",
         "title": "Subscription Tracker — Recurring Bills | Just Apps",
-        "description": "A free, offline Android app that records subscriptions and recurring bills, shows normalized monthly and yearly totals, and reminds you before each renewal. No bank connection.",
+        "description": "Free, offline Android app for subscriptions and recurring bills: normalized monthly and yearly totals, plus renewal reminders. No bank connection.",
         "og": "og-subscription-tracker.png",
-        "h1": "Every subscription and recurring bill, in one place.",
+        "h1": "Subscription Tracker: every subscription and recurring bill in one place.",
         "lede": "Subscription Tracker is a free Android app for keeping track of what renews, when, and what it really costs. Add subscriptions and bills by hand, see a monthly and yearly total you can compare, and get a reminder before each renewal.",
         "answer": "<p><strong>In one line:</strong> Subscription Tracker is a free, offline Android app that records your recurring bills, converts them into comparable monthly and yearly totals, and reminds you before a renewal — without connecting to your bank.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest">Download the APK</a>
@@ -332,7 +389,7 @@ APPS = [
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
           <dt>Bank access</dt><dd>None. Entries are added by hand and stored on the device.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Subscription-Tracker">Subscription-Tracker repository on GitHub</a></dd>
-          <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
         "faq": [
@@ -378,9 +435,9 @@ APPS = [
         "kicker": "04 · Family",
         "nav_cta": "Get the app",
         "title": "Vaccine Routine — Baby Vaccine Log | Just Apps",
-        "description": "A free, offline-first vaccine log and reminder for babies and children, with India's National Immunization Schedule as optional suggestions. Private, no account, no ads.",
+        "description": "Free, offline-first vaccine log and reminder for babies and children, with India's National Immunization Schedule as optional suggestions. No account, no ads.",
         "og": "og-vaccine-routine.png",
-        "h1": "A calm, offline vaccine log for little ones.",
+        "h1": "Vaccine Routine: a calm, offline vaccine log for little ones.",
         "lede": "Vaccine Routine keeps a child’s vaccination record on your phone, helps you plan the next dose and reminds you when it is due. India’s National Immunization Schedule is offered as a suggestion — never a prescription.",
         "answer": "<p><strong>In one line:</strong> Vaccine Routine is a free, offline-first vaccine log and reminder for babies and children, with India’s National Immunization Schedule available as optional suggestions rather than medical advice.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest">Download the app</a>
@@ -433,7 +490,7 @@ APPS = [
           <dt>Storage</dt><dd>On the device, removed when you uninstall.</dd>
           <dt>Medical status</dt><dd>Not a medical device and not a substitute for professional advice.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/vaccine-Tracker">vaccine-Tracker repository on GitHub</a></dd>
-          <dt>Made by</dt><dd>Just Apps, an independent studio in Mumbai, India.</dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
         "faq": [
@@ -465,6 +522,7 @@ APPS = [
                 "Works offline",
                 "No account, no sync, no ads",
             ],
+            "softwareVersion": "1.0",
             "downloadUrl": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest",
             "sameAs": ["https://github.com/owaiskhan-ash/vaccine-Tracker"],
         },
@@ -634,6 +692,11 @@ def build_jsonld(app):
         "publisher": {"@id": BASE + "/#organization"},
     }
     graph = [
+        # Full publisher/web nodes so a page fetched on its own (as answer
+        # engines do) resolves the entity instead of dangling at an @id that
+        # only exists on the home page. Values mirror ORGANIZATION/WEBSITE.
+        ORGANIZATION,
+        WEBSITE,
         {
             "@type": "WebPage",
             "@id": url + "#webpage",
@@ -643,8 +706,9 @@ def build_jsonld(app):
             "isPartOf": {"@id": BASE + "/#website"},
             "about": {"@id": url + "#software"},
             "primaryImageOfPage": {"@id": url + "#primaryimage"},
+            "author": AUTHOR,
             "inLanguage": "en",
-            "dateModified": "2026-10-20",
+            "dateModified": DATE_MODIFIED,
             "breadcrumb": {"@id": url + "#breadcrumb"},
         },
         {
