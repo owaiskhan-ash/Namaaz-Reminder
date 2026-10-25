@@ -1057,11 +1057,6 @@ html[data-theme="light"] .feature:focus-within::after {
   transform: translateY(-3px);
 }
 
-.apps-section .steps-preview img {
-  height: 68%;
-  max-width: 68%;
-}
-
 .apps-section .preview-label {
   position: absolute;
   z-index: 2;
@@ -1093,14 +1088,16 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview,
 .apps-section .screentime-preview,
 .apps-section .subscriptions-preview,
-.apps-section .vaccine-preview {
+.apps-section .vaccine-preview,
+.apps-section .steps-preview {
   gap: 10px;
 }
 
 .apps-section .namaaz-preview img,
 .apps-section .screentime-preview img,
 .apps-section .subscriptions-preview img,
-.apps-section .vaccine-preview img {
+.apps-section .vaccine-preview img,
+.apps-section .steps-preview img {
   height: 88%;
   max-width: 29%;
   border-radius: 10px;
@@ -1110,15 +1107,36 @@ html[data-theme="light"] .feature:focus-within::after {
 .apps-section .namaaz-preview img:nth-child(2),
 .apps-section .screentime-preview img:nth-child(2),
 .apps-section .subscriptions-preview img:nth-child(2),
-.apps-section .vaccine-preview img:nth-child(2) {
+.apps-section .vaccine-preview img:nth-child(2),
+.apps-section .steps-preview img:nth-child(2) {
   transform: translateY(-7px);
 }
 
 .apps-section .app-card:hover .namaaz-preview img:nth-child(2),
 .apps-section .app-card:hover .screentime-preview img:nth-child(2),
 .apps-section .app-card:hover .subscriptions-preview img:nth-child(2),
-.apps-section .app-card:hover .vaccine-preview img:nth-child(2) {
+.apps-section .app-card:hover .vaccine-preview img:nth-child(2),
+.apps-section .app-card:hover .steps-preview img:nth-child(2) {
   transform: translateY(-10px);
+}
+
+/* Leave room for the preview caption so it never obscures the app screens. */
+.apps-section .steps-preview img {
+  height: 75%;
+  max-width: 24%;
+  transform: translateY(-11px);
+}
+
+.apps-section .steps-preview img:nth-child(2) {
+  transform: translateY(-18px);
+}
+
+.apps-section .app-card:hover .steps-preview img {
+  transform: translateY(-14px);
+}
+
+.apps-section .app-card:hover .steps-preview img:nth-child(2) {
+  transform: translateY(-21px);
 }
 
 .apps-section .app-content {
@@ -1981,7 +1999,8 @@ html.nav-open {
   .apps-section .namaaz-preview,
   .apps-section .screentime-preview,
   .apps-section .subscriptions-preview,
-  .apps-section .vaccine-preview {
+  .apps-section .vaccine-preview,
+  .apps-section .steps-preview {
     gap: 8px;
   }
   .apps-section .preview-label {
