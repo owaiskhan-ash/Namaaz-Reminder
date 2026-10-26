@@ -31,6 +31,8 @@ jobs:
   build:
     name: Test & build APKs
     runs-on: ubuntu-latest
+    outputs:
+      artifacts_uploaded: ${{ steps.upload_apks.outcome == 'success' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -118,6 +120,7 @@ jobs:
 
       - name: Upload the unit test summary
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: test-summary
@@ -209,17 +212,65 @@ jobs:
           ls -lh dist
 
       - name: Upload APKs
+        id: upload_apks
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: NamaazReminder-apks
           path: dist/*
           if-no-files-found: error
 
+      # GitHub Actions artifact storage can be full independently of Releases.
+      # Do not let that prevent a tested build from reaching the download page.
+      - name: Publish APKs directly when artifact storage is unavailable
+        if: steps.upload_apks.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION_LINE="$(grep -m1 'versionName' app/build.gradle.kts)"
+          VERSION="${VERSION_LINE#*\"}"
+          VERSION="${VERSION%\"*}"
+          mapfile -t FILES < <(ls dist/*.apk dist/*.aab 2>/dev/null || true)
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "No build outputs to publish."
+            exit 1
+          fi
+
+          cat > latest-notes.md <<EOF
+          Namaaz Reminder ${VERSION} APKs. This build was published directly because GitHub Actions artifact storage is currently unavailable.
+
+          Install with adb install -r NamaazReminder-${VERSION}-release.apk
+          EOF
+          if gh release view apk-latest --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload apk-latest "${FILES[@]}" --clobber --repo "${GITHUB_REPOSITORY}"
+            gh release edit apk-latest --notes-file latest-notes.md --repo "${GITHUB_REPOSITORY}"
+          else
+            gh release create apk-latest "${FILES[@]}" --repo "${GITHUB_REPOSITORY}" --title "Namaaz Reminder (latest APK build)" --notes-file latest-notes.md --target "$GITHUB_SHA"
+          fi
+
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG="$GITHUB_REF_NAME"
+            cat > version-notes.md <<EOF
+          ## Namaaz Reminder ${VERSION}
+
+          - Added a sleek Android home-screen widget with the next prayer, prayer time and live countdown.
+          - Uses the locally cached schedule and refreshes with prayer-time and device time changes.
+          - Includes the release and debug APKs for Android 7.0 and later.
+          EOF
+            if gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+              gh release upload "$TAG" "${FILES[@]}" --clobber --repo "${GITHUB_REPOSITORY}"
+              gh release edit "$TAG" --title "Namaaz Reminder ${VERSION}" --notes-file version-notes.md --repo "${GITHUB_REPOSITORY}"
+            else
+              gh release create "$TAG" "${FILES[@]}" --repo "${GITHUB_REPOSITORY}" --title "Namaaz Reminder ${VERSION}" --notes-file version-notes.md --verify-tag
+            fi
+          fi
+
   publish:
     name: Publish APKs for download
     # Only run for pushes (never for pull requests, where the token is read-only).
     # It also runs when the build failed, so the release page can report why.
-    if: always() && github.event_name != 'pull_request'
+    if: always() && github.event_name != 'pull_request' && (needs.build.result != 'success' || needs.build.outputs.artifacts_uploaded == 'true')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -332,7 +383,7 @@ jobs:
 
   release:
     name: Publish APK to GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') && needs.build.outputs.artifacts_uploaded == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
