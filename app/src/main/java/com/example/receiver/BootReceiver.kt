@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.notification.AlarmRescheduler
+import com.example.widget.NamazWidgetProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +32,11 @@ class BootReceiver : BroadcastReceiver() {
                 // Best effort: alarms are also rescheduled whenever the app is
                 // opened and after every fired reminder.
             } finally {
-                pendingResult.finish()
+                try {
+                    NamazWidgetProvider.updateAll(appContext)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Namaaz Reminder</string>
     <string name="channel_description">Notifications for upcoming prayer times</string>
+    <string name="widget_description">A sleek glance at your next prayer</string>
+    <string name="widget_open_app">Open app to load times</string>
 </resources>

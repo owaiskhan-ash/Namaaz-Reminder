@@ -6,6 +6,7 @@ import android.content.Intent
 import com.example.data.local.PreferencesManager
 import com.example.notification.AlarmRescheduler
 import com.example.notification.PrayerNotificationManager
+import com.example.widget.NamazWidgetProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,6 +49,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 isTest = false
             )
         }
+        NamazWidgetProvider.updateAll(appContext)
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

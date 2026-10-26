@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import com.example.data.local.PreferencesManager
 import com.example.notification.PrayerNotificationManager
 import com.example.ui.NamazScreen
 import com.example.ui.NamazViewModel
+import com.example.widget.NamazWidgetProvider
 import com.example.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -39,6 +41,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(uiState.settings, uiState.schedule?.cachedAtMillis, uiState.schedule?.city) {
+                NamazWidgetProvider.updateAll(applicationContext)
+            }
             val isDarkTheme = when (uiState.settings.themeMode) {
                 "DARK" -> true
                 "LIGHT" -> false

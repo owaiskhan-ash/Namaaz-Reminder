@@ -7,11 +7,13 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
 - Offline cache: the last successful schedule is stored locally and re-anchored to the current day.
 - Notifications for upcoming prayer times, with exact alarms (Android 12+) and a boot receiver that
   re-arms the schedule after a restart.
+- A sleek, resizable Android home-screen widget showing the next prayer, its time, and a live
+  countdown, using the locally cached schedule for offline support.
 - Light / dark / system theme, and a settings sheet for muted prayers, reminder timing and
   calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
   default), which is when the adhan ends and the salah begins.
 
-Current version: **1.6.2** (`versionCode` 10).
+Current version: **1.7.0** (`versionCode` 11).
 
 ## The website
 
@@ -114,7 +116,7 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.6.2-release.apk
+adb install -r NamaazReminder-1.7.0-release.apk
 ```
 
 Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
