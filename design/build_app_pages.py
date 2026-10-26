@@ -97,7 +97,7 @@ APPS = [
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders, with no ads, accounts or location permission.</p>",
         "cta": """          <span class="pill"><span class="dot"></span>Coming to Google Play</span>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
-        "cta_note": "Version 1.7.1 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
+        "cta_note": "Version 1.7.2 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
         "shots": [
             shot("/assets/namaaz/today-400.webp",
                  "Namaaz Reminder showing the next prayer countdown and today's five prayer times on black leather",
@@ -123,7 +123,7 @@ APPS = [
         <ul>
           <li><strong>Today’s five prayers</strong>: Fajr, Dhuhr, Asr, Maghrib and Isha for the city you pick, in 12- or 24-hour format.</li>
           <li><strong>A live countdown</strong> to the next salah, so you can see at a glance how long is left.</li>
-          <li><strong>A home-screen widget</strong> with the next prayer, its time and an updating countdown, available offline from your cached schedule.</li>
+          <li><strong>A home-screen widget</strong> with a 95%-transparent card, next prayer, prayer time and an updating countdown, available offline from your cached schedule.</li>
           <li><strong>Reminders at the adhan</strong>, or a set number of minutes after it, for any or all prayers.</li>
           <li><strong>A city picker</strong> that works by name: Delhi by default, or any Indian city you type.</li>
           <li><strong>A choice of calculation method</strong>, with the method used across India selected by default.</li>
@@ -170,7 +170,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
-          <dt>Version</dt><dd>1.7.1 (versionCode 12).</dd>
+          <dt>Version</dt><dd>1.7.2 (versionCode 13).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
           <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
@@ -196,7 +196,7 @@ APPS = [
             "name": "Namaaz Reminder",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Android 7.0 and later",
-            "softwareVersion": "1.7.1",
+            "softwareVersion": "1.7.2",
             "description": "Daily prayer times for cities in India, a live countdown, an offline home-screen widget for the next salah and optional adhan reminders. Free, no ads, no account, no location permission.",
             "image": BASE + "/assets/nr-mark-512.png",
             "screenshot": [
@@ -207,7 +207,7 @@ APPS = [
             "featureList": [
                 "Prayer times for any city in India",
                 "Live countdown to the next salah",
-                "Home-screen widget with an updating next-prayer countdown",
+                "95%-transparent home-screen widget with an updating next-prayer countdown",
                 "Adhan reminders, at or after the prayer time",
                 "Exact alarms re-armed after a reboot",
                 "Offline copy of the last fetched schedule",
