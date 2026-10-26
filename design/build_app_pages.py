@@ -89,12 +89,12 @@ APPS = [
         "name": "Namaaz Reminder",
         "kicker": "01 · Prayer",
         "nav_cta": "See the app",
-        "title": "Namaaz Reminder — Prayer Times for India | Just Apps",
+        "title": "Namaaz Reminder: Prayer Times for India | Just Apps",
         "description": "Free Android prayer-times app for India: daily salah times for your city, a live countdown, optional adhan reminders. No ads, no account, no location permission.",
         "og": "og-namaaz-reminder.png",
         "h1": "Namaaz Reminder: prayer times and a countdown to the next salah.",
         "lede": "Namaaz Reminder shows today’s Fajr, Dhuhr, Asr, Maghrib and Isha times for your city in India, counts down to the next prayer, and can remind you at adhan. It is free, has no ads, and asks for no account.",
-        "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders — without ads, accounts or a location permission.</p>",
+        "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders, with no ads, accounts or location permission.</p>",
         "cta": """          <span class="pill"><span class="dot"></span>Coming to Google Play</span>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
         "cta_note": "Version 1.6.2 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
@@ -107,7 +107,7 @@ APPS = [
                  "(max-width: 620px) 42vw, 210px"),
             shot("/assets/namaaz/cities-400.webp",
                  "City picker for India with offline schedule caching and no GPS permission",
-                 "Any city in India, chosen by name — no GPS permission needed.",
+                 "Any city in India, chosen by name, with no GPS permission needed.",
                  400, 866,
                  "/assets/namaaz/cities-400.webp 400w, /assets/namaaz/cities-780.webp 780w",
                  "(max-width: 620px) 42vw, 210px"),
@@ -121,10 +121,10 @@ APPS = [
         "body": """
         <h2>What it does</h2>
         <ul>
-          <li><strong>Today’s five prayers</strong> — Fajr, Dhuhr, Asr, Maghrib and Isha for the city you pick, in 12- or 24-hour format.</li>
+          <li><strong>Today’s five prayers</strong>: Fajr, Dhuhr, Asr, Maghrib and Isha for the city you pick, in 12- or 24-hour format.</li>
           <li><strong>A live countdown</strong> to the next salah, so you can see at a glance how long is left.</li>
           <li><strong>Reminders at the adhan</strong>, or a set number of minutes after it, for any or all prayers.</li>
-          <li><strong>A city picker</strong> that works by name — Delhi by default, or any Indian city you type.</li>
+          <li><strong>A city picker</strong> that works by name: Delhi by default, or any Indian city you type.</li>
           <li><strong>A choice of calculation method</strong>, with the method used across India selected by default.</li>
           <li><strong>An offline copy</strong> of the last schedule that was fetched, so the screen still opens without a connection.</li>
         </ul>
@@ -143,14 +143,14 @@ APPS = [
         calculated one.</p>
         <p>Because the last successful response is kept on the phone, the schedule is re-anchored to the
         current date when the app is offline. If the cached copy is several days old, a timing can be off by a
-        minute or two — the screen says so rather than pretending the data is live.</p>
+        minute or two, and the screen says so rather than pretending the data is live.</p>
 
         <h2>Reminders that behave</h2>
         <p>Prayer reminders are scheduled on the device with Android’s alarm manager, not sent from a server.
         That has three consequences worth knowing: they work with no connection, they survive a reboot
         (the app re-arms them at startup), and no notification content ever leaves your phone.</p>
-        <p>By default a reminder fires <strong>five minutes after</strong> the prayer time — the point at which the
-        adhan has finished and the salah begins — and the offset is adjustable from zero upwards. Sound and
+        <p>By default a reminder fires <strong>five minutes after</strong> the prayer time (the point at which the
+        adhan has finished and the salah begins), and the offset is adjustable from zero upwards. Sound and
         vibration are separate switches, individual prayers can be muted, and the Madinah adhan can be
         replaced with an audio file of your own.</p>
 
@@ -171,7 +171,7 @@ APPS = [
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
           <dt>Version</dt><dd>1.6.2 (versionCode 10).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
-          <dt>Account</dt><dd>Not required, and not possible — there is no sign-in.</dd>
+          <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
           <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
@@ -183,7 +183,7 @@ APPS = [
             ("When do the reminders fire?",
              "By default five minutes after the prayer time, which is when the adhan has ended and the salah begins. The offset is adjustable in Settings down to zero, and individual prayers can be muted."),
             ("Which calculation method is used?",
-             "Method 1 — the University of Islamic Sciences, Karachi convention — is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day."),
+             "Method 1, the University of Islamic Sciences, Karachi convention, is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day."),
             ("Is it free?",
              "Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account."),
             ("Which cities are supported?",
@@ -221,11 +221,11 @@ APPS = [
         "name": "Screen Time Reminder",
         "kicker": "02 · Wellbeing",
         "nav_cta": "Get the app",
-        "title": "Screen Time Reminder — Break Reminder | Just Apps",
+        "title": "Screen Time Reminder: Break Reminder | Just Apps",
         "description": "Free Android app that counts continuous phone use and sends one gentle break reminder. Seven-day history, no streaks, no ads, no internet permission.",
         "og": "og-screen-time-reminder.png",
         "h1": "Screen Time Reminder: a gentle nudge to look up from your phone.",
-        "lede": "Screen Time Reminder counts how long you have been using your phone in one stretch, and sends a single calm reminder when a session runs long. There are no streaks, no scores and no guilt — just one honest number and a reason to put the phone down for a minute.",
+        "lede": "Screen Time Reminder counts how long you have been using your phone in one stretch, and sends a single calm reminder when a session runs long. There are no streaks, no scores and no guilt, just one honest number and a reason to put the phone down for a minute.",
         "answer": "<p><strong>In one line:</strong> Screen Time Reminder is a free Android app that tracks continuous phone use and sends one gentle break reminder when a session runs long, keeping a seven-day history and asking for no account, no ads and no internet access.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/latest">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">Source on GitHub</a>""",
@@ -253,7 +253,7 @@ APPS = [
         "body": """
         <h2>What it does</h2>
         <ul>
-          <li><strong>One live number</strong> — how long the current stretch of phone use has lasted.</li>
+          <li><strong>One live number</strong>: how long the current stretch of phone use has lasted.</li>
           <li><strong>One calm reminder</strong> when a session runs long, instead of a stream of notifications.</li>
           <li><strong>A seven-day history</strong>, so a bad afternoon is visible as a pattern rather than a verdict.</li>
           <li><strong>Nothing to keep up.</strong> No streaks, no scores, no daily target to miss.</li>
@@ -269,7 +269,7 @@ APPS = [
 
         <h2>What it does not do</h2>
         <p>The app does not request the internet permission at all. That is not a promise in a policy
-        document — it is a permission that is absent from the manifest, so the app has no technical way to
+        document; it is a permission that is absent from the manifest, so the app has no technical way to
         send anything anywhere. Every number it records stays in its own private storage on the phone, is
         removed when you uninstall, and is never uploaded, sold or shared.</p>
         <p>There are no accounts, no advertising SDK, no analytics SDK and no crash reporter. The project’s
@@ -289,7 +289,7 @@ APPS = [
             ("Does Screen Time Reminder block apps?",
              "No. It is a reminder, not a blocker or a parental control. It counts continuous use and sends one notification when a session runs long; it cannot close or restrict anything."),
             ("Does it need an internet connection?",
-             "No — and it could not use one. The app does not request the internet permission, so it has no technical way to send or receive data."),
+             "No, and it could not use one. The app does not request the internet permission, so it has no technical way to send or receive data."),
             ("What permission does it need?",
              "Usage access, which is Android’s name for permission to see which app is in the foreground and for how long. Without it the app has nothing to measure."),
             ("Does it keep a streak or score?",
@@ -327,12 +327,12 @@ APPS = [
         "name": "Subscription Tracker",
         "kicker": "03 · Money",
         "nav_cta": "Get the app",
-        "title": "Subscription Tracker — Recurring Bills | Just Apps",
+        "title": "Subscription Tracker: Recurring Bills | Just Apps",
         "description": "Free, offline Android app for subscriptions and recurring bills: normalized monthly and yearly totals, plus renewal reminders. No bank connection.",
         "og": "og-subscription-tracker.png",
         "h1": "Subscription Tracker: every subscription and recurring bill in one place.",
         "lede": "Subscription Tracker is a free Android app for keeping track of what renews, when, and what it really costs. Add subscriptions and bills by hand, see a monthly and yearly total you can compare, and get a reminder before each renewal.",
-        "answer": "<p><strong>In one line:</strong> Subscription Tracker is a free, offline Android app that records your recurring bills, converts them into comparable monthly and yearly totals, and reminds you before a renewal — without connecting to your bank.</p>",
+        "answer": "<p><strong>In one line:</strong> Subscription Tracker is a free, offline Android app that records your recurring bills, converts them into comparable monthly and yearly totals, and reminds you before a renewal, without connecting to your bank.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Subscription-Tracker">Source on GitHub</a>""",
         "cta_note": "Version 1.2.0, free, Android 8.0 and later. Distributed as a signed APK from the project’s GitHub releases.",
@@ -359,7 +359,7 @@ APPS = [
         "body": """
         <h2>What it does</h2>
         <ul>
-          <li><strong>One list of everything that recurs</strong> — streaming, cloud storage, insurance, the Wi-Fi bill, anything with a renewal date.</li>
+          <li><strong>One list of everything that recurs</strong>: streaming, cloud storage, insurance, the Wi-Fi bill, anything with a renewal date.</li>
           <li><strong>A monthly and yearly total</strong> that you can actually compare, because each entry is normalised from its own billing cycle.</li>
           <li><strong>Upcoming renewals</strong> in date order, so nothing arrives as a surprise.</li>
           <li><strong>Optional reminders</strong> before a payment is due, scheduled on the phone.</li>
@@ -401,7 +401,7 @@ APPS = [
             ("Does it work offline?",
              "Yes. The app is built to work without a connection; subscriptions and totals are stored on the device."),
             ("Will it detect subscriptions automatically?",
-             "No. Entries are added by hand, on purpose — automatic detection would mean reading your messages or connecting to your bank, and the app does neither."),
+             "No. Entries are added by hand, on purpose; automatic detection would mean reading your messages or connecting to your bank, and the app does neither."),
             ("Is it free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
@@ -435,11 +435,11 @@ APPS = [
         "name": "Vaccine Routine",
         "kicker": "04 · Family",
         "nav_cta": "Get the app",
-        "title": "Vaccine Routine — Baby Vaccine Log | Just Apps",
+        "title": "Vaccine Routine: Baby Vaccine Log | Just Apps",
         "description": "Free, offline-first vaccine log and reminder for babies and children, with India's National Immunization Schedule as optional suggestions. No account, no ads.",
         "og": "og-vaccine-routine.png",
         "h1": "Vaccine Routine: a calm, offline vaccine log for little ones.",
-        "lede": "Vaccine Routine keeps a child’s vaccination record on your phone, helps you plan the next dose and reminds you when it is due. India’s National Immunization Schedule is offered as a suggestion — never a prescription.",
+        "lede": "Vaccine Routine keeps a child’s vaccination record on your phone, helps you plan the next dose and reminds you when it is due. India’s National Immunization Schedule is offered as a suggestion, never a prescription.",
         "answer": "<p><strong>In one line:</strong> Vaccine Routine is a free, offline-first vaccine log and reminder for babies and children, with India’s National Immunization Schedule available as optional suggestions rather than medical advice.</p>",
         "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest">Download the app</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/vaccine-Tracker">Source on GitHub</a>""",
@@ -480,14 +480,14 @@ APPS = [
         app’s own storage on the device and are removed when the app is uninstalled. There is nothing to
         log in to, so there is no server holding a copy.</p>
         <p>That trade-off is deliberate: no cloud sync means no account to leak and nothing to subscribe to.
-        If you change phones, the record moves with Android’s own backup or not at all — the app does not
+        If you change phones, the record moves with Android’s own backup or not at all; the app does not
         upload it anywhere.</p>
 
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android app and web app.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
-          <dt>Account</dt><dd>Not required — there is no sign-in and no sync.</dd>
+          <dt>Account</dt><dd>Not required; there is no sign-in and no sync.</dd>
           <dt>Storage</dt><dd>On the device, removed when you uninstall.</dd>
           <dt>Medical status</dt><dd>Not a medical device and not a substitute for professional advice.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/vaccine-Tracker">vaccine-Tracker repository on GitHub</a></dd>
@@ -552,12 +552,12 @@ TEMPLATE = """<!DOCTYPE html>
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="{name} — Just Apps">
+<meta property="og:image:alt" content="{name} | Just Apps">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{description}">
 <meta name="twitter:image" content="{base}/assets/og/{og}">
-<meta name="twitter:image:alt" content="{name} — Just Apps">
+<meta name="twitter:image:alt" content="{name} | Just Apps">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="/assets/just-apps-icon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/just-apps-icon-32.png">

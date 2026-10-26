@@ -9,7 +9,8 @@ Exit code 0 means every check passed. The checks encode the rules the site
 already follows, so a future edit cannot quietly reintroduce the faults the
 SEO audit found: wrong canonical host, titles/descriptions out of range,
 FAQ schema drifting from the visible questions, sitemap entries pointing at
-pages that do not exist, or dead links in llms.txt.
+pages that do not exist, dead links in llms.txt, or em dashes returning to
+the page copy.
 """
 
 import json
@@ -22,6 +23,14 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 BASE = "https://www.justsimpleapps.online"
+
+# Matches the em dash itself plus the named/numeric HTML entities that render
+# as one. chr() keeps this guard file free of the character it looks for.
+EM_DASH_RE = re.compile(
+    re.escape(chr(0x2014)) + r"|&[m]dash;?|&#(?:0*8212|x0*2014);?", re.I)
+SITE_TEXT_SUFFIXES = {
+    ".html", ".txt", ".css", ".js", ".json", ".xml", ".webmanifest", ".svg",
+}
 
 INDEXABLE = {
     "index.html": BASE + "/",
@@ -155,14 +164,14 @@ def check_page(fname, canonical_url):
     if not title:
         fail(f"{fname}: missing <title>")
     elif not 20 <= len(title) <= 65:
-        fail(f"{fname}: title length {len(title)} outside 20–65: {title!r}")
+        fail(f"{fname}: title length {len(title)} outside 20-65: {title!r}")
 
     # -- meta description
     desc = meta_content(p, name="description")
     if desc is None:
         fail(f"{fname}: missing meta description")
     elif not 70 <= len(desc) <= 170:
-        fail(f"{fname}: description length {len(desc)} outside 70–170: {desc!r}")
+        fail(f"{fname}: description length {len(desc)} outside 70-170: {desc!r}")
 
     # -- robots
     robots = meta_content(p, name="robots") or ""
@@ -387,6 +396,22 @@ def check_itemlist_parity(index_graphs):
                      f"= {item.get(key)!r} but {fname} has {app.get(key)!r}")
 
 
+def check_typography():
+    """Page copy, metadata and generated assets must not contain em dashes."""
+    paths = [p for p in DOCS.rglob("*")
+             if p.is_file() and p.suffix.lower() in SITE_TEXT_SUFFIXES]
+    paths.extend([
+        ROOT / "design" / "build_app_pages.py",
+        ROOT / "design" / "mobile_viewport" / "index.html",
+    ])
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        match = EM_DASH_RE.search(text)
+        if match:
+            fail(f"{path.relative_to(ROOT)}: contains an em dash token "
+                 f"({match.group(0)!r}); use plain punctuation instead")
+
+
 def main():
     index_graphs = []
     for fname, url in INDEXABLE.items():
@@ -405,9 +430,10 @@ def main():
     check_llms()
     check_entity_consistency(index_graphs)
     check_itemlist_parity(index_graphs)
+    check_typography()
 
     if problems:
-        print(f"SEO check FAILED — {len(problems)} problem(s):\n")
+        print(f"SEO check FAILED: {len(problems)} problem(s):\n")
         for pr in problems:
             print(f"  ✗ {pr}")
         sys.exit(1)

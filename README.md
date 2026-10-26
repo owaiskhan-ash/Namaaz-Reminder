@@ -75,12 +75,13 @@ original PNG/JPG files next to them are kept as the source for regenerating thos
 
 Adding a fifth app means one more entry in `APPS`, its screenshots and social card under
 `docs/assets/`, a card on the landing page, a URL in `docs/sitemap.xml` and an app entry in
-`docs/llms.txt` — then bump `DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap
-and run `python3 design/seo_check.py`.
+`docs/llms.txt`, then bump `DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap
+and run `python3 design/seo_check.py`. Page copy uses plain punctuation; the check rejects
+em dashes and their HTML entities in the site files and generator.
 
 ## The other apps
 
-All public apps in the collection share the same promise — free to use, no ads, no clutter, no accounts:
+All public apps in the collection share the same promise: free to use, no ads, no clutter, no accounts.
 
 | # | App | Source |
 | --- | --- | --- |
@@ -104,10 +105,10 @@ signed APKs:
 
 They are available in three places:
 
-1. **Actions artifacts** — every run of *Android CI* uploads an `NamaazReminder-apks` artifact.
-2. **The rolling `apk-latest` release** — <https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/tag/apk-latest>
+1. **Actions artifacts**: every run of *Android CI* uploads an `NamaazReminder-apks` artifact.
+2. **The rolling `apk-latest` release**: <https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/tag/apk-latest>
    always holds the newest pair of APKs.
-3. **The `apk-builds` branch** — the same APKs are mirrored into `apk-builds/` on that branch, so
+3. **The `apk-builds` branch**: the same APKs are mirrored into `apk-builds/` on that branch, so
    they can be downloaded straight from the branch page.
 
 Install over ADB with:
@@ -131,7 +132,7 @@ Requires JDK 21 and the Android SDK (compileSdk 36, minSdk 24).
 The `release` build type signs with the `upload` key alias, configured in
 `app/build.gradle.kts`.
 
-CI uses the Play upload key from repository secrets — `KEYSTORE_BASE64`
+CI uses the Play upload key from repository secrets: `KEYSTORE_BASE64`
 (base64 of the PKCS12 keystore), `STORE_PASSWORD` and `KEY_PASSWORD`. When
 those secrets are present it also builds `NamaazReminder-<version>-release.aab`
 for the Play Console; without them it builds only the APKs, signed with the
@@ -152,7 +153,7 @@ own upload key instead.
 
 ## Brand
 
-The app icon is the approved **NR** artwork — a rounded block monogram in vivid
+The app icon is the approved **NR** artwork, a rounded block monogram in vivid
 coral and pink, set inside a matching neon frame on charcoal (`design/source/NR-icon.png`).
 
 `design/build_icons.py` derives every icon from that one file, so the launcher
@@ -163,9 +164,9 @@ icon, the themed icon and the in-app header can never drift apart:
 | `mipmap-*/ic_launcher.png` | the artwork, tightly cropped to the plate |
 | `mipmap-*/ic_launcher_round.png` | circular crop of the artwork |
 | `drawable/ic_app_icon.png` | the header badge |
-| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon — the monogram's furthest corner sits at ~47% of the tile, inside every launcher mask |
+| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon: the monogram's furthest corner sits at ~47% of the tile, inside every launcher mask |
 | `drawable/ic_launcher_background.xml` | the plate edge tone, for the margin a wide mask exposes |
-| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons — the launcher tints this layer, so the artwork's 3D shading cannot be used |
+| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons; the launcher tints this layer, so the artwork's 3D shading cannot be used |
 
 Regenerate after replacing the source artwork:
 
@@ -198,7 +199,7 @@ app/src/main/java/com/example/
 
 ## Notifications
 
-Each prayer reminder stays a separate notification — the app never groups or bundles them:
+Each prayer reminder stays a separate notification; the app never groups or bundles them:
 
 - every prayer gets its own notification id, so a Fajr reminder never disappears into a
   "5 notifications" stack,
@@ -210,7 +211,7 @@ Each prayer reminder stays a separate notification — the app never groups or b
 - exact alarms are used when Android allows them (Android 12+); otherwise the app falls back to
   inexact alarms rather than dropping the reminder,
 - sound and vibration live in separate channels (`Prayer Reminders (Silent)` and
-  `Prayer Reminders — <sound name>`), because from Android 8.0 the system reads both from the
+  `Prayer Reminders: <sound name>`), because from Android 8.0 the system reads both from the
   channel rather than the individual notification. Changing the sound or vibration creates the
   new channel and deletes the superseded ones.
 
@@ -218,7 +219,7 @@ Each prayer reminder stays a separate notification — the app never groups or b
 
 The reminder can play a full azaan instead of the short system sound:
 
-- the audio is **not** shipped inside the APK — it is fetched from the public asset bucket the
+- the audio is **not** shipped inside the APK; it is fetched from the public asset bucket the
   first time it is used and then **saved on the device** (media library on Android 10+, the
   app's external files folder on older versions), so it also plays when the phone is offline,
 - **Settings → Notifications & reminders → Azaan** lists the available azaans with a
@@ -241,4 +242,4 @@ Every prayer card can be **long pressed** to set its time by hand:
 
 `INTERNET`, `ACCESS_NETWORK_STATE` (schedule fetch), `POST_NOTIFICATIONS` (Android 13+ reminders),
 `VIBRATE`, `RECEIVE_BOOT_COMPLETED` (re-arm alarms after reboot) and `SCHEDULE_EXACT_ALARM`
-(Android 12+ precise prayer alarms — granted in-app on first launch).
+(Android 12+ precise prayer alarms, granted in-app on first launch).

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Screen Time Reminder — web icon & Open Graph social card pipeline.
+Screen Time Reminder: web icon & Open Graph social card pipeline.
 
 Derives all website icon sizes and the Open Graph card directly from the
 approved leather, felt & suede `ST` artwork at `design/source/ST-icon.png`

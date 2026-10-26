@@ -7,9 +7,9 @@
 > accounts, analytics or tracking. The website is static HTML with no
 > third-party scripts or cookies.
 
-In one line: Just Apps makes seven free Android apps — prayer times, screen-time
+In one line: Just Apps makes seven free Android apps: prayer times, screen-time
 breaks, step, water and conversational reminders, subscription tracking and
-vaccine records — with no ads, no accounts and no tracking.
+vaccine records. None uses ads, accounts or tracking.
 
 Canonical home: https://www.justsimpleapps.online/
 Language: English. Updated: 2026-10-25.
@@ -21,7 +21,7 @@ Language: English. Updated: 2026-10-25.
   optional adhan reminders. Works offline from the last saved schedule. No
   location permission is requested; the chosen city name is the only location
   data. Android 7.0 and later. Free, no ads, no account. Not yet published on
-  Google Play — its page carries the current status.
+  Google Play; its page carries the current status.
 - [Screen Time Reminder](https://www.justsimpleapps.online/screen-time-reminder): counts
   continuous phone use and sends one gentle break reminder when a session runs
   long, with a 7-day history. No streaks or scores. Android 8.0 and later. Free
@@ -36,11 +36,11 @@ Language: English. Updated: 2026-10-25.
   Android and web. Free, private, no account.
 - [Water Reminder](https://www.justsimpleapps.online/#water-reminder): a simple
   water-drinking nudge, every two hours by default and aligned to the local
-  clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM–8 AM).
+  clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM to 8 AM).
   It has no intake logging, counters or charts, and makes no network requests.
   Android 7.0 and later. Free, no account. [Project](https://github.com/owaiskhan-ash/Water-Reminder) and [Water Reminder v1.0.0 release](https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0).
 - [Step Reminder](https://www.justsimpleapps.online/#steps-reminder): a daily
-  step counter with a chosen target (2,000–20,000), one reminder at a chosen
+  step counter with a chosen target (2,000 to 20,000), one reminder at a chosen
   hour, and an on-device seven-day history. Android 6.0+ and web; web reminders
   fire only while the app is open. No account, cloud, analytics, Google Fit or
   Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and

@@ -140,10 +140,10 @@
       "speakable": {
         "@type": "SpeakableSpecification",
         "cssSelector": [
+          ".hero-message .eyebrow",
           ".hero-message h1",
-          ".hero-message > p",
-          ".hero-message .answer",
-          ".section-head h2"
+          ".section-head h2",
+          ".section-head p"
         ]
       }
     },
@@ -558,7 +558,7 @@
           "name": "Do these apps work offline?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Mostly, yes. Namaaz Reminder caches prayer times after the first download, and the other apps store everything on the device — screen-time, subscriptions, vaccines, water, steps and reminders all work with no connection."
+            "text": "Mostly, yes. Namaaz Reminder caches prayer times after the first download, and the other apps store everything on the device: screen-time, subscriptions, vaccines, water, steps and reminders all work with no connection."
           }
         },
         {
@@ -1181,10 +1181,6 @@
   <div class="hero-message">
     <span class="eyebrow"><span class="dot" aria-hidden="true"></span>FREE, THOUGHTFUL APPS · NO ADS</span>
     <h1 id="mission-title">Free Android apps,<br>quietly <span class="accent-lime">made.</span></h1>
-    <p>From prayer times and screen breaks to step goals, water reminders, natural-language alarms, recurring bills, and a child’s vaccine record, each app is made to do one useful thing well. Simple, private, and free, with no ads or unnecessary noise.</p>
-    <div class="answer">
-      <p><strong>In one line:</strong> Just Apps is an independent studio in Mumbai, India that makes seven free Android apps — prayer times, screen-time breaks, step, water and conversational reminders, subscription tracking and vaccine records — with no ads, no accounts and no tracking.</p>
-    </div>
   </div>
 </section>
 
@@ -1285,7 +1281,7 @@
             <img class="app-icon" src="assets/water/icon.png" alt="" width="56" height="56" loading="lazy" decoding="async">
             <div class="app-id"><span class="app-no">05 · Hydration</span><h3>Water Reminder</h3><p class="app-sub">A calm nudge to drink water</p></div>
           </div>
-          <p class="app-desc">A water intake reminder that does one thing: nudges you every two hours by default. Choose a 1, 2, 3, or 4 hour interval and pause notifications overnight—no intake logging, counters, or charts.</p>
+          <p class="app-desc">A water intake reminder that does one thing: nudges you every two hours by default. Choose a 1, 2, 3, or 4 hour interval and pause notifications overnight, with no intake logging, counters, or charts.</p>
           <div class="tags"><span>Four intervals</span><span>Quiet hours</span><span>No intake log</span></div>
           <div class="app-foot"><a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0">Download Water Reminder</a><a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Water-Reminder">Project on GitHub</a></div>
           <p class="app-meta">Android 7.0+ &nbsp;·&nbsp; Free &nbsp;·&nbsp; No network access</p>
@@ -1303,7 +1299,7 @@
             <img class="app-icon" src="assets/steps/icon-192.png" alt="" width="56" height="56" loading="lazy" decoding="async">
             <div class="app-id"><span class="app-no">06 · Movement</span><h3>Step Reminder</h3><p class="app-sub">A quiet nudge to keep moving</p></div>
           </div>
-          <p class="app-desc">Track your steps against a daily target, see your seven-day history, and get one reminder at the hour you choose. Web reminders work only while the app is open. Steps, goals and history stay on your phone—no account, cloud or analytics.</p>
+          <p class="app-desc">Track your steps against a daily target, see your seven-day history, and get one reminder at the hour you choose. Web reminders work only while the app is open. Steps, goals and history stay on your phone, with no account, cloud or analytics.</p>
           <div class="tags"><span>Daily step goal</span><span>7-day history</span><span>Local reminders</span></div>
           <div class="app-foot"><a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.3.5">Download Step Reminder</a><a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Steps-Reminder">Project on GitHub</a></div>
           <p class="app-meta">Android 6.0+ &amp; web &nbsp;·&nbsp; Free &nbsp;·&nbsp; No account</p>
@@ -1321,7 +1317,7 @@
             <img class="app-icon" src="assets/remindme/icon-128.png" srcset="assets/remindme/icon-128.png 1x, assets/remindme/icon-256.png 2x, assets/remindme/icon-512.png 3x" alt="" width="56" height="56" loading="lazy" decoding="async">
             <div class="app-id"><span class="app-no">07 · Reminders</span><h3>RemindME</h3><p class="app-sub">A clear nudge, at the right moment</p></div>
           </div>
-          <p class="app-desc">Write what you want to remember naturally—with a date and time—and let Smart Parse schedule it on Android’s alarm stream so silent mode never mutes it. Supports seven languages and keeps every reminder on your phone.</p>
+          <p class="app-desc">Write what you want to remember naturally, with a date and time, and let Smart Parse schedule it on Android’s alarm stream so silent mode never mutes it. Supports seven languages and keeps every reminder on your phone.</p>
           <div class="tags"><span>Natural language</span><span>7 languages</span><span>Alarm stream</span></div>
           <div class="app-foot"><a class="btn btn-primary" href="https://github.com/owaiskhan-ash/RemindME/releases/tag/v1.0.5">Download RemindME</a><a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/RemindME">Project on GitHub</a></div>
           <p class="app-meta">Android 8.0+ &nbsp;·&nbsp; Free &nbsp;·&nbsp; Local storage</p>
@@ -1388,7 +1384,7 @@
       <details><summary>Do the apps require an account or track me?</summary><p>The apps have no accounts, advertising, or analytics tracking. Water Reminder makes no network requests, and Vaccine Routine, Step Reminder, and RemindME keep personal records on your device.</p></details>
       <details><summary>Is Namaaz Reminder on Google Play?</summary><p>Not yet. The app is being prepared for the Play Store, and its page shows the current status. The other six apps are free to download today.</p></details>
       <details><summary>Who is behind Just Apps?</summary><p>Just Apps is an independent studio in Mumbai, India, founded by Owais Khan. It builds one app at a time, and six of the seven apps are open source.</p></details>
-      <details><summary>Do these apps work offline?</summary><p>Mostly, yes. Namaaz Reminder caches prayer times after the first download, and the other apps store everything on the device — screen-time, subscriptions, vaccines, water, steps and reminders all work with no connection.</p></details>
+      <details><summary>Do these apps work offline?</summary><p>Mostly, yes. Namaaz Reminder caches prayer times after the first download, and the other apps store everything on the device: screen-time, subscriptions, vaccines, water, steps and reminders all work with no connection.</p></details>
       <details><summary>How do I know the apps are private?</summary><p>Every privacy claim on this site is checkable: six of the seven apps publish their source code on GitHub, and the privacy policy lists the only network requests the apps make.</p></details>
     </div>
   </div>

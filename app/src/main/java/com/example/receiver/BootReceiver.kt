@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
  * survive reboots).
  *
  * Uses [goAsync] so the process is kept alive while the (potentially slow)
- * schedule fetch/reschedule runs — a bare coroutine scope returned from
+ * schedule fetch/reschedule runs; a bare coroutine scope returned from
  * onReceive could be killed by the system mid-flight, leaving the device
  * without any reminders after boot.
  */

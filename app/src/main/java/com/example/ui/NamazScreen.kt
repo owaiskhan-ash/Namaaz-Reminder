@@ -181,7 +181,7 @@ fun NamazScreen(
             return
         }
         AlertDialog.Builder(context)
-            .setTitle("${prayer.type.englishName} — custom time")
+            .setTitle("${prayer.type.englishName} (custom time)")
             .setMessage(
                 "The calculated time today is " +
                     prayer.defaultDisplayTime(uiState.settings.is24HourFormat) + "."

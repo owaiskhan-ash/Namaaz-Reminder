@@ -16,7 +16,7 @@ val LeatherCognac = Color(0xFFB9572D)
 val LeatherCreamPill = Color(0xFFEDE2CE)
 val LeatherCreamInk = Color(0xFF171411)
 
-// Dark theme — matte jet-black calfskin surfaces, warm ivory ink, quiet borders
+// Dark theme: matte jet-black calfskin surfaces, warm ivory ink, quiet borders
 val DarkBackground = Color(0xFF0B0D0E)
 val DarkSurface = Color(0xFF131618)
 val DarkSurfaceVariant = Color(0xFF191E20)
@@ -28,7 +28,7 @@ val DarkTextPrimary = Color(0xFFF5F0E6)
 val DarkTextSecondary = Color(0xFFC8B99E)
 val DarkTextTertiary = Color(0xFF8A8275)
 
-// Light theme — warm cream suede character when toggled
+// Light theme: warm cream suede character when toggled
 val LightBackground = Color(0xFFF5EFE4)
 val LightSurface = Color(0xFFFCF8F1)
 val LightSurfaceVariant = Color(0xFFEBE2D3)

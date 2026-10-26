@@ -1,10 +1,10 @@
 /* Tactile, silky interactions for the Just Apps pages.
 
-   1. Active section indicator (#7) — highlights current nav link on scroll.
-   2. Smooth FAQ unfold (#5) — eases <details> height open and closed.
-   3. Gentle depth parallax (#2) — subtle differential motion between hides.
-   4. Soft studio light follow (#4) — subtle grazing sheen across cards.
-   5. Inertia scrolling & precision cursor — opt-in for fine pointers.
+   1. Active section indicator (#7): highlights current nav link on scroll.
+   2. Smooth FAQ unfold (#5): eases <details> height open and closed.
+   3. Gentle depth parallax (#2): subtle differential motion between hides.
+   4. Soft studio light follow (#4): subtle grazing sheen across cards.
+   5. Inertia scrolling & precision cursor: opt-in for fine pointers.
 
    Respects prefers-reduced-motion and degrades gracefully without JS. */
 

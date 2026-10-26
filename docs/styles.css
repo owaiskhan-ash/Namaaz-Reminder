@@ -1,5 +1,5 @@
 /* ==========================================================================
-   JUST APPS — Tactile Leather & Suede Editorial Design System
+   JUST APPS: Tactile Leather & Suede Editorial Design System
    Primary Brand:  Cyan Teal      #00BCC8
    Secondary:      Electric Lime  #D0FF00 (used sparingly for emphasis)
    Materials:      Deep Teal      #064B4D · Warm Beige   #D8C2A0
@@ -695,6 +695,7 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
   width: min(100%, 760px);
   max-width: 760px;
   margin-inline: auto;
+  margin-bottom: clamp(32px, 5vh, 56px);
   text-align: center;
 }
 
@@ -754,15 +755,6 @@ html[data-theme="light"] .accent-lime {
   text-decoration-color: var(--lime);
   text-decoration-thickness: 4px;
   text-underline-offset: 5px;
-}
-
-.hero-message > p {
-  color: var(--ink);
-  font-size: clamp(15.5px, 1.25vw, 17px);
-  line-height: 1.68;
-  max-width: 50ch;
-  margin: 0 auto;
-  text-wrap: pretty;
 }
 
 /* ==========================================================================
@@ -932,7 +924,7 @@ html[data-theme="light"] .section-divider::after {
 }
 
 /* ==========================================================================
-   App Cards (Inlaid Matte Upholstery Panels — Zero Glassmorphism)
+   App Cards (Inlaid Matte Upholstery Panels, Zero Glassmorphism)
    ========================================================================== */
 
 .apps-section .apps {
@@ -1983,10 +1975,6 @@ html.nav-open {
     font-size: clamp(36px, 9.8vw, 52px);
     margin-bottom: 18px;
   }
-  .hero-message > p {
-    font-size: 15px;
-    line-height: 1.62;
-  }
   .eyebrow {
     font-size: 10px;
     letter-spacing: 0.18em;
@@ -2326,7 +2314,7 @@ html.has-custom-cursor * {
 }
 
 /* ==========================================================================
-   Touch Devices — keep the tactile hover lift from sticking after a tap
+   Touch Devices: keep the tactile hover lift from sticking after a tap
    ========================================================================== */
 
 @media (hover: none) {
