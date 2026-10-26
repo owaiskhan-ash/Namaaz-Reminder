@@ -255,6 +255,7 @@ jobs:
           ## Namaaz Reminder ${VERSION}
 
           - Added a sleek Android home-screen widget with the next prayer, prayer time and live countdown.
+          - Improved widget layout compatibility across Android launchers.
           - Uses the locally cached schedule and refreshes with prayer-time and device time changes.
           - Includes the release and debug APKs for Android 7.0 and later.
           EOF
