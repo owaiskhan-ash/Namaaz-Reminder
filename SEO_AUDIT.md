@@ -1,4 +1,4 @@
-# SEO & AISO audit — Just Apps landing page
+# SEO & AISO audit: Just Apps landing page
 
 | | |
 | --- | --- |
@@ -6,11 +6,11 @@
 | **Source** | `docs/` in this repository, deployed by Vercel with `docs` as the project root |
 | **Date** | 20 October 2026; round 3 on 25 October 2026 |
 | **Pages in scope** | `/` (landing), `/privacy`, `robots.txt`, `sitemap.xml`, structured data, social metadata |
-| **Fixes applied on** | branch `arena/a79b5946-namaaz-reminder` (rounds 1–2), `arena/a06fb430-namaaz-reminder` (round 3) |
+| **Fixes applied on** | branch `arena/a79b5946-namaaz-reminder` (rounds 1-2), `arena/a06fb430-namaaz-reminder` (round 3) |
 
 > **AISO** here means AI search / answer-engine optimisation (also called AEO or GEO): being
 > crawlable, understandable and quotable by ChatGPT, Claude, Perplexity, Gemini, Copilot and
-> Google's AI surfaces, on top of classic search. It is not a separate bag of tricks — it starts
+> Google's AI surfaces, on top of classic search. It is not a separate bag of tricks - it starts
 > with normal technical SEO and ends with clear, attributable, well-structured facts.
 
 ---
@@ -25,7 +25,7 @@ that remain are not code: they need an account, a listing or a decision that onl
 | Area | Weight | Start | Now | What moved it |
 | --- | --- | --- | --- | --- |
 | Crawlability & indexation | 20% | 30 | 95 | Canonical host fixed, six URL sitemap, clean URLs, 308 from the alias, branded 404, per-app pages |
-| On-page & content | 20% | 62 | 88 | Four app pages of 650–970 words, hub-and-spoke internal links, entity naming, H1 and title alignment |
+| On-page & content | 20% | 62 | 88 | Four app pages of 650-970 words, hub-and-spoke internal links, entity naming, H1 and title alignment |
 | Structured data | 10% | 55 | 92 | `offers`, `@id`s, `screenshot`, `featureList`, BreadcrumbList, CollectionPage, FAQ synced to visible copy |
 | AISO / answer engines | 15% | 45 | 82 | One page per question, quotable facts, direct answers, entity corroboration, explicit crawler allow list |
 | Performance | 10% | 70 | 88 | WebP + `srcset` (−40% image bytes), intrinsic dimensions, immutable caching, CSP |
@@ -57,11 +57,11 @@ fixes cannot silently regress:
 | Change | What it does |
 | --- | --- |
 | Landing title rewritten | “Free Android Apps: Prayer Times, Reminders, Bills \| Just Apps” (61 chars) replaces the mood line “Free Android Apps, Quietly”; description front-loaded with the six categories (157 chars); OG/Twitter/JSON-LD `CollectionPage` all mirrored |
-| Hero “In one line” answer box | One quotable sentence on the landing page naming the studio, the six apps and the no-ads/no-accounts/no-tracking claim — the passage answer engines lift; added to `speakable` |
-| Landing FAQ grown 11 → 15 | Added Play Store status, who is behind Just Apps, offline behaviour, and how the privacy claims are checkable — and the FAQ schema is now generated from the visible `<details>`, so the five drifted answers found in round 3 (Water ×2, Step ×2, account question) are byte-identical again |
+| Hero “In one line” answer box | One quotable sentence on the landing page naming the studio, the six apps and the no-ads/no-accounts/no-tracking claim - the passage answer engines lift; added to `speakable` |
+| Landing FAQ grown 11 → 15 | Added Play Store status, who is behind Just Apps, offline behaviour, and how the privacy claims are checkable - and the FAQ schema is now generated from the visible `<details>`, so the five drifted answers found in round 3 (Water ×2, Step ×2, account question) are byte-identical again |
 | H1s now contain the product name | Each app page H1 was a slogan (“A gentle nudge…”); it now starts “Screen Time Reminder: …”, “Namaaz Reminder: …” etc., so title, H1 and entity agree |
-| Self-contained entity graph | Every app page and the privacy page now carries the full `Organization` + `WebSite` nodes (identical `@id`/values to the home page) — a crawler fetching one URL resolves the entity instead of hitting a dangling `@id` |
-| `Organization.founder` + expanded `sameAs` | Person node “Owais Khan” (GitHub URL) plus the five public repo URLs as `sameAs`, on all six pages — entity corroboration across page and GitHub |
+| Self-contained entity graph | Every app page and the privacy page now carries the full `Organization` + `WebSite` nodes (identical `@id`/values to the home page) - a crawler fetching one URL resolves the entity instead of hitting a dangling `@id` |
+| `Organization.founder` + expanded `sameAs` | Person node “Owais Khan” (GitHub URL) plus the five public repo URLs as `sameAs`, on all six pages - entity corroboration across page and GitHub |
 | `author` on every page | `WebPage.author` → Person “Owais Khan” on all six pages; E-E-A-T signal the audit asked for, especially on the vaccine page |
 | Named maker in visible copy | “Made by Owais Khan (Just Apps) …” with a link to the GitHub profile, in the compatibility table of all four app pages |
 | Namaaz FAQ: Play Store status | New visible + schema question “Is Namaaz Reminder on Google Play?” with the honest status, so AI answers don’t guess a download link |
@@ -98,11 +98,11 @@ of it is markup:
 | Brand is still split between “Just Apps” and “Just Simple Apps” | ~1 | You (pick one; the markup already carries both) |
 | No field Core Web Vitals data (no traffic yet) | ~1 | Time and traffic |
 
-Everything else — canonical host, crawl paths, schema, content depth, internal links, image
-weight, headers, accessibility — is done and validated. Push the branch, then work the checklist
+Everything else - canonical host, crawl paths, schema, content depth, internal links, image
+weight, headers, accessibility - is done and validated. Push the branch, then work the checklist
 in §7.
 
-### 1.5 Already good — keep it
+### 1.5 Already good: keep it
 
 
 - **No web fonts, no third-party scripts, no cookies, no tag manager.** First load is ~67 KB
@@ -115,20 +115,20 @@ in §7.
   privacy page. Most sites get this wrong.
 - **`prefers-reduced-motion` is respected**, focus rings are visible, and the theme toggle exposes
   `aria-pressed`.
-- **The privacy policy is unusually good** — specific about `api.aladhan.com`, local storage and
+- **The privacy policy is unusually good**: specific about `api.aladhan.com`, local storage and
   the absence of a location permission. It is also the URL you need for the Play Console listing.
 
 ### The five things that matter most
 
-1. **Canonical, OG images, sitemap and robots pointed at a dead host** — fixed in round 1.
-2. **One page was trying to rank for four unrelated products** — fixed in round 2: four app
-   pages, 650–970 words each, interlinked from the hub.
-3. **Namaaz Reminder had no working download anywhere on the site** — the broken links are gone,
+1. **Canonical, OG images, sitemap and robots pointed at a dead host**: fixed in round 1.
+2. **One page was trying to rank for four unrelated products**: fixed in round 2: four app
+   pages, 650-970 words each, interlinked from the hub.
+3. **Namaaz Reminder had no working download anywhere on the site**: the broken links are gone,
    but the app still needs a public home (Play listing or a public repo). This is the one
    product-level gap left.
-4. **No Search Console, no Bing property**, so nothing is submitted or measurable — needs your
+4. **No Search Console, no Bing property**, so nothing is submitted or measurable - needs your
    account; see §7.
-5. **The brand is three names** — "Just Apps", "Just Simple Apps", and the repo name. The markup
+5. **The brand is three names**: "Just Apps", "Just Simple Apps", and the repo name. The markup
    now carries `alternateName` for both, but you should pick one for the store listing.
 
 ---
@@ -139,11 +139,11 @@ in §7.
 
 | URL | Response at audit time |
 | --- | --- |
-| `https://www.justsimpleapps.online/` | 200 — the real site |
+| `https://www.justsimpleapps.online/` | 200 - the real site |
 | `https://justsimpleapps.online/` | 308 → `www` |
-| `https://namaaz-reminder.vercel.app/` | 200 — Vercel production alias, same HTML |
-| `https://owaiskhan-ash.github.io/Namaaz-Reminder/` | **404 — "There isn't a GitHub Pages site here"** |
-| `https://github.com/owaiskhan-ash/Namaaz-Reminder` | **404 — repository is private** |
+| `https://namaaz-reminder.vercel.app/` | 200 - Vercel production alias, same HTML |
+| `https://owaiskhan-ash.github.io/Namaaz-Reminder/` | **404 - "There isn't a GitHub Pages site here"** |
+| `https://github.com/owaiskhan-ash/Namaaz-Reminder` | **404 - repository is private** |
 
 Ten absolute URLs in `docs/index.html` used the `github.io` host: the canonical, `og:url`,
 `og:image`, `twitter:image`, and every `@id`/`url`/`logo` in the JSON-LD graph. `robots.txt`
@@ -171,7 +171,7 @@ If Search Console ever shows `github.io` URLs, treat them as noise, not as a pro
 
 At the audit, the Namaaz Reminder card's **Download** and **GitHub** buttons, the screenshot
 link, the footer link, the privacy-page button and the privacy header CTA all pointed at
-`github.com/owaiskhan-ash/Namaaz-Reminder/...`, which returns 404 to anyone not signed in — the
+`github.com/owaiskhan-ash/Namaaz-Reminder/...`, which returns 404 to anyone not signed in - the
 repository is private. It was the highest-intent click on the page and it failed silently. The
 other three apps are public and their links resolve (verified: `ScreenTime-Reminder@apk-latest`,
 `Subscription-Tracker@v1.1.0`, `vaccine-Tracker@v1.0`).
@@ -204,32 +204,32 @@ not advertise one either.
 | C1 | Canonical, `og:url`, OG/Twitter images on a 404 host | Critical | **Fixed** |
 | C2 | `robots.txt` sitemap line on a 404 host | High | **Fixed** |
 | C3 | `sitemap.xml` URLs on a 404 host, no `lastmod` | High | **Fixed** |
-| C4 | Three indexable hostnames (`www`, `vercel.app`, preview aliases) serving identical HTML | Medium | **Fixed** — `vercel.json` 308s `namaaz-reminder.vercel.app` to `www` |
-| C5 | `.html` URLs create `/privacy` vs `/privacy.html` ambiguity | Low | **Fixed** — `cleanUrls` + extensionless canonical |
+| C4 | Three indexable hostnames (`www`, `vercel.app`, preview aliases) serving identical HTML | Medium | **Fixed**: `vercel.json` 308s `namaaz-reminder.vercel.app` to `www` |
+| C5 | `.html` URLs create `/privacy` vs `/privacy.html` ambiguity | Low | **Fixed**: `cleanUrls` + extensionless canonical |
 | C6 | No `404.html`, so a miss returns Vercel's unbranded page | Low | **Fixed** |
 | C7 | No Search Console / Bing Webmaster verification | High | Open |
-| C8 | AI crawlers were allowed but not named, so a future CDN rule could block them unnoticed | Low | **Fixed** — explicit allow list |
-| C9 | GitHub Pages leftovers (`.nojekyll`, `github.io` URLs) | Low | Partly fixed — `.nojekyll` is harmless, URLs corrected |
-| C10 | Preview deployments are `noindex` by Vercel default | Info | OK — leave as is |
+| C8 | AI crawlers were allowed but not named, so a future CDN rule could block them unnoticed | Low | **Fixed**: explicit allow list |
+| C9 | GitHub Pages leftovers (`.nojekyll`, `github.io` URLs) | Low | Partly fixed - `.nojekyll` is harmless, URLs corrected |
+| C10 | Preview deployments are `noindex` by Vercel default | Info | OK - leave as is |
 
 `robots.txt` and `sitemap.xml` are served from the same directory as the site, so they were
-live on the correct host all along — they just advertised the wrong one.
+live on the correct host all along - they just advertised the wrong one.
 
 ### 3.2 On-page and content
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
-| O1 | `<h1>` was "Useful apps for everyday life." — no product, platform or intent keyword | High | **Fixed** — "Free Android apps, quietly made." |
-| O2 | One URL targeted four unrelated intents (prayer, wellbeing, finance, health) | Critical | **Fixed** — four app pages, §5 |
-| O3 | ~599 visible words on the only page | High | **Fixed** — 746 on the hub, 654–972 per app page |
-| O4 | Internal links were hash anchors only, with no crawlable page-level structure | High | **Fixed** — five pages, every card links to its app page |
-| O5 | Brand inconsistency: **Just Apps**, **Just Simple Apps**, repo **Namaaz-Reminder** | High | Partly fixed (`alternateName`) — still needs one decision |
-| O6 | Homepage had no "last updated" or authorship signal | Medium | **Fixed** — About section with review date |
-| O7 | Nav links disappeared below 940 px with no replacement menu | Medium | **Fixed** — `nav.js` + ☰ toggle |
-| O8 | Alt text is genuinely good — descriptive on screenshots, empty on decorative icons | — | OK |
-| O9 | Titles / descriptions are well-sized and unique per page | — | OK (mirrored to the privacy page) |
+| O1 | `<h1>` was "Useful apps for everyday life." - no product, platform or intent keyword | High | **Fixed**: "Free Android apps, quietly made." |
+| O2 | One URL targeted four unrelated intents (prayer, wellbeing, finance, health) | Critical | **Fixed**: four app pages, §5 |
+| O3 | ~599 visible words on the only page | High | **Fixed**: 746 on the hub, 654-972 per app page |
+| O4 | Internal links were hash anchors only, with no crawlable page-level structure | High | **Fixed**: five pages, every card links to its app page |
+| O5 | Brand inconsistency: **Just Apps**, **Just Simple Apps**, repo **Namaaz-Reminder** | High | Partly fixed (`alternateName`) - still needs one decision |
+| O6 | Homepage had no "last updated" or authorship signal | Medium | **Fixed**: About section with review date |
+| O7 | Nav links disappeared below 940 px with no replacement menu | Medium | **Fixed**: `nav.js` + ☰ toggle |
+| O8 | Alt text is genuinely good - descriptive on screenshots, empty on decorative icons | None | OK |
+| O9 | Titles / descriptions are well-sized and unique per page | None | OK (mirrored to the privacy page) |
 
-The page is a **collection landing page**, which is fine as a brand home — but it is not a
+The page is a **collection landing page**, which is fine as a brand home - but it is not a
 ranking page. Nobody searches "useful apps for everyday life". They search "namaz time app",
 "screen time reminder android", "subscription tracker app" and "baby vaccine tracker India".
 Right now none of those queries has a page to land on.
@@ -238,13 +238,13 @@ Right now none of those queries has a page to land on.
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
-| S1 | FAQ `acceptedAnswer` for Vaccine Routine did not match the visible answer (curly apostrophe in "India’s") | Medium | **Fixed** — all 7 answers now match the page byte-for-byte |
-| S2 | `SoftwareApplication` had no `offers`, so it could not qualify for a Software App rich result | High | **Fixed** — `offers.price: 0`, `priceCurrency: INR` |
+| S1 | FAQ `acceptedAnswer` for Vaccine Routine did not match the visible answer (curly apostrophe in "India’s") | Medium | **Fixed**: all 7 answers now match the page byte-for-byte |
+| S2 | `SoftwareApplication` had no `offers`, so it could not qualify for a Software App rich result | High | **Fixed**: `offers.price: 0`, `priceCurrency: INR` |
 | S3 | No stable `@id`s, no `image`/`screenshot`, no `publisher`, no `featureList` | Medium | **Fixed** |
-| S4 | `url` on each app pointed off-site to GitHub (and 404 for Namaaz) | Medium | **Fixed** — on-page anchors; `downloadUrl` kept only where it resolves |
-| S5 | Privacy page had no canonical, no social metadata and no structured data | Medium | **Fixed** — `WebPage` + `BreadcrumbList` |
+| S4 | `url` on each app pointed off-site to GitHub (and 404 for Namaaz) | Medium | **Fixed**: on-page anchors; `downloadUrl` kept only where it resolves |
+| S5 | Privacy page had no canonical, no social metadata and no structured data | Medium | **Fixed**: `WebPage` + `BreadcrumbList` |
 | S6 | No `WebPage`/`speakable` node on home | Low | **Fixed** |
-| S7 | No `aggregateRating` | Info | Correct to omit — see below |
+| S7 | No `aggregateRating` | Info | Correct to omit - see below |
 
 Two things worth knowing before you spend more time on schema:
 
@@ -261,12 +261,12 @@ Two things worth knowing before you spend more time on schema:
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
-| A1 | No entity clarity: brand, GitHub account and app names do not corroborate each other | High | Partly fixed — `Organization` now has `alternateName`, `slogan`, `logo` as `ImageObject`, `sameAs` |
-| A2 | Nothing quotable in depth | High | **Fixed** — calculation, reminders and privacy detail per app page |
-| A3 | Medical-adjacent content (vaccine schedule) with no named author or reviewer | Medium | Partly fixed — disclaimer added; a named author is still needed |
-| A4 | No visible freshness signal | Medium | **Fixed** — "Last reviewed" on the hub |
+| A1 | No entity clarity: brand, GitHub account and app names do not corroborate each other | High | Partly fixed - `Organization` now has `alternateName`, `slogan`, `logo` as `ImageObject`, `sameAs` |
+| A2 | Nothing quotable in depth | High | **Fixed**: calculation, reminders and privacy detail per app page |
+| A3 | Medical-adjacent content (vaccine schedule) with no named author or reviewer | Medium | Partly fixed - disclaimer added; a named author is still needed |
+| A4 | No visible freshness signal | Medium | **Fixed**: "Last reviewed" on the hub |
 | A5 | AI crawlers were allowed but unnamed in `robots.txt` | Low | **Fixed** |
-| A6 | No `llms.txt` | Low | **Added** — low yield, see the caveat below |
+| A6 | No `llms.txt` | Low | **Added**: low yield, see the caveat below |
 | A7 | Off-site corroboration is thin: one public README links to the site, the GitHub profile has no name, bio or website | High | Open |
 
 **On `llms.txt`:** it is cheap and harmless, so `docs/llms.txt` now exists, but the evidence
@@ -278,13 +278,13 @@ levers that do work are A1, A2, A3, A7 and the per-app pages in §5.
 **On being quoted by AI:** answer engines retrieve passages, not pages. They reward (a) a clear
 entity, (b) one fact per sentence with a number or a name, and (c) pages that answer one
 question completely. The current 599-word page is a brochure; it gives a model very little to
-cite beyond "four free apps with no ads". The privacy page is actually closer to what works —
-specific, factual, quotable — which is why it is worth turning each app into its own page.
+cite beyond "four free apps with no ads". The privacy page is actually closer to what works -
+specific, factual, quotable - which is why it is worth turning each app into its own page.
 
 ### 3.5 Performance
 
 Measured by byte weight, not field data (Lighthouse is unavailable in this environment and the
-PageSpeed Insights API quota was exhausted — see §9).
+PageSpeed Insights API quota was exhausted - see §9).
 
 | Metric | Start | Now (round 4 re-measure) |
 | --- | --- | --- |
@@ -293,26 +293,26 @@ PageSpeed Insights API quota was exhausted — see §9).
 | JS (`theme.js` + `nav.js` + `motion.js`) | 8.4 KB raw / 2.9 KB gzip | 15.2 KB raw / **4.7 KB gzip** |
 | Blocking first paint (HTML + CSS + theme.js) | ~67 KB raw / ~15 KB gzip | ~149 KB raw / **~29 KB gzip** |
 | Images referenced by a full scroll | 479 KB | **~300 KB** (WebP + `srcset`) |
-| App pages | — | 45–49 KB raw / **~10–11 KB gzip** each |
+| App pages | None | 45-49 KB raw / **~10-11 KB gzip** each |
 | Web fonts | none | 7 `@font-face` files referenced (~112 KB), plus 3 orphan woff2 (58 KB) deployed but unused |
-| Favicon SVG (`just-apps-icon.svg`) | — | 1.3 KB raw / 0.55 KB gzip — **was 617 KB raw / 467 KB gzip before round 4** |
+| Favicon SVG (`just-apps-icon.svg`) | None | 1.3 KB raw / 0.55 KB gzip - **was 617 KB raw / 467 KB gzip before round 4** |
 
 The HTML grew because round 3 bought four indexable pages' worth of entity graph, founder/FAQ
-content and the CollectionPage — round 4 added a few hundred bytes of `sameAs`/`softwareVersion`
+content and the CollectionPage - round 4 added a few hundred bytes of `sameAs`/`softwareVersion`
 parity. The favicon row is the round-4 win: every page that fetches the SVG saves 466 KB gzip.
 The blocking-paint figure is honest but dominated by the inline material textures, which are an
 art-direction decision, not a byte-tweak (see §10).
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
-| P1 | Screenshots were 4–7× the size they are displayed | Medium | **Fixed** — WebP at two widths, 708 KB → 386 KB |
-| P2 | No WebP/AVIF and no `srcset` | Medium | **Fixed** — WebP + `srcset`/`sizes` |
-| P3 | No explicit cache headers | Medium | **Fixed** — `/assets/*` is `max-age=31536000, immutable` |
-| P4 | No security headers | Low | **Fixed** — `nosniff`, `Referrer-Policy`, `Permissions-Policy`; round 4 added `frame-ancestors 'none'`, `X-Frame-Options: DENY` and HSTS |
-| P5 | `just-apps-icon.svg` embedded the full raster — 57 KB when first flagged, 617 KB (467 KB gzip) by round 4 | Low | **Fixed (round 4)** — replaced with a hand-authored 1.3 KB vector; the icon pipeline now copies `design/source/just-apps-icon-vector.svg` instead of re-embedding the raster |
-| P6 | ~711 KB of screenshots and icons deployed but never requested | Low | Partly fixed — originals kept as the source for the WebP variants |
+| P1 | Screenshots were 4-7× the size they are displayed | Medium | **Fixed**: WebP at two widths, 708 KB → 386 KB |
+| P2 | No WebP/AVIF and no `srcset` | Medium | **Fixed**: WebP + `srcset`/`sizes` |
+| P3 | No explicit cache headers | Medium | **Fixed**: `/assets/*` is `max-age=31536000, immutable` |
+| P4 | No security headers | Low | **Fixed**: `nosniff`, `Referrer-Policy`, `Permissions-Policy`; round 4 added `frame-ancestors 'none'`, `X-Frame-Options: DENY` and HSTS |
+| P5 | `just-apps-icon.svg` embedded the full raster - 57 KB when first flagged, 617 KB (467 KB gzip) by round 4 | Low | **Fixed (round 4)**: replaced with a hand-authored 1.3 KB vector; the icon pipeline now copies `design/source/just-apps-icon-vector.svg` instead of re-embedding the raster |
+| P6 | ~711 KB of screenshots and icons deployed but never requested | Low | Partly fixed - originals kept as the source for the WebP variants |
 | P7 | Images had no intrinsic `width`/`height` | Low | **Fixed** |
-| P8 | `theme.js` blocks rendering | Info | Intentional — 1.9 KB, prevents a theme flash; leave it |
+| P8 | `theme.js` blocks rendering | Info | Intentional - 1.9 KB, prevents a theme flash; leave it |
 
 Because the container reserves a fixed 270 px height for previews, CLS was already near zero;
 the intrinsic dimensions are belt-and-braces. The image work is done: the four screenshot sets are
@@ -323,16 +323,16 @@ now WebP at two widths, so a phone downloads the 400 px variant for a ~210 px sl
 
 | ID | Finding | Severity | Status |
 | --- | --- | --- | --- |
-| X1 | Light theme `--muted` (#7A7A7C) on #E4E4E6 was **3.37:1**, failing WCAG AA for the 11–12.5 px text that uses it | High | **Fixed** — #5C5C60, now **5.24:1** on `--bg`, 5.7:1 on cards, 6.1:1 on hover |
+| X1 | Light theme `--muted` (#7A7A7C) on #E4E4E6 was **3.37:1**, failing WCAG AA for the 11-12.5 px text that uses it | High | **Fixed**: #5C5C60, now **5.24:1** on `--bg`, 5.7:1 on cards, 6.1:1 on hover |
 | X2 | No skip link; keyboard users tab through the nav on every page | Medium | **Fixed** |
 | X3 | Footer links were ~21 px tall, under the 24×24 px target minimum | Low | **Fixed** |
 | X4 | `cursor: none` replaces the pointer with an 11 px dot and removes the text I-beam on every hoverable element | Medium | Open |
 | X5 | Wheel events are hijacked and `preventDefault`ed for inertia scrolling | Medium | Open |
-| X6 | Nav links `display: none` under 940 px, with no hamburger | Medium | **Fixed** — accessible disclosure menu |
-| X7 | `:focus-visible` rings, reduced-motion handling, `aria-pressed`, native disclosure widgets | — | OK |
-| X8 | Heading order is correct; landmarks were missing labels | Low | **Fixed** — `<main id="main">`, `aria-label` on navs |
+| X6 | Nav links `display: none` under 940 px, with no hamburger | Medium | **Fixed**: accessible disclosure menu |
+| X7 | `:focus-visible` rings, reduced-motion handling, `aria-pressed`, native disclosure widgets | None | OK |
+| X8 | Heading order is correct; landmarks were missing labels | Low | **Fixed**: `<main id="main">`, `aria-label` on navs |
 
-X4 and X5 are design choices, not bugs, so I left them alone — but both are genuine usability
+X4 and X5 are design choices, not bugs, so I left them alone - but both are genuine usability
 risks. Removing the text cursor in particular disorients low-vision users and anyone who relies
 on the I-beam to know where they can type or select. If the ring is kept, apply it only to the
 decorative accent and keep `cursor: auto` on text.
@@ -343,10 +343,10 @@ decorative accent and keep `cursor: auto` on text.
 | --- | --- | --- | --- |
 | M1 | No analytics. You cannot see traffic, sources, or which app card gets clicked | High | Open |
 | M2 | No Search Console / Bing Webmaster property, no sitemap submission, no IndexNow | High | Open |
-| M3 | GitHub repo `homepage` points at `namaaz-reminder.vercel.app`, not the canonical domain | Low | Open — one command in §7 |
+| M3 | GitHub repo `homepage` points at `namaaz-reminder.vercel.app`, not the canonical domain | Low | Open - one command in §7 |
 | M4 | GitHub profile has no name, bio or website; `public_repos: 5` | Medium | Open |
 | M5 | Only 1 of 3 public repos links to the site | Medium | Open |
-| M6 | No Play Store listing yet — the single strongest entity and backlink signal available to you | High | Open |
+| M6 | No Play Store listing yet - the single strongest entity and backlink signal available to you | High | Open |
 | M7 | No inbound links found in the search index | High | Open |
 | M8 | Vercel Web Analytics and Speed Insights are provisioned but disabled/empty | Info | Open |
 
@@ -373,7 +373,7 @@ unchanged; the H1 is the only visible copy change on the landing page.
 | `docs/vercel.json` | `cleanUrls`, `trailingSlash: false`, 308 from the `vercel.app` alias to the canonical host, immutable asset caching, security headers |
 | `docs/404.html` | Branded, `noindex` 404 page that routes visitors back to the collection or the policy |
 | `docs/site.webmanifest` | Installable name, colours and icons |
-| `docs/llms.txt` | Machine-readable summary of the collection (low yield — see §3.4) |
+| `docs/llms.txt` | Machine-readable summary of the collection (low yield - see §3.4) |
 | `README.md` | Canonical-host note, page table and generator instructions |
 | `docs/namaaz-reminder.html` | **New.** App page: 972 words, 6 FAQs, `SoftwareApplication` + `WebPage` + `BreadcrumbList` + `FAQPage` |
 | `docs/screen-time-reminder.html` | **New.** 663 words, 5 FAQs, download goes to the working GitHub release |
@@ -393,13 +393,13 @@ unchanged; the H1 is the only visible copy change on the landing page.
 | `design/seo_check.py` | **New.** SEO/AISO validator, exit 1 on any regression |
 | `.github/workflows/seo-check.yml` | **New.** CI job running the validator on site changes |
 
-**Validation run:** `html-validate` (recommended preset) — clean; JSON-LD parses and the FAQ
+**Validation run:** `html-validate` (recommended preset) - clean; JSON-LD parses and the FAQ
 schema now matches the visible text exactly; `sitemap.xml` and the manifest parse; every
 internal link resolves; every image has an `alt`.
 
 ---
 
-## 5. Page architecture and keyword plan — built
+## 5. Page architecture and keyword plan: built
 
 Round 2 created the hub-and-spoke structure this section originally proposed. The home page is
 the hub; each app has its own page and its own intent cluster.
@@ -407,14 +407,14 @@ the hub; each app has its own page and its own intent cluster.
 | URL | Intent cluster | `<title>` (length) | `<h1>` |
 | --- | --- | --- | --- |
 | `/` | brand + "free android apps" + collection terms | Free Android Apps: Prayer Times, Reminders \| Just Apps (54, trimmed in round 4) | Free Android apps, quietly made. |
-| `/namaaz-reminder` | namaz / prayer times app India, adhan reminder, offline prayer times | Namaaz Reminder — Prayer Times for India \| Just Apps (52) | Namaaz Reminder: prayer times and a countdown to the next salah. |
-| `/screen-time-reminder` | screen time reminder Android, break reminder app | Screen Time Reminder — Break Reminder \| Just Apps (49) | Screen Time Reminder: a gentle nudge to look up from your phone. |
-| `/subscription-tracker` | subscription tracker, recurring bills tracker | Subscription Tracker — Recurring Bills \| Just Apps (50) | Subscription Tracker: every subscription and recurring bill in one place. |
-| `/vaccine-routine` | baby vaccine tracker India, vaccination record | Vaccine Routine — Baby Vaccine Log \| Just Apps (46) | Vaccine Routine: a calm, offline vaccine log for little ones. |
+| `/namaaz-reminder` | namaz / prayer times app India, adhan reminder, offline prayer times | Namaaz Reminder: Prayer Times for India \| Just Apps (52) | Namaaz Reminder: prayer times and a countdown to the next salah. |
+| `/screen-time-reminder` | screen time reminder Android, break reminder app | Screen Time Reminder: Break Reminder \| Just Apps (49) | Screen Time Reminder: a gentle nudge to look up from your phone. |
+| `/subscription-tracker` | subscription tracker, recurring bills tracker | Subscription Tracker: Recurring Bills \| Just Apps (50) | Subscription Tracker: every subscription and recurring bill in one place. |
+| `/vaccine-routine` | baby vaccine tracker India, vaccination record | Vaccine Routine: Baby Vaccine Log \| Just Apps (46) | Vaccine Routine: a calm, offline vaccine log for little ones. |
 
 Each page carries a one-sentence answer at the top (the passage an AI answer engine is most
-likely to lift), 3–3 screenshots with captions, what it does, how it works, a privacy table,
-compatibility facts, 5–6 FAQs that match their `FAQPage` markup exactly, and links to the other
+likely to lift), 3-3 screenshots with captions, what it does, how it works, a privacy table,
+compatibility facts, 5-6 FAQs that match their `FAQPage` markup exactly, and links to the other
 three apps.
 
 **Keyword caveat, repeated:** there was no keyword-volume tool in this environment. These are
@@ -426,7 +426,7 @@ lowest-CTR pages first.
 
 - **A city page experiment** is *not* recommended: programmatically generating 500 "prayer times
   in <city>" pages with no unique data is a doorway-page risk, not a ranking strategy.
-- **One honest article** — "Why a prayer-time app needs no location permission" — is worth more
+- **One honest article**: "Why a prayer-time app needs no location permission" - is worth more
   than twenty directory listings, and it is a story only you can tell.
 - **The vaccine page** is the one that needs an author. Add a line naming who writes and reviews
   it, even if that is "Owais Khan, Mumbai". E-E-A-T for health-adjacent content is not a
@@ -450,14 +450,14 @@ life.*, described a mood rather than a product and shared no phrase with the tit
 | Page | Title | Length |
 | --- | --- | --- |
 | `/` | Free Android Apps: Prayer Times, Reminders \| Just Apps | 54 |
-| `/namaaz-reminder` | Namaaz Reminder — Prayer Times for India \| Just Apps | 52 |
-| `/screen-time-reminder` | Screen Time Reminder — Break Reminder \| Just Apps | 49 |
-| `/subscription-tracker` | Subscription Tracker — Recurring Bills \| Just Apps | 50 |
-| `/vaccine-routine` | Vaccine Routine — Baby Vaccine Log \| Just Apps | 46 |
+| `/namaaz-reminder` | Namaaz Reminder: Prayer Times for India \| Just Apps | 52 |
+| `/screen-time-reminder` | Screen Time Reminder: Break Reminder \| Just Apps | 49 |
+| `/subscription-tracker` | Subscription Tracker: Recurring Bills \| Just Apps | 50 |
+| `/vaccine-routine` | Vaccine Routine: Baby Vaccine Log \| Just Apps | 46 |
 | `/privacy` | Privacy policy: Namaaz Reminder \| Just Apps | 43 |
 
 Round 4 trimmed the home title from 61 to 54 characters to remove the SERP-truncation risk
-(600 px ≈ 58–62 chars depending on font). The dropped term was "Bills" — it stays in the
+(600 px ≈ 58-62 chars depending on font). The dropped term was "Bills" - it stays in the
 collection copy, the meta description and `/subscription-tracker`'s own title, while the home
 keeps the two higher-value targets, "free android apps" and "prayer times".
 
@@ -482,17 +482,17 @@ what the page is for, not a markup fix.
 - [x] `llms.txt`, web manifest, Apple touch icon
 - [x] README documents the canonical host and the page generator
 
-### Now — this week (needs your accounts, ~40 minutes)
+### Now: this week (needs your accounts, ~40 minutes)
 
 1. **Deploy.** Push the branch, confirm the Vercel build, then run §8.
 2. **Decide the Namaaz download.** Either make the repository public (one setting, unlocks the
    existing release links) or publish the Play listing. Then replace the “Coming to Google Play”
    pill on `/namaaz-reminder` with a real button, add `downloadUrl` to that page's schema, and
    restore a download button on the home card.
-3. **Search Console** — add a *Domain* property for `justsimpleapps.online`, verify by DNS
+3. **Search Console**: add a *Domain* property for `justsimpleapps.online`, verify by DNS
    (Vercel can add the TXT record), submit `https://www.justsimpleapps.online/sitemap.xml`.
-4. **Bing Webmaster Tools** — import from Search Console; this also feeds ChatGPT's search index.
-5. **GitHub identity** — the profile has no name, bio or website, and two of the three public
+4. **Bing Webmaster Tools**: import from Search Console; this also feeds ChatGPT's search index.
+5. **GitHub identity**: the profile has no name, bio or website, and two of the three public
    repos do not link to the site:
 
    ```bash
@@ -500,13 +500,13 @@ what the page is for, not a markup fix.
      -f homepage='https://www.justsimpleapps.online/'
    gh api -X PATCH user \
      -f name='Owais Khan' \
-     -f bio='Free, quiet Android apps — prayer times, screen breaks, subscriptions, vaccine records.' \
+     -f bio='Free, quiet Android apps - prayer times, screen breaks, subscriptions, vaccine records.' \
      -f blog='https://www.justsimpleapps.online/'
    ```
 6. **Pick one brand.** “Just Apps” and “Just Simple Apps” currently compete. The markup carries
    both (`alternateName`), but the Play listing, README and domain should agree.
 
-### Next — 30 days
+### Next: 30 days
 
 7. Publish the Play listing for Namaaz Reminder and add a “Get it on Google Play” button plus
    `sameAs` to the store listing.
@@ -516,10 +516,10 @@ what the page is for, not a markup fix.
 10. Review Search Console queries after four weeks and rewrite the two pages with the worst
     click-through.
 
-### Later — 90 days
+### Later: 90 days
 
 11. One editorial article (the location-permission story) and, if it earns a link, another.
-12. Hindi or Urdu versions of the Namaaz page with proper `hreflang` — only if you can maintain
+12. Hindi or Urdu versions of the Namaaz page with proper `hreflang` - only if you can maintain
     them. Machine translation is worse than no translation.
 13. Revisit the custom cursor: it removes the text I-beam. The dot is charming; the trade-off is
     not worth it for low-vision visitors.
@@ -541,12 +541,12 @@ curl -s https://www.justsimpleapps.online/robots.txt
 
 Markup and previews:
 
-- <https://validator.schema.org/> — paste the page source.
-- <https://search.google.com/test/rich-results> — confirm Software App + Breadcrumbs.
-- <https://developers.facebook.com/tools/debug/> and the LinkedIn Post Inspector — confirm the
+- <https://validator.schema.org/> - paste the page source.
+- <https://search.google.com/test/rich-results> - confirm Software App + Breadcrumbs.
+- <https://developers.facebook.com/tools/debug/> and the LinkedIn Post Inspector - confirm the
   1200×630 image resolves from the canonical host.
 - Send the URL to yourself on WhatsApp and check the card renders.
-- <https://pagespeed.web.dev/> — record mobile LCP/CLS/INP as the baseline for `/` and
+- <https://pagespeed.web.dev/> - record mobile LCP/CLS/INP as the baseline for `/` and
   `/namaaz-reminder`.
 - Check the four new routes render with the right canonical:
   `/namaaz-reminder`, `/screen-time-reminder`, `/subscription-tracker`, `/vaccine-routine`.
@@ -585,7 +585,7 @@ Search:
 
 ---
 
-## 10. Round 4 — quick wins (2026-10-25)
+## 10. Round 4: quick wins (2026-10-25)
 
 Scope: the seven ranked weaknesses reported at the end of round 3's follow-up audit, minus the
 items that need product decisions. What could be fixed in the repo was fixed; what could not is
@@ -595,18 +595,18 @@ recorded below with the exact payload so it can be applied later.
 
 | # | Fix | Evidence |
 | --- | --- | --- |
-| 1 | **Favicon SVG** — the 617,043 B PNG-in-SVG wrapper was replaced by a hand-authored 1,348 B vector (`docs/assets/just-apps-icon.svg`, source of truth `design/source/just-apps-icon-vector.svg`, verified against the raster at 256 px and 32 px). The icon pipeline (`design/build_site_icons.py`) now copies that vector instead of re-embedding the raster, so a rerun cannot regress it. | gzip 466.5 KB → 0.55 KB on every page that fetches the SVG; all 7 pages keep their `rel="icon" type="image/svg+xml"` link |
-| 2 | **Schema split closed** — home `ItemList` `@id`s now use the canonical fragment form `…/slug#software` (trailing slash dropped on the four app entries); home items gained the `sameAs` their app pages already had (plus Water/Steps → their public repos); Vaccine gained `softwareVersion: "1.0"` on both sides, matching release tag `v1.0` ("Vaccine Routine 1.0"). | regenerating the app pages was idempotent — only `vaccine-routine.html` changed (+1 line) |
-| 3 | **Regression guard** — `design/seo_check.py` grew `check_itemlist_parity()`: for the four paged apps, the home `ItemList` entry must equal the page's `SoftwareApplication` on `@id`, `softwareVersion`, `downloadUrl` and `sameAs`. | negative test: re-introducing the slash bug fails with `ItemList[…].@id = … but … has …`; clean run passes (6 pages + sitemap + robots + llms.txt) |
-| 4 | **README version drift** — 1.4.0 → 1.6.2, `versionCode` 6 → 10, adb artifact → `NamaazReminder-1.6.2-release.apk`, matching `app/build.gradle.kts`. | `README.md` lines 14 and 113 |
-| 5 | **Headers** — CSP gained `frame-ancestors 'none'`, plus `X-Frame-Options: DENY` and `Strict-Transport-Security: max-age=63072000` (deliberately no `includeSubDomains` — unknown subdomains). | `docs/vercel.json` |
-| 6 | **Home title** — trimmed 61 → 54 chars, "Free Android Apps: Prayer Times, Reminders \| Just Apps", mirrored at `<title>`, `og:title`, `twitter:title` and the `CollectionPage` name. | all four mirrors identical; seo_check's 20–65 gate passes |
-| 7 | **Stale audit rows** — §3.5 re-measured (HTML/CSS/JS/app pages), the "no web fonts" claim corrected (7 faces exist), P4/P5 status updated, titles table re-measured. | this document |
+| 1 | **Favicon SVG**: the 617,043 B PNG-in-SVG wrapper was replaced by a hand-authored 1,348 B vector (`docs/assets/just-apps-icon.svg`, source of truth `design/source/just-apps-icon-vector.svg`, verified against the raster at 256 px and 32 px). The icon pipeline (`design/build_site_icons.py`) now copies that vector instead of re-embedding the raster, so a rerun cannot regress it. | gzip 466.5 KB → 0.55 KB on every page that fetches the SVG; all 7 pages keep their `rel="icon" type="image/svg+xml"` link |
+| 2 | **Schema split closed**: home `ItemList` `@id`s now use the canonical fragment form `…/slug#software` (trailing slash dropped on the four app entries); home items gained the `sameAs` their app pages already had (plus Water/Steps → their public repos); Vaccine gained `softwareVersion: "1.0"` on both sides, matching release tag `v1.0` ("Vaccine Routine 1.0"). | regenerating the app pages was idempotent - only `vaccine-routine.html` changed (+1 line) |
+| 3 | **Regression guard**: `design/seo_check.py` grew `check_itemlist_parity()`: for the four paged apps, the home `ItemList` entry must equal the page's `SoftwareApplication` on `@id`, `softwareVersion`, `downloadUrl` and `sameAs`. | negative test: re-introducing the slash bug fails with `ItemList[…].@id = … but … has …`; clean run passes (6 pages + sitemap + robots + llms.txt) |
+| 4 | **README version drift**: 1.4.0 → 1.6.2, `versionCode` 6 → 10, adb artifact → `NamaazReminder-1.6.2-release.apk`, matching `app/build.gradle.kts`. | `README.md` lines 14 and 113 |
+| 5 | **Headers**: CSP gained `frame-ancestors 'none'`, plus `X-Frame-Options: DENY` and `Strict-Transport-Security: max-age=63072000` (deliberately no `includeSubDomains` - unknown subdomains). | `docs/vercel.json` |
+| 6 | **Home title**: trimmed 61 → 54 chars, "Free Android Apps: Prayer Times, Reminders \| Just Apps", mirrored at `<title>`, `og:title`, `twitter:title` and the `CollectionPage` name. | all four mirrors identical; seo_check's 20-65 gate passes |
+| 7 | **Stale audit rows**: §3.5 re-measured (HTML/CSS/JS/app pages), the "no web fonts" claim corrected (7 faces exist), P4/P5 status updated, titles table re-measured. | this document |
 
 ### 10.2 Blocked: GitHub profile and repo metadata
 
 `gh api` PATCH attempts authenticated as `owaiskhan-ash` returned **403
-`Resource not accessible by integration`** for both `PATCH /user` and `PATCH /repos/…` — reads
+`Resource not accessible by integration`** for both `PATCH /user` and `PATCH /repos/…` - reads
 work, writes do not; the connection lacks write scope. Reconnect GitHub in Arena (or apply
 manually) and re-run with these exact payloads:
 
@@ -614,11 +614,11 @@ manually) and re-run with these exact payloads:
 
 - `name`: `Owais Khan`
 - `blog`: `https://www.justsimpleapps.online`
-- `bio`: `Maker of Just Apps — six free, quiet Android apps. No ads, no accounts, no tracking.`
+- `bio`: `Maker of Just Apps - six free, quiet Android apps. No ads, no accounts, no tracking.`
 
-**Repos (`PATCH /repos/owaiskhan-ash/<name>`)** — homepage set on all six; description set where
+**Repos (`PATCH /repos/owaiskhan-ash/<name>`)**: homepage set on all six; description set where
 the current one is weak (Subscription Tracker keeps its existing text and only gains the brand
-suffix — it is already good):
+suffix - it is already good):
 
 | Repo | homepage | description |
 | --- | --- | --- |
@@ -633,17 +633,17 @@ The Namaaz repo's homepage is currently the stale `namaaz-reminder.vercel.app` a
 `vercel.json` redirect already points that host at the canonical domain, but the repo field
 should be updated regardless.
 
-### 10.3 The seven reported weaknesses — status after round 4
+### 10.3 The seven reported weaknesses: status after round 4
 
 | # | Weakness (as reported, ranked by impact) | Status |
 | --- | --- | --- |
-| 1 | **Conversion dead-ends** — Namaaz page has no obtain path (no Play, private repo, no APK); home hero has zero links; Water/Steps cards are GitHub-only; 5 of 6 apps are sideload-only, so most visitors install nothing | **Open** — needs a distribution decision (Play listing, public APK hosting, or consciously accepting GitHub-only) |
-| 2 | **~1.4 MB first visit, ~90 % decorative** — 752 KB of material textures (610 KB of it eagerly loaded by non-lazy inline SVG `<image>`, not reducible by `loading=lazy`), ~112 KB fonts, `feDropShadow`/`feGaussianBlur` filters; no preload/preconnect | **Half fixed** — the favicon (467 KB gzip) was the easy half; the textures need art-direction decisions (fewer leather textures, flatten filters, or ship a texture-free light path) |
-| 3 | **Off-site entity empty/contradictory** — profile has no name/bio/blog, 5/5 repos had `homepage: null`, Namaaz's homepage was the stale alias, READMEs drift (fixed), backlink picture ~zero (indicative only) | **Open — blocked** by §10.2 (403); plus the four other repos' READMEs still need site links |
-| 4 | **Schema split** — `…/slug/#software` vs `…slug#software`, home items missing `sameAs`, Vaccine missing `softwareVersion` | **Fixed** (§10.1 rows 1–3) |
-| 5 | **Flying blind** — no Search Console/Bing/field CWV | **Open** — account action; Search Console would not violate the privacy page's no-analytics promise (first-party, no cookies, aggregate) |
-| 6 | **A11y X4/X5** — global `cursor: none` custom dot (kills the I-beam) and wheel-`preventDefault` scroll hijack on desktop | **Open** — needs the suggested preference-gating plus runtime testing neither the sandbox nor this audit can do |
-| 7 | **Headers/hygiene** — no frame-ancestors/XFO/HSTS, 61-char title, stale perf rows, dark-only `theme-color`, `og:locale` vs `lang`, no `twitter:site`, 3 orphan woff2 (58 KB), 404 page without meta description | **Mostly fixed** — frame-ancestors/XFO/HSTS ✓, title 54 ✓, audit rows ✓. Still open: theme-color, og:locale, twitter:site, orphan fonts, 404 description |
+| 1 | **Conversion dead-ends**: Namaaz page has no obtain path (no Play, private repo, no APK); home hero has zero links; Water/Steps cards are GitHub-only; 5 of 6 apps are sideload-only, so most visitors install nothing | **Open**: needs a distribution decision (Play listing, public APK hosting, or consciously accepting GitHub-only) |
+| 2 | **~1.4 MB first visit, ~90 % decorative**: 752 KB of material textures (610 KB of it eagerly loaded by non-lazy inline SVG `<image>`, not reducible by `loading=lazy`), ~112 KB fonts, `feDropShadow`/`feGaussianBlur` filters; no preload/preconnect | **Half fixed**: the favicon (467 KB gzip) was the easy half; the textures need art-direction decisions (fewer leather textures, flatten filters, or ship a texture-free light path) |
+| 3 | **Off-site entity empty/contradictory**: profile has no name/bio/blog, 5/5 repos had `homepage: null`, Namaaz's homepage was the stale alias, READMEs drift (fixed), backlink picture ~zero (indicative only) | **Open - blocked** by §10.2 (403); plus the four other repos' READMEs still need site links |
+| 4 | **Schema split**: `…/slug/#software` vs `…slug#software`, home items missing `sameAs`, Vaccine missing `softwareVersion` | **Fixed** (§10.1 rows 1-3) |
+| 5 | **Flying blind**: no Search Console/Bing/field CWV | **Open**: account action; Search Console would not violate the privacy page's no-analytics promise (first-party, no cookies, aggregate) |
+| 6 | **A11y X4/X5**: global `cursor: none` custom dot (kills the I-beam) and wheel-`preventDefault` scroll hijack on desktop | **Open**: needs the suggested preference-gating plus runtime testing neither the sandbox nor this audit can do |
+| 7 | **Headers/hygiene**: no frame-ancestors/XFO/HSTS, 61-char title, stale perf rows, dark-only `theme-color`, `og:locale` vs `lang`, no `twitter:site`, 3 orphan woff2 (58 KB), 404 page without meta description | **Mostly fixed**: frame-ancestors/XFO/HSTS ✓, title 54 ✓, audit rows ✓. Still open: theme-color, og:locale, twitter:site, orphan fonts, 404 description |
 
 Everything else from the report remains green and was re-verified this round: skip links ×7, no
 duplicate DOM ids, `alt`+`width`+`height` on images, one H1 per page, text-only hero LCP,
@@ -656,11 +656,11 @@ links, 0 dead anchors, 0 JSON-LD parse errors and 0 dangling `@id`s.
 
 ## 11. Sources
 
-- Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) —
+- Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) -
   <https://developers.google.com/search/blog/2023/08/howto-faq-changes>
-- Google, *Software app (SoftwareApplication) structured data* —
+- Google, *Software app (SoftwareApplication) structured data* -
   <https://developers.google.com/search/docs/appearance/structured-data/software-app>
-- Search Engine Journal, *Google drops FAQ rich results from Search* (May 2026) —
+- Search Engine Journal, *Google drops FAQ rich results from Search* (May 2026) -
   <https://www.searchenginejournal.com/google-drops-faq-rich-results-from-search/574429/>
-- Search Engine Land, *Does your website need an llms.txt file?* (2026 update) —
+- Search Engine Land, *Does your website need an llms.txt file?* (2026 update) -
   <https://searchengineland.com/guide/llms-txt>

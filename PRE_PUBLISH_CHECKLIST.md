@@ -1,7 +1,7 @@
 # Pre-publish checklist
 
 Audit of build **1.3.1** (`versionCode` 5) before the first store upload.
-Android Lint: **0 errors**, 44 warnings — 33 dependency/plugin version
+Android Lint: **0 errors**, 44 warnings; 33 dependency/plugin version
 suggestions, 9 KTX style hints, 1 target-SDK notice.
 
 ## Fixed in this pass
@@ -22,29 +22,29 @@ suggestions, 9 KTX style hints, 1 target-SDK notice.
 
 ## Must be decided before the store upload
 
-1. **Package name** — currently `com.aistudio.namaztimes.vxqpl`. The
+1. **Package name**: currently `com.aistudio.namaztimes.vxqpl`. The
    `applicationId` is permanent once published; change it now if a different
    name is wanted.
-2. **Signing key** — *done*: a dedicated upload key exists
+2. **Signing key**: *done*: a dedicated upload key exists
    (`namaaz-upload-key.jks`, alias `upload`, PKCS12, 4096-bit RSA, valid to
    2054). Add it to the repository as the `KEYSTORE_BASE64`,
-   `STORE_PASSWORD` and `KEY_PASSWORD` secrets — the workflow then builds and
+   `STORE_PASSWORD` and `KEY_PASSWORD` secrets; the workflow then builds and
    publishes a `.aab` signed with it. Until the secrets exist the workflow
    keeps signing the APKs with the committed debug key and builds **no**
    bundle, so a throwaway key can never become the Play upload key.
    Enrol in **Play App Signing** on the first upload.
-3. **Upload format** — Play accepts the **AAB** now produced by CI
+3. **Upload format**: Play accepts the **AAB** now produced by CI
    (`NamaazReminder-<version>-release.aab`), not the APK.
-4. **Exact alarms** — `SCHEDULE_EXACT_ALARM` is a restricted permission. Fill
+4. **Exact alarms**: `SCHEDULE_EXACT_ALARM` is a restricted permission. Fill
    in the *Alarms & reminders* declaration in the Play Console (prayer times
    are the core function) and make sure the in-app rationale is visible.
-5. **Data safety** — the app sends the selected city name to
+5. **Data safety**: the app sends the selected city name to
    `api.aladhan.com`, and downloads the Azaan audio from a public bucket.
    Declare this, and add a privacy policy URL.
-6. **Azaan auto-download** — the Madinah Azaan (public Supabase bucket) is
+6. **Azaan auto-download**: the Madinah Azaan (public Supabase bucket) is
    downloaded on first launch and saved to the public Ringtones collection.
    Decide whether that should stay automatic or wait for a tap.
-7. **Reminder default** — reminders fire 5 minutes *after* the prayer by
+7. **Reminder default**: reminders fire 5 minutes *after* the prayer by
    default (0 = at adhan). Confirm that is the intended behaviour.
 
 ## Nice to have, not blocking

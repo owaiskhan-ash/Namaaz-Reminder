@@ -250,7 +250,7 @@ object AzaanSoundStore {
     }.isSuccess
 
     /**
-     * FileProvider is only used for Android 7–9, where we keep audio in app-specific
+     * FileProvider is only used for Android 7-9, where we keep audio in app-specific
      * external files. Re-grant access when a channel is created (also after reboot).
      */
     private fun grantLegacyFileRead(context: Context, uri: Uri?) {

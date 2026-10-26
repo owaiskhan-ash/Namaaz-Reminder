@@ -47,7 +47,7 @@ object PrayerNotificationManager {
 
         val channelTitle = when {
             !settings.soundEnabled -> "Prayer Reminders (Silent)"
-            else -> "Prayer Reminders — ${AzaanSoundStore.soundName(settings)}"
+            else -> "Prayer Reminders: ${AzaanSoundStore.soundName(settings)}"
         }
 
         val existing = notificationManager.getNotificationChannel(channelId)

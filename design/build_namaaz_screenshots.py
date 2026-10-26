@@ -665,7 +665,7 @@ def build_cities_screen(base_home: Image.Image, grain_tile: Image.Image) -> Imag
 
     ly = sf_y1 + px(24)
     draw_tracked(d, (px(20), ly), "POPULAR CITIES", font_sans(10.5, 700), C_TEXT_SEC, tracking_dp=1.0, anchor="lm")
-    d.text((px(20), ly + px(18)), "No GPS permission — timings are fetched by city name only.", font=font_sans(11.0, 400), fill=C_TEXT_TER, anchor="lt")
+    d.text((px(20), ly + px(18)), "No GPS permission: timings are fetched by city name only.", font=font_sans(11.0, 400), fill=C_TEXT_TER, anchor="lt")
 
     cities = [
         ("Mumbai", True), ("Delhi", False), ("Hyderabad", False),

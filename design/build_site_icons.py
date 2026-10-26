@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Just Apps — site icon pipeline.
+Just Apps: site icon pipeline.
 
 The approved Just Apps "JA" artwork lives at design/source/JA-icon.png. It
 uses the same rounded block-letter composition as the Namaaz Reminder icon,
@@ -322,7 +322,7 @@ def main() -> None:
         svg_path = os.path.join(ASSETS, f"{prefix}.svg")
         if prefix == "just-apps-icon":
             # Copy the hand-authored vector favicon instead of embedding the
-            # 512px raster — that produced a ~600 KB SVG (SEO_AUDIT P5).
+            # 512px raster, which produced a ~600 KB SVG (SEO_AUDIT P5).
             # Source of truth: design/source/just-apps-icon-vector.svg.
             vector_src = os.path.join(ROOT, "design", "source",
                                       "just-apps-icon-vector.svg")

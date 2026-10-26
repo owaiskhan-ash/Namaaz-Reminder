@@ -4,7 +4,8 @@ name: SEO check
 # canonical host drift, titles/descriptions out of range, FAQ schema that no
 # longer matches the visible questions, sitemap entries without a page, dead
 # internal links or llms.txt URLs, and per-page entity graphs that stop
-# resolving on their own. Runs whenever the site or its generator changes.
+# resolving on their own, or em dashes reappearing in page copy. Runs whenever
+# the site or its generator changes.
 on:
   push:
     branches:

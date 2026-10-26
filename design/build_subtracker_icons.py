@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Subscription Tracker — web icon & Open Graph social card pipeline.
+Subscription Tracker: web icon & Open Graph social card pipeline.
 
 Derives all website icon sizes and the Open Graph card directly from the
 approved leather, suede & felt `ST.` artwork at `design/source/ST-sub-icon.png`

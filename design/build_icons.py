@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Namaaz Reminder — icon pipeline built from the original brand artwork.
+Namaaz Reminder: icon pipeline built from the original brand artwork.
 
 Source of truth: design/source/NR-icon.png (the rendered NR tile). Everything
 below is derived from it, so the app icon and the in-app header always match

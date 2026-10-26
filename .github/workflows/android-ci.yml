@@ -255,11 +255,11 @@ jobs:
           {
             echo "Namaaz Reminder APKs."
             echo
-            echo "* \`-debug.apk\` — debug build, signed with the standard Android debug key."
-            echo "* \`-release.apk\` — release build (minification off), signed with the same"
+            echo "* \`-debug.apk\`: debug build, signed with the standard Android debug key."
+            echo "* \`-release.apk\`: release build (minification off), signed with the same"
             echo "  certificate so it can upgrade the debug build in place."
             if ls apk/*.aab >/dev/null 2>&1; then
-              echo "* \`-release.aab\` — Play bundle, signed with the upload key."
+              echo "* \`-release.aab\`: Play bundle, signed with the upload key."
             fi
             echo
             echo "Install with: \`adb install -r <file>.apk\`"

@@ -348,7 +348,7 @@ fun SettingsSheet(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Plays on the Alarm stream — audible even in Silent or Vibrate mode",
+                            text = "Plays on the Alarm stream, audible even in Silent or Vibrate mode",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
