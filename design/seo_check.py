@@ -7,22 +7,25 @@ Run from the repository root (or anywhere):
 
 Exit code 0 means every check passed. The checks encode the rules the site
 already follows, so a future edit cannot quietly reintroduce the faults the
-SEO audit found: wrong canonical host, titles/descriptions out of range,
-FAQ schema drifting from the visible questions, sitemap entries pointing at
-pages that do not exist, dead links in llms.txt, or em dashes returning to
-the page copy.
+SEO audit found: wrong canonical host, a noindex directive slipping onto an
+indexable page, titles/descriptions out of range, FAQ schema drifting from the
+visible questions, stale or invalid sitemap entries, dead links in llms.txt,
+or em dashes returning to the page copy.
 """
 
 import json
 import re
 import sys
+from datetime import date, datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
+from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 BASE = "https://www.justsimpleapps.online"
+ROBOTS_META_NAMES = {"robots", "googlebot", "bingbot"}
 
 # Matches the em dash itself plus the named/numeric HTML entities that render
 # as one. chr() keeps this guard file free of the character it looks for.
@@ -59,6 +62,57 @@ def fail(msg):
 
 def norm(s):
     return " ".join((s or "").split())
+
+
+def robots_directives(content):
+    """Return normalized robots directives without substring false positives."""
+    return {
+        token.lower()
+        for token in re.split(r"[,;\s]+", content or "")
+        if token
+    }
+
+
+def robots_blocks_indexing(content):
+    """Whether a robots value explicitly excludes the page from search."""
+    return bool(robots_directives(content) & {"noindex", "none"})
+
+
+def robots_explicitly_allows_indexing(content):
+    """Require an explicit index/all directive and reject any noindex override."""
+    directives = robots_directives(content)
+    return bool(directives & {"index", "all"}) and not bool(
+        directives & {"noindex", "none"})
+
+
+def indexability_meta_errors(meta_tags):
+    """Validate general, Googlebot and Bingbot robots meta directives."""
+    robot_tags = []
+    for meta in meta_tags:
+        name = (meta.get("name") or "").strip().lower()
+        if name in ROBOTS_META_NAMES:
+            robot_tags.append((name, meta.get("content", "")))
+
+    general = [content for name, content in robot_tags if name == "robots"]
+    errors = []
+    if not general:
+        errors.append("meta robots tag is missing")
+    elif not any(robots_explicitly_allows_indexing(value) for value in general):
+        errors.append("meta robots must explicitly allow indexing")
+
+    for name, content in robot_tags:
+        if robots_blocks_indexing(content):
+            errors.append(f"meta {name} directive blocks indexing ({content!r})")
+    return errors
+
+
+def meta_blocks_indexing(meta_tags):
+    """Whether any general, Googlebot or Bingbot meta tag says noindex/none."""
+    return any(
+        (meta.get("name") or "").strip().lower() in ROBOTS_META_NAMES
+        and robots_blocks_indexing(meta.get("content", ""))
+        for meta in meta_tags
+    )
 
 
 class PageParser(HTMLParser):
@@ -181,10 +235,10 @@ def check_page(fname, canonical_url):
     elif not 70 <= len(desc) <= 170:
         fail(f"{fname}: description length {len(desc)} outside 70-170: {desc!r}")
 
-    # -- robots
-    robots = meta_content(p, name="robots") or ""
-    if "index" not in robots:
-        fail(f"{fname}: meta robots missing 'index' ({robots!r})")
+    # -- robots: exact directives matter; `noindex` contains the substring `index`
+    # and must never be mistaken for an indexing permission.
+    for error in indexability_meta_errors(p.meta):
+        fail(f"{fname}: {error}")
 
     # -- canonical / og:url
     if p.canonical != canonical_url:
@@ -268,28 +322,91 @@ def check_page(fname, canonical_url):
     return p, graphs
 
 
-def check_sitemap(index_graphs):
+def page_modified_date(fname):
+    """Read a page's WebPage/CollectionPage dateModified from its JSON-LD."""
+    p, _, _ = parse(DOCS / fname)
+    for block in p.schema_blocks:
+        try:
+            data = json.loads(block)
+        except json.JSONDecodeError:
+            continue  # check_page reports malformed structured data separately
+        for node in data.get("@graph", [data]):
+            if node.get("@type") in {"WebPage", "CollectionPage"}:
+                modified = node.get("dateModified")
+                if modified:
+                    return str(modified)
+    return None
+
+
+def parse_sitemap_lastmod(value):
+    """Parse the ISO date or datetime formats allowed by the sitemap protocol."""
+    value = (value or "").strip()
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        try:
+            return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
+        except ValueError:
+            return None
+
+
+def check_sitemap():
     path = DOCS / "sitemap.xml"
     if not path.exists():
         fail("sitemap.xml missing")
         return
-    text = path.read_text(encoding="utf-8")
-    locs = re.findall(r"<loc>(.*?)</loc>", text)
-    lastmods = re.findall(r"<lastmod>(.*?)</lastmod>", text)
-    for lm in lastmods:
-        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", lm):
-            fail(f"sitemap: bad lastmod {lm!r}")
-    expected = set(INDEXABLE.values())
-    for loc in locs:
+    try:
+        root = ET.parse(path).getroot()
+    except (ET.ParseError, OSError) as error:
+        fail(f"sitemap: invalid XML ({error})")
+        return
+
+    sitemap_namespace = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+    if root.tag != sitemap_namespace + "urlset":
+        fail("sitemap: root must be a sitemap.org urlset")
+
+    expected = {url: fname for fname, url in INDEXABLE.items()}
+    seen = set()
+    for entry in root.findall(sitemap_namespace + "url"):
+        loc_element = entry.find(sitemap_namespace + "loc")
+        lastmod_element = entry.find(sitemap_namespace + "lastmod")
+        loc = (loc_element.text or "").strip() if loc_element is not None else ""
+        lastmod = (lastmod_element.text or "").strip() if lastmod_element is not None else ""
+        if not loc:
+            fail("sitemap: <url> entry has no <loc>")
+            continue
+        if loc in seen:
+            fail(f"sitemap: duplicate loc entry: {loc}")
+        seen.add(loc)
         if not loc.startswith(BASE + "/") and loc != BASE + "/":
             fail(f"sitemap: loc off canonical host: {loc}")
         if loc not in expected:
-            fail(f"sitemap: loc has no page: {loc}")
+            fail(f"sitemap: loc has no indexable page: {loc}")
+            continue
+
+        if not lastmod:
+            fail(f"sitemap: missing lastmod for {loc}")
+            continue
+        sitemap_date = parse_sitemap_lastmod(lastmod)
+        if sitemap_date is None:
+            fail(f"sitemap: invalid lastmod {lastmod!r} for {loc}")
+            continue
+
+        page_file = DOCS / expected[loc]
+        if not page_file.exists():
+            fail(f"sitemap: indexed page file is missing: {expected[loc]}")
+            continue
+        page_date_value = page_modified_date(expected[loc])
+        page_date = parse_sitemap_lastmod(page_date_value)
+        if page_date is None:
+            fail(f"sitemap: {expected[loc]} has no valid JSON-LD dateModified")
+        elif sitemap_date != page_date:
+            fail(f"sitemap: lastmod for {loc} ({sitemap_date}) does not match "
+                 f"page dateModified ({page_date})")
+
     for url in expected:
-        if url not in locs:
+        if url not in seen:
             fail(f"sitemap: page not listed: {url}")
-    if len(set(locs)) != len(locs):
-        fail("sitemap: duplicate loc entries")
 
 
 def check_robots():
@@ -561,6 +678,8 @@ def check_404():
         fail("404.html: missing or too-short meta description")
     if not meta_content(p, prop="og:image"):
         fail("404.html: missing og:image")
+    if not meta_blocks_indexing(p.meta):
+        fail("404.html: must have a robots/googlebot noindex or none directive")
 
 
 def check_typography():
@@ -584,14 +703,8 @@ def main():
         res = check_page(fname, url)
         if res and fname == "index.html":
             index_graphs = res[1]
-    # 404: must be noindex; canonical/og:url not required on it
-    if (DOCS / "404.html").exists():
-        p, _, _ = parse(DOCS / "404.html")
-        robots = meta_content(p, name="robots") or ""
-        if "noindex" not in robots:
-            fail("404.html: must be noindex")
-
-    check_sitemap(index_graphs)
+    # 404: check_404() requires an exact noindex/none robots directive.
+    check_sitemap()
     check_robots()
     check_llms()
     check_entity_consistency(index_graphs)
@@ -610,7 +723,7 @@ def main():
             print(f"  ✗ {pr}")
         sys.exit(1)
     print(f"SEO check passed: {len(INDEXABLE)} indexable pages, "
-          f"sitemap, robots, llms.txt, entity graph all consistent.")
+          f"robots directives, sitemap dates, links and entity graphs consistent.")
 
 
 if __name__ == "__main__":

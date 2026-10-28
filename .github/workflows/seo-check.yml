@@ -1,11 +1,9 @@
 name: SEO check
 
 # Guards the static site in docs/ against the regressions the SEO audit found:
-# canonical host drift, titles/descriptions out of range, FAQ schema that no
-# longer matches the visible questions, sitemap entries without a page, dead
-# internal links or llms.txt URLs, and per-page entity graphs that stop
-# resolving on their own, or em dashes reappearing in page copy. Runs whenever
-# the site or its generator changes.
+# canonical host drift, indexability directives, sitemap freshness, title and
+# description errors, FAQ/schema mismatches, dead internal links and broken
+# entity graphs. Runs whenever the site or its generator changes.
 on:
   push:
     branches:
@@ -16,6 +14,7 @@ on:
       - 'design/build_app_pages.py'
       - 'design/build_app_og_cards.py'
       - 'design/seo_check.py'
+      - 'design/test_seo_check.py'
       - '.github/workflows/seo-check.yml'
   pull_request:
     branches:
@@ -25,6 +24,7 @@ on:
       - 'design/build_app_pages.py'
       - 'design/build_app_og_cards.py'
       - 'design/seo_check.py'
+      - 'design/test_seo_check.py'
       - '.github/workflows/seo-check.yml'
   workflow_dispatch:
 
@@ -33,11 +33,14 @@ permissions:
 
 jobs:
   seo:
-    name: Pages, schema & links
+    name: Pages, schema & indexability
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Test indexing and sitemap guards
+        run: python3 -m unittest discover -s design -p 'test_*.py'
 
       - name: Run SEO/AISO checks
         run: python3 design/seo_check.py
