@@ -1,18 +1,19 @@
 # Just Apps
 
 > Just Apps (also written Just Simple Apps) is an independent studio in Mumbai,
-> India, founded by Owais Khan. It makes seven free apps for everyday life:
+> India, founded by Owais Khan. It makes eight free apps for everyday life:
 > prayer times, screen breaks, step goals, water reminders, conversational
-> reminders, subscriptions and childhood vaccine records. None has ads,
-> accounts, analytics or tracking. The website is static HTML with no
-> third-party scripts or cookies.
+> reminders, subscriptions, childhood vaccine records and a transparent
+> Arabic-Indic clock widget. None has ads, accounts, analytics or tracking.
+> The website is static HTML with no third-party scripts or cookies.
 
-In one line: Just Apps makes seven free Android apps: prayer times, screen-time
-breaks, step, water and conversational reminders, subscription tracking and
-vaccine records. None uses ads, accounts or tracking.
+In one line: Just Apps makes eight free Android apps: prayer times, screen-time
+breaks, step, water and conversational reminders, subscription tracking,
+vaccine records and an Arabic-Indic clock widget. None uses ads, accounts or
+tracking.
 
 Canonical home: https://www.justsimpleapps.online/
-Language: English. Updated: 2026-10-25.
+Language: English. Updated: 2026-10-28.
 
 ## Apps in the collection
 
@@ -20,31 +21,36 @@ Language: English. Updated: 2026-10-25.
   prayer times for cities in India, a live countdown to the next salah, and
   optional adhan reminders. Works offline from the last saved schedule. No
   location permission is requested; the chosen city name is the only location
-  data. Android 7.0 and later. Free, no ads, no account. Not yet published on
-  Google Play; its page carries the current status.
+  data. Android 7.0 and later. Free, no ads, no account.
+  [Namaaz Reminder v1.7.2 APK](https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk).
 - [Screen Time Reminder](https://www.justsimpleapps.online/screen-time-reminder): counts
   continuous phone use and sends one gentle break reminder when a session runs
-  long, with a 7-day history. No streaks or scores. Android 8.0 and later. Free
-  and ad-free.
+  long, with a 7-day history. No streaks or scores, and no internet permission.
+  Android 8.0 and later. Free and ad-free.
+  [Screen Time Reminder v1.2.6 APK](https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk).
 - [Subscription Tracker](https://www.justsimpleapps.online/subscription-tracker):
   manually record subscriptions and recurring bills, see normalized monthly and
   yearly totals, and get on-device reminders before a renewal. It does not
   connect to a bank. Android 8.0 and later. Free, offline, private.
+  [Subscription Tracker v1.2.0 APK](https://github.com/owaiskhan-ash/Subscription-Tracker/releases/download/v1.2.0/subscription-tracker-v1.2.0.apk).
 - [Vaccine Routine](https://www.justsimpleapps.online/vaccine-routine): an
   offline-first vaccine log and reminder for babies, with India's National
   Immunization Schedule offered as optional suggestions, not medical advice.
   Android and web. Free, private, no account.
+  [Vaccine Routine v1.0 APK](https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk).
 - [Water Reminder](https://www.justsimpleapps.online/#water-reminder): a simple
   water-drinking nudge, every two hours by default and aligned to the local
   clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM to 8 AM).
   It has no intake logging, counters or charts, and makes no network requests.
-  Android 7.0 and later. Free, no account. [Project](https://github.com/owaiskhan-ash/Water-Reminder) and [Water Reminder v1.0.0 release](https://github.com/owaiskhan-ash/Water-Reminder/releases/tag/v1.0.0).
+  Android 7.0 and later. Free, no account.
+  [Project](https://github.com/owaiskhan-ash/Water-Reminder) and
+  [Water Reminder v1.0.0 APK](https://github.com/owaiskhan-ash/Water-Reminder/releases/download/v1.0.0/Water-Reminder-v1.0.0.apk).
 - [Step Reminder](https://www.justsimpleapps.online/#steps-reminder): a daily
   step counter with a chosen target (2,000 to 20,000), one reminder at a chosen
   hour, and an on-device seven-day history. Android 6.0+ and web; web reminders
   fire only while the app is open. No account, cloud, analytics, Google Fit or
   Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and
-  [Step Reminder v1.3.5 release](https://github.com/owaiskhan-ash/Steps-Reminder/releases/tag/v1.3.5).
+  [Step Reminder v1.4.0 APK](https://github.com/owaiskhan-ash/Steps-Reminder/releases/download/v1.4.0/SC-Step-Reminder-1.4.0.apk).
 - [RemindME](https://www.justsimpleapps.online/#remindme): a conversational
   reminder app that parses natural-language phrases with an explicit date and
   time and schedules alarms on Android's alarm audio stream so silent or
@@ -55,13 +61,24 @@ Language: English. Updated: 2026-10-25.
   automatic alarm restoration after reboot. Reminder text and settings stay in
   local storage on the phone. Android 8.0 and later. Free, no account.
   [Project](https://github.com/owaiskhan-ash/RemindME) and
-  [RemindME v1.0.5 release](https://github.com/owaiskhan-ash/RemindME/releases/tag/v1.0.5).
+  [RemindME v1.0.6 APK](https://github.com/owaiskhan-ash/RemindME/raw/v1.0.6/release/RemindME-v1.0.6.apk).
+- [Arabic Clock](https://www.justsimpleapps.online/#arabic-clock): a 100%
+  transparent Android home-screen (and supported lock-screen) clock widget that
+  renders local 24-hour time in Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩) even when
+  your phone language is English. Includes six bundled offline fonts (Amiri,
+  Scheherazade, Janna LT Bold, Arslan Wessam A, 18 Khebrat Musamim and Avenir
+  Heavy), numeral width stretch, HUGE fill-space mode, stacked hours-over-minutes,
+  full-range opacity, and hollow or solid font outlines. Requests no internet
+  permission and stores settings locally. Android 8.0 and later. Free, no account.
+  [Project](https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-) and
+  [Arabic Clock v2.3.0 APK](https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk).
 
 ## Facts worth quoting
 
-- All seven apps are free and ad-free; none has in-app purchases or requires a login.
+- All eight apps are free and ad-free; none has in-app purchases or requires a login.
 - Personal records are stored on the device, not on a server.
-- Water Reminder schedules local notifications and makes no network requests.
+- Screen Time Reminder, Water Reminder and Arabic Clock do not request Android's
+  internet permission and make no network requests.
 - Step Reminder makes no runtime network requests; step data, goals and history
   stay on the device.
 - RemindME parses and stores reminders entirely on the device; it only uses the
@@ -72,23 +89,25 @@ Language: English. Updated: 2026-10-25.
 - Namaaz Reminder sends only the selected city name, the country (India) and a
   calculation-method number to api.aladhan.com to fetch timings.
 - Supported platforms: Android 7.0+ (Namaaz Reminder and Water Reminder),
-  Android 8.0+ (Screen Time Reminder, Subscription Tracker and RemindME),
-  Android 6.0+ and web (Step Reminder), Android and web (Vaccine Routine).
+  Android 8.0+ (Screen Time Reminder, Subscription Tracker, RemindME and Arabic
+  Clock), Android 6.0+ and web (Step Reminder), Android and web (Vaccine Routine).
 
 ## Source and contact
 
 - GitHub: https://github.com/owaiskhan-ash
-- Public app source: https://github.com/owaiskhan-ash/ScreenTime-Reminder,
+- Public app source: https://github.com/owaiskhan-ash/Namaaz-Reminder,
+  https://github.com/owaiskhan-ash/ScreenTime-Reminder,
   https://github.com/owaiskhan-ash/Subscription-Tracker,
   https://github.com/owaiskhan-ash/vaccine-Tracker,
   https://github.com/owaiskhan-ash/Steps-Reminder,
   https://github.com/owaiskhan-ash/Water-Reminder,
-  https://github.com/owaiskhan-ash/RemindME
+  https://github.com/owaiskhan-ash/RemindME,
+  https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-
 
 ## Also
 
-- [All seven apps](https://www.justsimpleapps.online/#apps): the collection page
-  links to each app and its download or project page.
+- [All eight apps](https://www.justsimpleapps.online/#apps): the collection page
+  links directly to the latest APK download for every app.
 - [Privacy policy](https://www.justsimpleapps.online/privacy): what Namaaz
   Reminder and this site store, what leaves the device, and what is never collected.
 

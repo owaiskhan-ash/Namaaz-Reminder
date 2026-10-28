@@ -91,6 +91,7 @@ All public apps in the collection share the same promise: free to use, no ads, n
 | 05 | **Water Reminder** | <https://github.com/owaiskhan-ash/Water-Reminder> |
 | 06 | **Step Reminder** | <https://github.com/owaiskhan-ash/Steps-Reminder> |
 | 07 | **RemindME** | <https://github.com/owaiskhan-ash/RemindME> |
+| 08 | **Arabic Clock** | <https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-> |
 
 ## Getting the APKs
 
