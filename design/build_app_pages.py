@@ -109,9 +109,9 @@ APPS = [
         "h1": "Namaaz Reminder: prayer times and a countdown to the next salah.",
         "lede": "Namaaz Reminder shows today’s Fajr, Dhuhr, Asr, Maghrib and Isha times for your city in India, counts down to the next prayer, and can remind you at adhan. It is free, has no ads, and asks for no account.",
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders, with no ads, accounts or location permission.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk">Download the APK</a>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
-        "cta_note": "Version 1.7.2 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases; Google Play listing in preparation.",
+        "cta_note": "Version 1.7.3 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases; Google Play listing in preparation.",
         "shots": [
             shot("/assets/namaaz/today-400.webp",
                  "Namaaz Reminder showing the next prayer countdown and today's five prayer times on black leather",
@@ -183,7 +183,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
-          <dt>Version</dt><dd>1.7.2 (versionCode 13).</dd>
+          <dt>Version</dt><dd>1.7.3 (versionCode 14).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Namaaz-Reminder">Namaaz-Reminder repository on GitHub</a></dd>
@@ -210,7 +210,7 @@ APPS = [
             "name": "Namaaz Reminder",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Android 7.0 and later",
-            "softwareVersion": "1.7.2",
+            "softwareVersion": "1.7.3",
             "description": "Daily prayer times for cities in India, a live countdown to the next salah, optional adhan reminders and an offline copy of the last schedule. Free, no ads, no account, no location permission.",
             "image": BASE + "/assets/nr-mark-512.png",
             "screenshot": [
@@ -228,10 +228,10 @@ APPS = [
                 "Light, dark and system themes",
                 "No ads, accounts, analytics or location permission",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/Namaaz-Reminder"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk",
+        "cta_primary": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk",
     },
     {
         "slug": "screen-time-reminder",
@@ -244,9 +244,9 @@ APPS = [
         "h1": "Screen Time Reminder: a gentle nudge to look up from your phone.",
         "lede": "Screen Time Reminder counts how long you have been using your phone in one stretch, and sends a single calm reminder when a session runs long. There are no streaks, no scores and no guilt, just one honest number and a reason to put the phone down for a minute.",
         "answer": "<p><strong>In one line:</strong> Screen Time Reminder is a free Android app that tracks continuous phone use and sends one gentle break reminder when a session runs long, keeping a seven-day history and asking for no account, no ads and no internet access.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.7/ScreenTimeReminder.apk">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">Source on GitHub</a>""",
-        "cta_note": "Version 1.2.6 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
+        "cta_note": "Version 1.2.7 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
         "shots": [
             shot("/assets/screentime/today-400.webp",
                  "Screen Time Reminder today view with stitched cyan leather card and live screen-time count",
@@ -319,7 +319,7 @@ APPS = [
             "applicationCategory": "HealthApplication",
             "operatingSystem": "Android 8.0 and later",
             "description": "Counts continuous phone use and sends one gentle break reminder when a session runs long, with a seven-day history. Free, ad-free, and without the internet permission.",
-            "softwareVersion": "1.2.6",
+            "softwareVersion": "1.2.7",
             "image": BASE + "/assets/screentime/icon-512.png",
             "screenshot": [
                 BASE + "/assets/screentime/today-780.webp",
@@ -334,10 +334,10 @@ APPS = [
                 "No internet permission",
                 "No ads, accounts or analytics",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk",
+            "downloadUrl": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.7/ScreenTimeReminder.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/ScreenTime-Reminder"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk",
+        "cta_primary": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.7/ScreenTimeReminder.apk",
     },
     {
         "slug": "subscription-tracker",
