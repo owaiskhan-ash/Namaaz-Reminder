@@ -59,13 +59,16 @@ home `ItemList` matches each app page's `SoftwareApplication` node, that every a
 from the hub and from all seven siblings and carries an author, a publication date and
 `speakable` passages, that no page has stray or unclosed block tags, that the 404 page has a real
 description and social image, that no FAQ question is asked on two pages, and that no em dash or
-en dash has crept into the copy:
+en dash has crept into the copy. It tokenizes robots directives (so `noindex` can never be
+mistaken for `index`) and checks each sitemap `lastmod` against the page's JSON-LD `dateModified`.
+Run the SEO check and its indexability regression tests with:
 
 ```bash
 python3 design/seo_check.py
+python3 -m unittest discover -s design -p 'test_*.py'
 ```
 
-CI runs the same script on any push or PR that touches the site
+CI runs both checks on any push or PR that touches the site
 (`.github/workflows/seo-check.yml`), so a metadata regression fails the build instead of
 reaching production. `SEO_AUDIT.md` records the full audit history.
 

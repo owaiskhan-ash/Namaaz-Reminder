@@ -761,8 +761,50 @@ These are recorded rather than fixed because they are decisions, not defects:
 
 ---
 
-## 13. Sources
+## 13. Round 7: Search Console "Discovered - currently not indexed" (2026-10-28)
 
+This status means Google knows a URL exists but has not crawled it yet. It is different from
+"Crawled - currently not indexed": Google has not evaluated the page content for this status.
+Google says it may have deferred a crawl to avoid overloading a site. This is not a post-crawl
+content judgment. Use URL Inspection's live test to check access and indexing permission; repeated
+submissions will not fix a blocked or unavailable page. See the official [Page indexing report](https://support.google.com/webmasters/answer/7440203?hl=en).
+
+The repository and live site were checked against the parts we can control:
+
+| Check | Result |
+| --- | --- |
+| Live collection page, all eight app pages, privacy page, `robots.txt` and `sitemap.xml` | All returned readable content on `www.justsimpleapps.online` during this check |
+| `robots.txt` | Allows crawling and points to the canonical sitemap |
+| Sitemap | Valid XML with all 10 canonical URLs, no duplicates, and `lastmod` dates matching each page's JSON-LD `dateModified` |
+| Page directives | All 10 intended pages declare `index, follow`; the branded 404 page declares `noindex, follow` |
+| Canonicals and routing | Pages declare the matching extensionless `www` canonical; apex, trailing-slash and `.html` visits resolve to that URL |
+| Discovery links | The home page links to all eight app pages, and each app page links to the other seven |
+| Rendering | The content is static HTML, not dependent on client-side JavaScript to appear |
+
+A real validator defect was found: the previous check tested whether the word `index` appeared
+anywhere in the robots value, so `noindex, follow` incorrectly passed because `noindex` contains
+`index`. The check now tokenizes directives, rejects `noindex` and `none`, checks Googlebot and
+Bingbot-specific overrides, parses the sitemap as XML, and checks each `lastmod` against the
+page's declared `dateModified`. Seven regression tests run in CI.
+
+This site has only 10 intended indexable URLs, so there is no sign of a large-site crawl-budget
+problem to solve with robots rules. Google describes crawl-budget optimization as primarily for
+very large sites in its [Crawl Budget Management guide](https://developers.google.com/search/docs/crawling-indexing/large-site-managing-crawl-budget).
+
+**After deployment:** use Search Console's URL Inspection on a few priority URLs and run the live
+test. Check that Google can fetch each page, indexing is allowed, and Google's selected canonical
+matches the declared `www` URL. If the live test passes, the remaining crawl timing is Google's
+decision; do not repeatedly submit every URL. External links and stronger app/store listings can
+help establish discovery demand, but no code change can guarantee an indexing date.
+
+---
+
+## 14. Sources
+
+- Google Search Console Help, *Page indexing report* -
+  <https://support.google.com/webmasters/answer/7440203?hl=en>
+- Google Search Central, *Crawl Budget Management* -
+  <https://developers.google.com/search/docs/crawling-indexing/large-site-managing-crawl-budget>
 - Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) -
   <https://developers.google.com/search/blog/2023/08/howto-faq-changes>
 - Google, *Software app (SoftwareApplication) structured data* -
