@@ -1605,13 +1605,18 @@ html[data-theme="light"] .foot-links a:hover {
   text-wrap: balance;
 }
 
-.doc .updated {
+.doc .updated,
+.app-page .updated {
   color: var(--brand-ink);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin: 0 0 32px;
+}
+
+.app-page .updated {
+  margin: 34px 0 6px;
 }
 
 .app-page p.lede {
@@ -2275,6 +2280,20 @@ html.has-inertia {
 html.has-custom-cursor,
 html.has-custom-cursor * {
   cursor: none !important;
+}
+
+/* The dot replaces the pointer, not the I-beam. Prose keeps a text cursor so
+   readers still see where a selection will start, and form fields keep theirs
+   so typing targets stay obvious. */
+html.has-custom-cursor :where(
+    p, li, dd, dt, blockquote, figcaption, h1, h2, h3, h4, h5, h6,
+    .lede, .answer, .facts, .callout, .faq-list details, code, pre, kbd
+  ) {
+  cursor: text !important;
+}
+
+html.has-custom-cursor :where(input, textarea, select) {
+  cursor: auto !important;
 }
 
 .cursor-dot {

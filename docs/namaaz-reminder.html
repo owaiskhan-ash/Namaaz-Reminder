@@ -34,6 +34,8 @@
 <link rel="icon" type="image/png" sizes="64x64" href="/assets/just-apps-icon-64.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/just-apps-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script src="/theme.js"></script>
 <script type="application/ld+json">
@@ -217,7 +219,7 @@
         },
         {
           "@type": "Question",
-          "name": "Does it use my GPS location?",
+          "name": "Does Namaaz Reminder use my GPS location?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "No. The app does not request Android’s location permission and never reads GPS, Wi-Fi or cell-tower position. You choose a city by name, and that name is the only location information involved."
@@ -225,7 +227,7 @@
         },
         {
           "@type": "Question",
-          "name": "When do the reminders fire?",
+          "name": "When do the Namaaz Reminder notifications fire?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "By default five minutes after the prayer time, which is when the adhan has ended and the salah begins. The offset is adjustable in Settings down to zero, and individual prayers can be muted."
@@ -233,7 +235,7 @@
         },
         {
           "@type": "Question",
-          "name": "Which calculation method is used?",
+          "name": "Which prayer-time calculation method does Namaaz Reminder use?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Method 1, the University of Islamic Sciences, Karachi convention, is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day."
@@ -241,7 +243,7 @@
         },
         {
           "@type": "Question",
-          "name": "Is it free?",
+          "name": "Is Namaaz Reminder free?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account."
@@ -249,7 +251,7 @@
         },
         {
           "@type": "Question",
-          "name": "Which cities are supported?",
+          "name": "Which Indian cities does Namaaz Reminder support?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone."
@@ -689,15 +691,16 @@
           <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
 
+  <p class="updated">Last reviewed 28 October 2026 by Owais Khan.</p>
 
   <h2>Common questions</h2>
   <div class="faq-list">
     <details><summary>Does Namaaz Reminder need an internet connection?</summary><p>Only to fetch the timings. Once a schedule has been downloaded it is cached on the phone, so the main screen and the countdown keep working offline. Reminders are scheduled on the device and need no connection at all.</p></details>
-    <details><summary>Does it use my GPS location?</summary><p>No. The app does not request Android’s location permission and never reads GPS, Wi-Fi or cell-tower position. You choose a city by name, and that name is the only location information involved.</p></details>
-    <details><summary>When do the reminders fire?</summary><p>By default five minutes after the prayer time, which is when the adhan has ended and the salah begins. The offset is adjustable in Settings down to zero, and individual prayers can be muted.</p></details>
-    <details><summary>Which calculation method is used?</summary><p>Method 1, the University of Islamic Sciences, Karachi convention, is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day.</p></details>
-    <details><summary>Is it free?</summary><p>Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account.</p></details>
-    <details><summary>Which cities are supported?</summary><p>Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone.</p></details>
+    <details><summary>Does Namaaz Reminder use my GPS location?</summary><p>No. The app does not request Android’s location permission and never reads GPS, Wi-Fi or cell-tower position. You choose a city by name, and that name is the only location information involved.</p></details>
+    <details><summary>When do the Namaaz Reminder notifications fire?</summary><p>By default five minutes after the prayer time, which is when the adhan has ended and the salah begins. The offset is adjustable in Settings down to zero, and individual prayers can be muted.</p></details>
+    <details><summary>Which prayer-time calculation method does Namaaz Reminder use?</summary><p>Method 1, the University of Islamic Sciences, Karachi convention, is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day.</p></details>
+    <details><summary>Is Namaaz Reminder free?</summary><p>Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account.</p></details>
+    <details><summary>Which Indian cities does Namaaz Reminder support?</summary><p>Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone.</p></details>
     <details><summary>Is Namaaz Reminder on Google Play?</summary><p>Not yet. While the Play Store listing is being prepared, you can download the free signed APK directly from the project’s GitHub releases.</p></details>
   </div>
 
@@ -720,7 +723,7 @@
   <div class="wrap foot-inner">
     <div class="foot-brand">
       <img class="nav-logo nav-logo--footer" src="/assets/just-apps-icon-64.png" srcset="/assets/just-apps-icon-64.png 1x, /assets/just-apps-icon-128.png 2x" width="28" height="28" alt="" loading="lazy" decoding="async">
-      <span>Namaaz Reminder · Free · no ads · no tracking</span>
+      <span>Namaaz Reminder · one of eight free Just Apps apps · no ads, no accounts, no tracking</span>
     </div>
     <nav class="foot-links" aria-label="Footer">
       <a href="/">Apps</a>

@@ -12,6 +12,7 @@ of four times by hand.
 import html
 import json
 import os
+from datetime import date
 
 BASE = "https://www.justsimpleapps.online"
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
@@ -79,6 +80,12 @@ AUTHOR = {
     "name": "Owais Khan",
     "url": "https://github.com/owaiskhan-ash",
 }
+
+
+def long_date(iso):
+    """2026-10-28 -> 28 October 2026, the form used in the visible copy."""
+    d = date.fromisoformat(iso)
+    return f"{d.day} {d.strftime('%B %Y')}"
 
 
 def shot(src, alt, caption, width, height, srcset=None, sizes=None):
@@ -186,15 +193,15 @@ APPS = [
         "faq": [
             ("Does Namaaz Reminder need an internet connection?",
              "Only to fetch the timings. Once a schedule has been downloaded it is cached on the phone, so the main screen and the countdown keep working offline. Reminders are scheduled on the device and need no connection at all."),
-            ("Does it use my GPS location?",
+            ("Does Namaaz Reminder use my GPS location?",
              "No. The app does not request Android’s location permission and never reads GPS, Wi-Fi or cell-tower position. You choose a city by name, and that name is the only location information involved."),
-            ("When do the reminders fire?",
+            ("When do the Namaaz Reminder notifications fire?",
              "By default five minutes after the prayer time, which is when the adhan has ended and the salah begins. The offset is adjustable in Settings down to zero, and individual prayers can be muted."),
-            ("Which calculation method is used?",
+            ("Which prayer-time calculation method does Namaaz Reminder use?",
              "Method 1, the University of Islamic Sciences, Karachi convention, is the default because it is the most common choice in India. Other methods can be selected in Settings, and any single prayer time can be corrected by hand for the day."),
-            ("Is it free?",
+            ("Is Namaaz Reminder free?",
              "Yes. Namaaz Reminder is free, has no ads, no subscriptions and no in-app purchases, and it does not ask you to create an account."),
-            ("Which cities are supported?",
+            ("Which Indian cities does Namaaz Reminder support?",
              "Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone."),
             ("Is Namaaz Reminder on Google Play?",
              "Not yet. While the Play Store listing is being prepared, you can download the free signed APK directly from the project’s GitHub releases."),
@@ -298,13 +305,13 @@ APPS = [
         "faq": [
             ("Does Screen Time Reminder block apps?",
              "No. It is a reminder, not a blocker or a parental control. It counts continuous use and sends one notification when a session runs long; it cannot close or restrict anything."),
-            ("Does it need an internet connection?",
+            ("Does Screen Time Reminder need an internet connection?",
              "No, and it could not use one. The app does not request the internet permission, so it has no technical way to send or receive data."),
-            ("What permission does it need?",
+            ("What permission does Screen Time Reminder need?",
              "Usage access, which is Android’s name for permission to see which app is in the foreground and for how long. Without it the app has nothing to measure."),
-            ("Does it keep a streak or score?",
+            ("Does Screen Time Reminder keep a streak or score?",
              "No. There are no streaks, scores, badges or daily targets. You get a running count and a seven-day history, and that is all."),
-            ("Is it really free?",
+            ("Is Screen Time Reminder really free?",
              "Yes. It is free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -408,11 +415,11 @@ APPS = [
              "No. You add each subscription and its renewal date yourself. The app has no bank integration, no SMS access and no account aggregation, so your financial accounts are never linked to it."),
             ("How are monthly and yearly totals calculated?",
              "Each entry keeps its own billing cycle and is converted to a monthly equivalent, so weekly, monthly and yearly plans can be compared and added together. The yearly total is that monthly figure across twelve months."),
-            ("Does it work offline?",
+            ("Does Subscription Tracker work offline?",
              "Yes. The app is built to work without a connection; subscriptions and totals are stored on the device."),
             ("Will it detect subscriptions automatically?",
              "No. Entries are added by hand, on purpose; automatic detection would mean reading your messages or connecting to your bank, and the app does neither."),
-            ("Is it free?",
+            ("Is Subscription Tracker free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -513,7 +520,7 @@ APPS = [
              "Yes. Vaccine Routine is offline-first: the record opens and saves with no network, and reminders are scheduled on the device."),
             ("Can I edit the suggested schedule?",
              "Yes. The national schedule is a starting point you can accept, ignore or edit, so the record reflects what actually happened rather than what was planned."),
-            ("Is it free?",
+            ("Is Vaccine Routine free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -612,15 +619,15 @@ APPS = [
         "faq": [
             ("How often does Water Reminder notify me?",
              "Every two hours by default. Settings offers one, three and four hour intervals instead, and each slot is aligned to your local clock, so a two-hour interval lands on the hour rather than drifting from install time."),
-            ("Does it log how much water I drink?",
+            ("Does Water Reminder log how much water I drink?",
              "No. There is no intake log, no glass counter, no chart and no daily target. The app sends a reminder and nothing else, and it never asks how much you drank."),
-            ("Does it need an internet connection?",
+            ("Does Water Reminder need an internet connection?",
              "No, and it could not use one. Water Reminder does not request Android’s internet permission, so it has no technical way to send or receive data."),
-            ("Will it wake me at night?",
+            ("Will Water Reminder wake me at night?",
              "Not if you leave quiet hours on. The default window is 10 PM to 8 AM, and a reminder slot that falls inside it is skipped entirely rather than delivered late once the window ends."),
             ("Do the reminders survive a restart?",
              "Yes. Reminders are scheduled on the device with Android’s alarm manager and are re-armed after a reboot, an app update or a time-zone change. Android 12 and later may require the Alarms and reminders permission for exact timing."),
-            ("Is it free?",
+            ("Is Water Reminder free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -738,7 +745,7 @@ APPS = [
              "Only when the phone was restarted before midnight, because the steps the counter kept before that restart cannot be attributed to a day. The app labels the total as counting from the restart time instead of guessing."),
             ("Do web reminders work with the tab closed?",
              "No. The web build fires a browser notification only while the page is open, and always shows an in-app nudge. Reliable background reminders are an Android feature."),
-            ("Is it free?",
+            ("Is Step Reminder free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -860,7 +867,7 @@ APPS = [
              "The preview asks for the missing date or time instead of guessing one. RemindME only schedules a reminder once it has an explicit time to schedule it for."),
             ("Do reminders survive a restart?",
              "Yes. Outstanding reminders are rescheduled after a reboot or an app update, so a restart does not lose them."),
-            ("Is it free?",
+            ("Is RemindME free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -981,9 +988,9 @@ APPS = [
              "Six, all offline: Amiri, Scheherazade New, Janna LT Bold, Arslan Wessam A, 18 Khebrat Musamim and Avenir Heavy. Each is bundled in the APK, so no font is downloaded."),
             ("Will it appear on my lock screen?",
              "Only if your device offers a third-party lock-screen widget picker. The app declares keyguard support, but many Android versions and manufacturers do not expose such a picker, and Arabic Clock cannot replace the built-in lock-screen clock."),
-            ("Does it need an internet connection?",
+            ("Does Arabic Clock need an internet connection?",
              "No, and it could not use one. The app does not request the internet permission, and the clock is drawn on the device."),
-            ("Is it free?",
+            ("Is Arabic Clock free?",
              "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
         ],
         "software": {
@@ -1050,6 +1057,8 @@ TEMPLATE = """<!DOCTYPE html>
 <link rel="icon" type="image/png" sizes="64x64" href="/assets/just-apps-icon-64.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/just-apps-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
 <script src="/theme.js"></script>
 <script type="application/ld+json">
@@ -1129,6 +1138,7 @@ TEMPLATE = """<!DOCTYPE html>
   </div>
 
 {body}
+  <p class="updated">Last reviewed {date_long} by Owais Khan.</p>
 
   <h2>Common questions</h2>
   <div class="faq-list">
@@ -1148,7 +1158,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="wrap foot-inner">
     <div class="foot-brand">
       <img class="nav-logo nav-logo--footer" src="/assets/just-apps-icon-64.png" srcset="/assets/just-apps-icon-64.png 1x, /assets/just-apps-icon-128.png 2x" width="28" height="28" alt="" loading="lazy" decoding="async">
-      <span>{name} · Free · no ads · no tracking</span>
+      <span>{name} · one of eight free Just Apps apps · no ads, no accounts, no tracking</span>
     </div>
     <nav class="foot-links" aria-label="Footer">
       <a href="/">Apps</a>
@@ -1283,6 +1293,7 @@ def main():
             shots="\n".join("          " + s for s in app["shots"]),
             body=app["body"].strip("\n"),
             faq=faq_html,
+            date_long=long_date(DATE_MODIFIED),
             related=build_related(app),
             jsonld=build_jsonld(app),
             date_published=app.get("date_published", DATE_PUBLISHED),

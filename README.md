@@ -52,12 +52,14 @@ links to all seven sibling apps. The landing page keeps the `ItemList` of all ei
 collection and the individual apps reinforce each other instead of competing for one title.
 
 After changing anything under `docs/`, run the SEO/AISO validator. It checks canonical host,
-title/description lengths, `og:url`/canonical agreement, social-image existence, JSON-LD
-parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
+title/description lengths and uniqueness, `og:url`/canonical agreement, social-image existence,
+JSON-LD parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
 `robots.txt`, `llms.txt` URLs, that every page resolves the same `Organization` node, that the
-home `ItemList` matches each app page's `SoftwareApplication` node, and that every app page is
-linked from the hub and from all seven siblings and carries an author, a publication date and
-`speakable` passages:
+home `ItemList` matches each app page's `SoftwareApplication` node, that every app page is linked
+from the hub and from all seven siblings and carries an author, a publication date and
+`speakable` passages, that no page has stray or unclosed block tags, that the 404 page has a real
+description and social image, that no FAQ question is asked on two pages, and that no em dash or
+en dash has crept into the copy:
 
 ```bash
 python3 design/seo_check.py
