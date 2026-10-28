@@ -626,8 +626,8 @@ suffix - it is already good):
 | `ScreenTime-Reminder` | `https://www.justsimpleapps.online/screen-time-reminder` | Screen-time break reminders: a live count of continuous use and one gentle nudge when a session runs long. Free Android app by Just Apps. |
 | `Subscription-Tracker` | `https://www.justsimpleapps.online/subscription-tracker` | *(existing text)* + ` Free Android app by Just Apps.` |
 | `vaccine-Tracker` | `https://www.justsimpleapps.online/vaccine-routine` | Child vaccine records and reminders with India's National Immunization Schedule as optional suggestions. Free Android app by Just Apps. |
-| `Steps-Reminder` | `https://www.justsimpleapps.online/#steps-reminder` | Daily step target, seven-day history, and one reminder at the hour you choose. Free Android app by Just Apps. |
-| `Water-Reminder` | `https://www.justsimpleapps.online/#water-reminder` | Water intake reminder at the interval you choose, with optional overnight quiet hours. Free Android app by Just Apps. |
+| `Steps-Reminder` | `https://www.justsimpleapps.online/steps-reminder` | Daily step target, seven-day history, and one reminder at the hour you choose. Free Android app by Just Apps. |
+| `Water-Reminder` | `https://www.justsimpleapps.online/water-reminder` | Water intake reminder at the interval you choose, with optional overnight quiet hours. Free Android app by Just Apps. |
 
 The Namaaz repo's homepage is currently the stale `namaaz-reminder.vercel.app` alias; the
 `vercel.json` redirect already points that host at the canonical domain, but the repo field
@@ -654,7 +654,45 @@ links, 0 dead anchors, 0 JSON-LD parse errors and 0 dangling `@id`s.
 
 ---
 
-## 11. Sources
+## 11. Round 5: every app gets its own page (2026-10-28)
+
+The split that mattered was structural, not cosmetic. Four of the eight apps (Water Reminder,
+Step Reminder, RemindME and Arabic Clock) were only ever cards on the home page: one long URL,
+one title, one description and one entity covering eight different search intents. Round 5 gives
+each of them a page of its own, generated from the same `APPS` list as the first four, and
+rebuilds the internal linking around that.
+
+| Change | What it does |
+| --- | --- |
+| `docs/water-reminder.html` | 700-word page: the two-hour default, clock-aligned slots, quiet hours, exact alarms and Doze, why there is no intake log, 6 FAQs |
+| `docs/steps-reminder.html` | 800-word page: where the phone's step counter comes from, the midnight baseline and the restart case, one plain-spoken reminder, the web build's limits, 6 FAQs |
+| `docs/remindme.html` | 780-word page: how a phrase becomes an alarm in seven languages, why it refuses to guess a missing time, the alarm audio stream, DND and exact-alarm permissions, 6 FAQs |
+| `docs/arabic-clock.html` | 800-word page: why the numerals are rendered to a bitmap inside the app, the six bundled fonts, the HUGE/stacked/outline controls, what lock-screen support really means, 6 FAQs |
+| `ItemList` and `hasPart` rewritten | The home page's eight `SoftwareApplication` entries now point at `…/<slug>#software` and their `url` at the page, so the collection and the app pages describe one entity each instead of an anchor on the landing page |
+| Landing cards | The four cards' previews link to the new pages and each card gained a "Read more" button next to the download, so both the crawler and a scanning visitor see a page behind the card |
+| Sibling links | Every app page's "Other apps in the collection" now lists all seven siblings (it listed three), which is what makes the eight pages a cluster rather than eight orphans |
+| Social cards | `design/build_app_og_cards.py` renders the four missing 1200x630 cards (Water, Steps, RemindME, Arabic Clock) in the existing house style, so a shared app link is never the generic studio card |
+| E-E-A-T and AISO metadata | Every app page gained `<meta name="author">`, `article:published_time`/`article:modified_time`, `WebPage.datePublished`, and a `speakable` selector list naming the H1, the lede and the one-line answer |
+| `sitemap.xml` and `llms.txt` | Four new URLs at priority 0.9; the `llms.txt` entries for those apps point at their pages instead of `/#anchor` |
+| `design/seo_check.py` | `INDEXABLE` covers 10 pages; `check_itemlist_parity()` now runs over all eight app pages; new `check_discovery()` fails the build if the hub stops linking an app page, if a page stops linking all seven siblings, or if an app page loses its author, publication date or `speakable` passages |
+
+Why this is the strongest available move for both classic search and answer engines:
+
+- **One URL per intent.** "water reminder app android" and "arabic indic clock widget" no longer
+  share a title, a canonical and a description. Each page can rank for its own query and is the
+  obvious landing page for it.
+- **Quotable structure per page.** Each page carries a bolded one-line answer, a `FAQPage` that
+  is generated from the visible `<details>` (so schema and copy cannot drift), a
+  `SoftwareApplication` with `featureList`/`screenshots`/`downloadUrl`, a `BreadcrumbList` and a
+  self-contained `Organization` + `WebSite` graph, so a crawler that fetches one URL resolves the
+  publisher without needing the home page.
+- **Honest copy, no padding.** Every claim on the new pages is checkable in the app's own
+  repository or README (permissions, intervals, quota-free fonts, versions). Answer engines
+  quote passages that survive verification; invented feature lists do not.
+
+---
+
+## 12. Sources
 
 - Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) -
   <https://developers.google.com/search/blog/2023/08/howto-faq-changes>

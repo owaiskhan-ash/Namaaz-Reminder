@@ -21,6 +21,11 @@ STAGES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generate
 # and should agree with the <lastmod> for the same URL in docs/sitemap.xml.
 DATE_MODIFIED = "2026-10-28"
 
+# First publication date of the app pages. The original four went live
+# together; the four newer pages were added later, so a page-level
+# datePublished is honest about which is which.
+DATE_PUBLISHED = "2026-10-20"
+
 # The publisher entity, defined here so every app page resolves it on its own.
 # The same @ids and field values are used on docs/index.html; keep them equal.
 ORGANIZATION = {
@@ -534,6 +539,479 @@ APPS = [
         },
         "cta_primary": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk",
     },
+    {
+        "slug": "water-reminder",
+        "date_published": "2026-10-28",
+        "name": "Water Reminder",
+        "kicker": "05 · Hydration",
+        "nav_cta": "Get the app",
+        "title": "Water Reminder: Drink Water Every Two Hours | Just Apps",
+        "description": "Free Android water reminder that nudges you every two hours, with 1, 3 or 4 hour intervals and quiet hours overnight. No intake log, no account, no network.",
+        "og": "og-water-reminder.png",
+        "h1": "Water Reminder: a nudge to drink water every two hours, and nothing else.",
+        "lede": "Water Reminder is a free Android app with one job: it sends a water reminder every two hours, aligned to your own clock, and stays quiet overnight if you ask it to. It keeps no intake log, asks you for nothing, and cannot connect to the internet.",
+        "answer": "<p><strong>In one line:</strong> Water Reminder is a free, offline Android app that sends a water reminder every two hours, or every one, three or four hours, skips a quiet-hours window at night, and deliberately keeps no intake log, counter or account.</p>",
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Water-Reminder/releases/download/v1.0.0/Water-Reminder-v1.0.0.apk">Download the APK</a>
+          <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Water-Reminder">Source on GitHub</a>""",
+        "cta_note": "Version 1.0.0 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases. The app does not request the internet permission.",
+        "shots": [
+            shot("/assets/water/home-400.webp",
+                 "Water Reminder home screen showing the next reminder at 6:00 PM, the two-hour interval and the quiet-hours setting",
+                 "The next reminder, the interval and the quiet-hours switch, on felt.",
+                 400, 867,
+                 "/assets/water/home-400.webp 400w, /assets/water/home-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+        ],
+        "body": """
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>One reminder every two hours</strong> by default, with one, three and four hour intervals available in Settings.</li>
+          <li><strong>Clock-aligned slots</strong>, so a two-hour interval lands on 8:00, 10:00, 12:00 and so on rather than drifting from whenever you installed it.</li>
+          <li><strong>Optional quiet hours</strong>, from 10 PM to 8 AM, for people who would rather not be told to drink water at midnight.</li>
+          <li><strong>Exact alarms</strong>, so a reminder still arrives in Android’s Doze mode, and the schedule is re-armed after a reboot, an app update or a time-zone change.</li>
+          <li><strong>No intake log, no counter, no chart.</strong> The app never asks how much you drank.</li>
+        </ul>
+
+        <h2>What it deliberately does not do</h2>
+        <p>Most hydration apps are trackers: a glass counter, a daily target, a chart of the week and a streak that
+        breaks. Water Reminder is the opposite. There is no place to log a glass of water, no target to miss and no
+        history to feel guilty about, because the app is only responsible for the nudge.</p>
+        <p>That narrowness is the feature. A reminder that cannot accumulate data also cannot accumulate a privacy
+        problem, and there is nothing to reset when you skip a day.</p>
+
+        <h2>How the reminders are scheduled</h2>
+        <p>Scheduling happens entirely on the device, with Android’s alarm manager. Nothing is sent from a server, so
+        the reminders work with no connection, survive a reboot, and cannot be affected by a service being
+        unavailable. Each slot is checked against your quiet-hours window when it comes due: a slot that falls inside
+        the window is skipped rather than queued, so you do not wake to a burst of late notifications.</p>
+        <p>Android 12 and later can require the Alarms and reminders permission for exact timing. If it is not
+        granted, Android may deliver a reminder a little late, which is the one case where a nudge can arrive off the
+        hour.</p>
+
+        <h2>What stays on your phone</h2>
+        <p>There is no account, no sync and no analytics library. Everything the app knows lives in its own private
+        storage on the device.</p>
+        <dl class="facts">
+          <dt>Interval and quiet hours</dt><dd>Stored in the app’s private storage on the phone. Removed when you uninstall.</dd>
+          <dt>Internet permission</dt><dd>Not requested. The app has no technical way to send or receive data.</dd>
+          <dt>Intake data</dt><dd>None is collected. The app has no logging screen and no database of drinks.</dd>
+          <dt>Analytics and ads</dt><dd>None. No advertising SDK, no crash-reporting SDK, no tracking.</dd>
+        </dl>
+        <p>The full detail is on the <a href="/privacy">privacy policy page</a>.</p>
+
+        <h2>Compatibility and version</h2>
+        <dl class="facts">
+          <dt>Platform</dt><dd>Android 7.0 (API 24) and later.</dd>
+          <dt>Version</dt><dd>1.0.0.</dd>
+          <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
+          <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Water-Reminder">Water-Reminder repository on GitHub</a></dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
+        </dl>
+        """,
+        "faq": [
+            ("How often does Water Reminder notify me?",
+             "Every two hours by default. Settings offers one, three and four hour intervals instead, and each slot is aligned to your local clock, so a two-hour interval lands on the hour rather than drifting from install time."),
+            ("Does it log how much water I drink?",
+             "No. There is no intake log, no glass counter, no chart and no daily target. The app sends a reminder and nothing else, and it never asks how much you drank."),
+            ("Does it need an internet connection?",
+             "No, and it could not use one. Water Reminder does not request Android’s internet permission, so it has no technical way to send or receive data."),
+            ("Will it wake me at night?",
+             "Not if you leave quiet hours on. The default window is 10 PM to 8 AM, and a reminder slot that falls inside it is skipped entirely rather than delivered late once the window ends."),
+            ("Do the reminders survive a restart?",
+             "Yes. Reminders are scheduled on the device with Android’s alarm manager and are re-armed after a reboot, an app update or a time-zone change. Android 12 and later may require the Alarms and reminders permission for exact timing."),
+            ("Is it free?",
+             "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
+        ],
+        "software": {
+            "name": "Water Reminder",
+            "applicationCategory": "HealthApplication",
+            "operatingSystem": "Android 7.0 and later",
+            "description": "A water reminder that nudges you every two hours by default, with adjustable one to four hour intervals, clock-aligned slots and optional quiet hours. No intake logging, counters, account or network access.",
+            "image": BASE + "/assets/water/icon.png",
+            "screenshot": BASE + "/assets/water/home-780.webp",
+            "featureList": [
+                "Water reminders every two hours by default, aligned to the local clock",
+                "Adjustable one, two, three or four hour interval",
+                "Optional quiet hours from 10 PM to 8 AM",
+                "Exact alarms that survive Doze, reboots and time-zone changes",
+                "No intake logging, counters, charts, account or network requests",
+            ],
+            "softwareVersion": "1.0.0",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Water-Reminder/releases/download/v1.0.0/Water-Reminder-v1.0.0.apk",
+            "sameAs": ["https://github.com/owaiskhan-ash/Water-Reminder"],
+        },
+        "cta_primary": "https://github.com/owaiskhan-ash/Water-Reminder/releases/download/v1.0.0/Water-Reminder-v1.0.0.apk",
+    },
+    {
+        "slug": "steps-reminder",
+        "date_published": "2026-10-28",
+        "name": "Step Reminder",
+        "kicker": "06 · Movement",
+        "nav_cta": "Get the app",
+        "title": "Step Reminder: Daily Step Goal and One Nudge | Just Apps",
+        "description": "Free Android step counter with a daily target from 2,000 to 20,000 steps, one reminder at the hour you choose and a seven-day history. No account, no cloud.",
+        "og": "og-step-reminder.png",
+        "h1": "Step Reminder: a daily step goal, one nudge, and a seven-day trail.",
+        "lede": "Step Reminder counts your steps against a target you choose, keeps a seven-day history that builds itself, and sends one plain-spoken reminder at the hour you pick. It reads the phone’s own step counter, so it needs no login, no Google Fit and no cloud.",
+        "answer": "<p><strong>In one line:</strong> Step Reminder is a free Android step counter with a daily goal between 2,000 and 20,000 steps, one daily reminder at a chosen hour and a seven-day history, all kept on the phone with no account, cloud or fitness-service connection.</p>",
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Steps-Reminder/releases/download/v1.4.0/SC-Step-Reminder-1.4.0.apk">Download the APK</a>
+          <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Steps-Reminder">Source on GitHub</a>""",
+        "cta_note": "Version 1.4.0 for Android 6.0 and later, with a web build. Free signed APK from the project’s GitHub releases.",
+        "shots": [
+            shot("/assets/steps/today-400.webp",
+                 "Step Reminder Today screen with sample progress of 6,240 steps toward an 8,000-step goal",
+                 "Today: 6,240 of 8,000 steps, with the day’s remainder and walking time.",
+                 400, 867,
+                 "/assets/steps/today-400.webp 400w, /assets/steps/today-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/steps/trail-400.webp",
+                 "Step Reminder Trail screen showing the weekly total and daily step ledger with sample data",
+                 "Trail: the week so far and a day-by-day ledger.",
+                 400, 867,
+                 "/assets/steps/trail-400.webp 400w, /assets/steps/trail-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/steps/tune-400.webp",
+                 "Step Reminder Tune screen showing a daily target, chosen reminder time and phone step-counter settings",
+                 "Tune: the target, the reminder hour and the sensor.",
+                 400, 867,
+                 "/assets/steps/tune-400.webp 400w, /assets/steps/tune-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+        ],
+        "body": """
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>A daily step target</strong> between 2,000 and 20,000 steps, with presets for the first run.</li>
+          <li><strong>Today’s real total</strong>, read from the phone’s own step counter, including the steps you took while the app was closed.</li>
+          <li><strong>One reminder a day</strong> at the hour you choose, with copy that states exactly how many steps are left.</li>
+          <li><strong>A seven-day history</strong> that fills in by itself, with a daily ledger and a weekly total.</li>
+          <li><strong>No account, no Google Fit, no Health Connect, no cloud</strong> and no analytics.</li>
+        </ul>
+
+        <h2>Where the steps come from</h2>
+        <p>Android keeps a cumulative step counter that runs whether or not an app is open. Step Reminder reads that
+        counter and subtracts a midnight baseline, so opening the app at any hour gives you the day’s real total
+        rather than a number that only counts while the app is on screen. On Android 10 and later, reading it needs the
+        activity recognition permission; if that is refused, the app says so and counts nothing instead of guessing.</p>
+        <p>If the phone was restarted after midnight, every step in the counter happened today and the counter
+        <em>is</em> the total. If it was restarted before midnight, the older steps cannot be attributed to a day, so
+        the app starts counting from the restart time and labels that honestly rather than inventing a baseline.</p>
+        <p>A midnight alarm banks the finished day, which is why a week of history exists even if you never open the
+        app, and a boot receiver re-arms that alarm after a restart. Phones without a step counter can use an optional
+        motion-sensor fallback, which is off until you switch it on.</p>
+
+        <h2>One reminder, in plain words</h2>
+        <p>The reminder is a single notification a day, and its text is written at the moment it fires: if you are
+        short of the target it says how many steps are missing out of the goal, so the notification is information
+        rather than a generic nudge. There are no streaks to break, no badges and no second reminder.</p>
+        <p>The web build is the same app in a browser. Its reminder appears as a browser notification only while the
+        tab is open, and the in-app nudge is always shown, so the web version never pretends to have Android’s
+        scheduling behind it.</p>
+
+        <h2>What stays on your phone</h2>
+        <dl class="facts">
+          <dt>Steps, goal and history</dt><dd>Stored on the device only: in the app’s private storage on Android, and in the browser’s local storage on the web build.</dd>
+          <dt>Fitness services</dt><dd>None. No Google Fit, no Health Connect, no Samsung Health and no third-party sync.</dd>
+          <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
+          <dt>Analytics and ads</dt><dd>None. No advertising SDK, no crash-reporting SDK, no tracking.</dd>
+        </dl>
+        <p>The full detail is on the <a href="/privacy">privacy policy page</a>.</p>
+
+        <h2>Compatibility and version</h2>
+        <dl class="facts">
+          <dt>Platform</dt><dd>Android 6.0 and later, with a web build for desktop and mobile browsers.</dd>
+          <dt>Version</dt><dd>1.4.0.</dd>
+          <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
+          <dt>Permissions</dt><dd>Activity recognition, for the phone’s step counter, and notifications for the daily reminder. No location permission is requested.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Steps-Reminder">Steps-Reminder repository on GitHub</a></dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
+        </dl>
+        """,
+        "faq": [
+            ("Does Step Reminder need Google Fit or Health Connect?",
+             "No. It reads Android’s own cumulative step counter directly, so there is no fitness-service connection, no login and no data leaving the phone."),
+            ("How many steps can I set as a goal?",
+             "Any daily target between 2,000 and 20,000 steps. Presets are offered on the first run, and the goal can be changed at any time in Tune."),
+            ("Does it count steps while the app is closed?",
+             "Yes. Android keeps the step counter running in the background, and a midnight alarm banks the finished day, so the history builds even when you never open the app."),
+            ("Why does the total start from a time rather than midnight?",
+             "Only when the phone was restarted before midnight, because the steps the counter kept before that restart cannot be attributed to a day. The app labels the total as counting from the restart time instead of guessing."),
+            ("Do web reminders work with the tab closed?",
+             "No. The web build fires a browser notification only while the page is open, and always shows an in-app nudge. Reliable background reminders are an Android feature."),
+            ("Is it free?",
+             "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
+        ],
+        "software": {
+            "name": "Step Reminder",
+            "applicationCategory": "HealthApplication",
+            "operatingSystem": "Android 6.0 and later, web",
+            "description": "A daily step counter with a goal you choose, a seven-day history and one reminder at a chosen hour. Steps, goals and history stay on the device, with no Google Fit, Health Connect, cloud or analytics.",
+            "image": BASE + "/assets/steps/icon-192.png",
+            "screenshot": [
+                BASE + "/assets/steps/today-780.webp",
+                BASE + "/assets/steps/trail-780.webp",
+                BASE + "/assets/steps/tune-780.webp",
+            ],
+            "featureList": [
+                "Daily step targets from 2,000 to 20,000",
+                "Reads the phone's own cumulative step counter",
+                "Seven-day history and a daily ledger that build themselves",
+                "One reminder at a chosen hour, with live copy naming the steps still missing",
+                "No account, Google Fit, Health Connect, cloud or analytics",
+            ],
+            "softwareVersion": "1.4.0",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Steps-Reminder/releases/download/v1.4.0/SC-Step-Reminder-1.4.0.apk",
+            "sameAs": ["https://github.com/owaiskhan-ash/Steps-Reminder"],
+        },
+        "cta_primary": "https://github.com/owaiskhan-ash/Steps-Reminder/releases/download/v1.4.0/SC-Step-Reminder-1.4.0.apk",
+    },
+    {
+        "slug": "remindme",
+        "date_published": "2026-10-28",
+        "name": "RemindME",
+        "kicker": "07 · Reminders",
+        "nav_cta": "Get the app",
+        "title": "RemindME: Conversational Reminders | Just Apps",
+        "description": "Free Android reminder app: write a phrase with a date and time and get an alarm you cannot miss. Seven languages, on-device storage, no account, no ads.",
+        "og": "og-remindme.png",
+        "h1": "RemindME: write a reminder the way you would say it.",
+        "lede": "RemindME turns a sentence such as “tomorrow at 9 AM, call the clinic” into a scheduled Android alarm. It works in seven languages, requires a real date and time rather than guessing one, and rings on the alarm stream so silent mode cannot swallow it.",
+        "answer": "<p><strong>In one line:</strong> RemindME is a free Android reminder app that parses a natural-language phrase with a date and time into a device alarm, in seven languages, with snooze and done actions, and keeps every reminder on the phone.</p>",
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/RemindME/raw/v1.0.6/release/RemindME-v1.0.6.apk">Download the APK</a>
+          <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/RemindME">Source on GitHub</a>""",
+        "cta_note": "Version 1.0.6 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
+        "shots": [
+            shot("/assets/remindme/home-400.webp",
+                 "RemindME Home screen with conversational reminder input, a live Smart Parse preview and an upcoming reminder card",
+                 "Home: type a sentence, then watch the parse preview.",
+                 400, 866,
+                 "/assets/remindme/home-400.webp 400w, /assets/remindme/home-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/remindme/previous-400.webp",
+                 "RemindME Previous reminders screen showing completed reminders history and a clear completed action",
+                 "Previous: what has already rung, and a way to clear it.",
+                 400, 866,
+                 "/assets/remindme/previous-400.webp 400w, /assets/remindme/previous-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/remindme/settings-400.webp",
+                 "RemindME Settings screen showing seven language choices, alarm stream sound options and a dark mode toggle",
+                 "Settings: seven languages, the alarm sound and dark mode.",
+                 400, 866,
+                 "/assets/remindme/settings-400.webp 400w, /assets/remindme/settings-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+        ],
+        "body": """
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>Conversational input.</strong> Type “tomorrow at 9 AM, check in with Abdullah about homework” and the parse panel shows the exact time it understood before you save.</li>
+          <li><strong>Seven languages</strong>: English, Bahasa Indonesia, Español, Português, हिन्दी, العربية with a right-to-left layout, and 简体中文, in the interface and in the parser.</li>
+          <li><strong>Device alarms</strong>, scheduled with Android’s alarm manager, so they arrive after the app is closed.</li>
+          <li><strong>Alarm-stream audio</strong>, so ring or vibrate mode does not mute a reminder that is due.</li>
+          <li><strong>Snooze 10 min and Mark done</strong> actions on the notification itself, a three-tab dock, and dark mode by default.</li>
+          <li><strong>Automatic restoration</strong> of outstanding reminders after a reboot or an app update.</li>
+        </ul>
+
+        <h2>How a phrase becomes an alarm</h2>
+        <p>The parser looks for a date, a weekday, a clock time, a day period and relative durations such as
+        “in 10 minutes”, “mañana a las 9”, “amanhã às 18:30”, “कल शाम 6 बजे”, “غدا الساعة 9 مساء”,
+        “明天上午9点” and “besok jam 9 pagi”. It also corrects common English misspellings such as
+        “tomrws” or “ceckin”, because typing a reminder quickly is the normal case.</p>
+        <p>What it will not do is invent a time. A reminder needs an explicit date and time, and when one is missing
+        the preview names the missing detail instead of accepting the phrase and scheduling it for an
+        arbitrary hour. That is the difference between a reminder app you can trust with something important and one
+        that quietly fails.</p>
+
+        <h2>Why it cuts through silent mode</h2>
+        <p>A due reminder plays on Android’s dedicated alarm audio stream, which is separate from the ring volume that
+        silent and vibrate modes control. A phone on silent, or on vibrate, still rings. The stream is not a way
+        around your own choices: the alarm volume can be turned down by hand, and Do Not Disturb still applies unless
+        you have granted the app access to it.</p>
+        <p>Exact delivery needs Android’s Alarms and reminders permission on Android 12 and later, and notifications
+        need to be allowed on Android 13 and later. Without the exact-alarm access, RemindME falls back to Android’s
+        battery-friendly inexact scheduling and says so rather than silently drifting.</p>
+
+        <h2>What stays on your phone</h2>
+        <dl class="facts">
+          <dt>Reminder text and settings</dt><dd>In the app’s private storage on the device. Removed when you uninstall.</dd>
+          <dt>Network use</dt><dd>None by default. If you switch on the optional RemindME alarm clip, only that MP3 is fetched over HTTPS when an alarm plays; no reminder text is ever sent with the request.</dd>
+          <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
+          <dt>Analytics and ads</dt><dd>None. No advertising SDK, no crash-reporting SDK, no tracking.</dd>
+        </dl>
+        <p>The full detail is on the <a href="/privacy">privacy policy page</a>.</p>
+
+        <h2>Compatibility and version</h2>
+        <dl class="facts">
+          <dt>Platform</dt><dd>Android 8.0 and later.</dd>
+          <dt>Version</dt><dd>1.0.6.</dd>
+          <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
+          <dt>Permissions</dt><dd>Notifications, exact alarms for minute-accurate delivery, and optionally Do Not Disturb access if you want reminders during DND.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/RemindME">RemindME repository on GitHub</a></dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
+        </dl>
+        """,
+        "faq": [
+            ("Does RemindME need an internet connection?",
+             "No. Reminders are parsed and stored on the device and scheduled with Android’s alarm manager. The only network use is the optional RemindME alarm clip, which is streamed over HTTPS when an alarm plays and is not used at all if you keep the device’s default alarm sound."),
+            ("Does silent mode mute a reminder?",
+             "No. A due reminder plays on Android’s alarm audio stream, which silent and vibrate modes do not control. You can still lower the alarm volume by hand, and Do Not Disturb applies unless you grant the app access to it."),
+            ("Which languages does it support?",
+             "Seven: English, Bahasa Indonesia, Español, Português, हिन्दी, العربية with a right-to-left layout, and 简体中文. The interface, the alarm actions and the natural-language parser all follow the language you pick."),
+            ("What happens if I forget to include a time?",
+             "The preview asks for the missing date or time instead of guessing one. RemindME only schedules a reminder once it has an explicit time to schedule it for."),
+            ("Do reminders survive a restart?",
+             "Yes. Outstanding reminders are rescheduled after a reboot or an app update, so a restart does not lose them."),
+            ("Is it free?",
+             "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
+        ],
+        "software": {
+            "name": "RemindME",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "Android 8.0 and later",
+            "description": "A conversational reminder app that turns natural-language phrases with a date and time into reliable Android alarm-stream alerts, with seven languages, snooze and done actions, a three-tab dock and local-only storage.",
+            "image": BASE + "/assets/remindme/icon-128.png",
+            "screenshot": [
+                BASE + "/assets/remindme/home-780.webp",
+                BASE + "/assets/remindme/previous-780.webp",
+                BASE + "/assets/remindme/settings-780.webp",
+            ],
+            "featureList": [
+                "Conversational Smart Parse for natural phrases that include a date and time",
+                "Seven languages in the interface and in the parser: English, Bahasa Indonesia, Español, Português, हिन्दी, العربية with RTL, and 简体中文",
+                "Plays on the Android alarm audio stream, with Snooze 10 min and Mark done notification actions",
+                "Persistent three-tab dock, dark mode by default, and automatic alarm restoration after a reboot",
+            ],
+            "inLanguage": ["en", "id", "es", "pt", "hi", "ar", "zh-CN"],
+            "softwareVersion": "1.0.6",
+            "downloadUrl": "https://github.com/owaiskhan-ash/RemindME/raw/v1.0.6/release/RemindME-v1.0.6.apk",
+            "sameAs": ["https://github.com/owaiskhan-ash/RemindME"],
+        },
+        "cta_primary": "https://github.com/owaiskhan-ash/RemindME/raw/v1.0.6/release/RemindME-v1.0.6.apk",
+    },
+    {
+        "slug": "arabic-clock",
+        "date_published": "2026-10-28",
+        "name": "Arabic Clock",
+        "kicker": "08 · Home Screen",
+        "nav_cta": "Get the app",
+        "title": "Arabic Clock: Transparent Arabic-Indic Widget | Just Apps",
+        "description": "Free Android widget that shows 24-hour time in Arabic-Indic numerals on any phone, with six offline fonts, outlines and true transparency. No ads, no network.",
+        "og": "og-arabic-clock.png",
+        "h1": "Arabic Clock: Arabic-Indic numerals on a widget that is 100% transparent.",
+        "lede": "Arabic Clock is a free Android home-screen widget that shows local 24-hour time in Arabic-Indic numerals, ٠١٢٣٤٥٦٧٨٩, even when the phone’s language is English. The numerals are drawn by the app itself, so a launcher cannot swap them for Western digits, and the widget has no background at all.",
+        "answer": "<p><strong>In one line:</strong> Arabic Clock is a free, fully transparent Android clock widget that renders local 24-hour time in Arabic-Indic numerals using six bundled offline fonts, with controls for numeral width, size, colour, opacity and outline, and no internet permission.</p>",
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk">Download the APK</a>
+          <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-">Source on GitHub</a>""",
+        "cta_note": "Version 2.3.0 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
+        "shots": [
+            shot("/assets/arabic-clock/widget-400.webp",
+                 "Android home screen showing the 100% transparent Arabic Clock widget displaying 12:42 in Arabic-Indic numerals",
+                 "The widget on a home screen: numerals only, no panel.",
+                 400, 866,
+                 "/assets/arabic-clock/widget-400.webp 400w, /assets/arabic-clock/widget-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/arabic-clock/customizer-400.webp",
+                 "Arabic Clock single-screen customizer with a live checkerboard preview, an Amiri font choice and numeral width stretch",
+                 "The customizer: live preview above, settings below.",
+                 400, 866,
+                 "/assets/arabic-clock/customizer-400.webp 400w, /assets/arabic-clock/customizer-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+            shot("/assets/arabic-clock/styles-400.webp",
+                 "Arabic Clock stacked hours-over-minutes mode with gold numerals, a font outline and opacity controls",
+                 "Stacked hours over minutes, with an outline and opacity.",
+                 400, 866,
+                 "/assets/arabic-clock/styles-400.webp 400w, /assets/arabic-clock/styles-780.webp 780w",
+                 "(max-width: 620px) 42vw, 210px"),
+        ],
+        "body": """
+        <h2>What it does</h2>
+        <ul>
+          <li><strong>A transparent widget</strong> with no panel, border or background image, so it reads as part of the wallpaper.</li>
+          <li><strong>Arabic-Indic numerals</strong> in local 24-hour time, on an English-language phone as well as an Arabic one.</li>
+          <li><strong>Six bundled offline fonts</strong>: Amiri, Scheherazade New, Janna LT Bold, Arslan Wessam A, 18 Khebrat Musamim and Avenir Heavy.</li>
+          <li><strong>Numeral widths</strong> at natural, 15, 30, 50 or 75 percent wider, with separator dots as a separate, unstretched view.</li>
+          <li><strong>Size, spacing and margins</strong> from 24 to 240 sp, including a HUGE mode that fills the space the launcher gives the widget.</li>
+          <li><strong>Colour and outline</strong>: white, gold, black or any hex colour, with an optional 1 to 8 dp outline, or hollow numerals in outline-only mode.</li>
+          <li><strong>Opacity from 0 to 100 percent</strong>, applied once to the combined fill and outline, on a background that never appears.</li>
+        </ul>
+
+        <h2>Why the numerals are drawn by the app</h2>
+        <p>A text widget normally asks the launcher to draw text, and a launcher with an English locale can substitute
+        Western digits for Arabic-Indic ones, or fall back to a font that has no Arabic-Indic glyphs at all. Arabic
+        Clock avoids that by rendering the time to a transparent bitmap inside the app, with the bundled font you
+        selected and real Arabic-Indic Unicode digits. What the launcher receives is an image of the clock, not a
+        string it can reinterpret.</p>
+        <p>The clock refreshes on a minute alarm, with a 30-minute widget-host update as a fallback, and it also
+        refreshes when you open settings, when the time or time zone changes and after a reboot. On Android 12 and
+        later, allowing precise clock updates through Alarms and reminders keeps that minute accurate; without it,
+        Android may batch updates and the time can lag.</p>
+
+        <h2>What it will not do</h2>
+        <p>There are no alarms, stopwatches, seconds, dates, weather or per-widget profiles. The time is always local,
+        always 24-hour, and settings apply to every placed instance. The widget declares both home-screen and
+        keyguard categories, but that only helps on devices whose lock screen offers a third-party widget picker:
+        many Android versions and manufacturers do not expose one, and the app cannot replace or restyle the built-in
+        lock-screen clock.</p>
+        <p>The checkerboard in the customizer preview illustrates transparency. It is never part of the widget itself.</p>
+
+        <h2>What stays on your phone</h2>
+        <dl class="facts">
+          <dt>Settings</dt><dd>Font, width, size, colour, outline and opacity are stored locally and applied to every placed widget.</dd>
+          <dt>Internet permission</dt><dd>Not requested. The app cannot connect to a network.</dd>
+          <dt>Services</dt><dd>No foreground service, no background worker, no account and no sync.</dd>
+          <dt>Analytics and ads</dt><dd>None. No advertising SDK, no crash-reporting SDK, no tracking.</dd>
+        </dl>
+        <p>The full detail is on the <a href="/privacy">privacy policy page</a>.</p>
+
+        <h2>Compatibility and version</h2>
+        <dl class="facts">
+          <dt>Platform</dt><dd>Android 8.0 (API 26) and later, on a launcher that supports Android app widgets.</dd>
+          <dt>Version</dt><dd>2.3.0.</dd>
+          <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
+          <dt>Lock screen</dt><dd>Supported only where the device offers a third-party lock-screen widget picker.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-">Arabic-Clock-For-Android repository on GitHub</a></dd>
+          <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
+        </dl>
+        """,
+        "faq": [
+            ("Is the widget really transparent?",
+             "Yes. There is no panel, border or background image; only the numerals are drawn. The checkerboard in the customizer preview exists to show that transparency and is never part of the widget."),
+            ("Why do the numerals stay Arabic-Indic on an English phone?",
+             "Because the clock is rendered to a transparent bitmap inside the app, using bundled fonts and real Arabic-Indic Unicode digits. The launcher receives an image, so it cannot substitute Western digits or a fallback font."),
+            ("Which fonts are included?",
+             "Six, all offline: Amiri, Scheherazade New, Janna LT Bold, Arslan Wessam A, 18 Khebrat Musamim and Avenir Heavy. Each is bundled in the APK, so no font is downloaded."),
+            ("Will it appear on my lock screen?",
+             "Only if your device offers a third-party lock-screen widget picker. The app declares keyguard support, but many Android versions and manufacturers do not expose such a picker, and Arabic Clock cannot replace the built-in lock-screen clock."),
+            ("Does it need an internet connection?",
+             "No, and it could not use one. The app does not request the internet permission, and the clock is drawn on the device."),
+            ("Is it free?",
+             "Yes. Free to download and use, with no ads, no subscription and no in-app purchases."),
+        ],
+        "software": {
+            "name": "Arabic Clock",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Android 8.0 and later",
+            "description": "A 100% transparent Android clock widget that displays local 24-hour time in Arabic-Indic numerals even on English-language phones, with six bundled offline fonts, numeral stretch, a HUGE fill mode, stacked layout, custom outlines and full-range opacity.",
+            "image": BASE + "/assets/arabic-clock/icon-512.png",
+            "screenshot": [
+                BASE + "/assets/arabic-clock/widget-780.webp",
+                BASE + "/assets/arabic-clock/customizer-780.webp",
+                BASE + "/assets/arabic-clock/styles-780.webp",
+            ],
+            "featureList": [
+                "100% transparent home-screen clock widget in Arabic-Indic numerals",
+                "Renders the numerals inside the app, so English-language launchers cannot substitute fallback digits",
+                "Six bundled offline fonts: Amiri, Scheherazade New, Janna LT Bold, Arslan Wessam A, 18 Khebrat Musamim and Avenir Heavy",
+                "Numeral width stretch, 24 to 240 sp sizing and a HUGE fill mode",
+                "Stacked hours over minutes, full-range opacity and hollow or solid outlines",
+                "No internet permission, no ads, no accounts and local-only settings",
+            ],
+            "inLanguage": ["en", "ar"],
+            "softwareVersion": "2.3.0",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk",
+            "sameAs": ["https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-"],
+        },
+        "cta_primary": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk",
+    },
 ]
 
 TEMPLATE = """<!DOCTYPE html>
@@ -558,6 +1036,9 @@ TEMPLATE = """<!DOCTYPE html>
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{name} | Just Apps">
+<meta property="article:published_time" content="{date_published}">
+<meta property="article:modified_time" content="{date_modified}">
+<meta name="author" content="Owais Khan">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{description}">
@@ -691,12 +1172,15 @@ def build_jsonld(app):
         "@type": "SoftwareApplication",
         "@id": url + "#software",
         **app["software"],
-        "url": url,
-        "isAccessibleForFree": True,
-        "inLanguage": "en",
-        "offers": {"@type": "Offer", "price": 0, "priceCurrency": "INR"},
-        "publisher": {"@id": BASE + "/#organization"},
     }
+    # Defaults, so a per-app value (RemindME's seven languages, Arabic Clock's
+    # en/ar) survives instead of being flattened to "en" by the template.
+    software.setdefault("url", url)
+    software.setdefault("isAccessibleForFree", True)
+    software.setdefault("inLanguage", "en")
+    software.setdefault(
+        "offers", {"@type": "Offer", "price": 0, "priceCurrency": "INR"})
+    software.setdefault("publisher", {"@id": BASE + "/#organization"})
     graph = [
         # Full publisher/web nodes so a page fetched on its own (as answer
         # engines do) resolves the entity instead of dangling at an @id that
@@ -714,8 +1198,17 @@ def build_jsonld(app):
             "primaryImageOfPage": {"@id": url + "#primaryimage"},
             "author": AUTHOR,
             "inLanguage": "en",
+            "datePublished": app.get("date_published", DATE_PUBLISHED),
             "dateModified": DATE_MODIFIED,
             "breadcrumb": {"@id": url + "#breadcrumb"},
+            # AISO: name the passages an answer engine may quote or read
+            # aloud, so the lede and the one-line answer are never the
+            # paragraphs it has to guess at.
+            "speakable": {
+                "@type": "SpeakableSpecification",
+                "cssSelector": [".app-page h1", ".app-page .lede",
+                                ".app-page .answer p"],
+            },
         },
         {
             "@type": "ImageObject",
@@ -792,6 +1285,8 @@ def main():
             faq=faq_html,
             related=build_related(app),
             jsonld=build_jsonld(app),
+            date_published=app.get("date_published", DATE_PUBLISHED),
+            date_modified=DATE_MODIFIED,
             stage_sub=stages["sub"],
             stage_bot=stages["bot"],
         )

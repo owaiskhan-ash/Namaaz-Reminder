@@ -14,6 +14,7 @@ on:
     paths:
       - 'docs/**'
       - 'design/build_app_pages.py'
+      - 'design/build_app_og_cards.py'
       - 'design/seo_check.py'
       - '.github/workflows/seo-check.yml'
   pull_request:
@@ -22,6 +23,7 @@ on:
     paths:
       - 'docs/**'
       - 'design/build_app_pages.py'
+      - 'design/build_app_og_cards.py'
       - 'design/seo_check.py'
       - '.github/workflows/seo-check.yml'
   workflow_dispatch:

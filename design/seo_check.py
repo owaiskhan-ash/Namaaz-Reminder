@@ -38,8 +38,16 @@ INDEXABLE = {
     "screen-time-reminder.html": BASE + "/screen-time-reminder",
     "subscription-tracker.html": BASE + "/subscription-tracker",
     "vaccine-routine.html": BASE + "/vaccine-routine",
+    "water-reminder.html": BASE + "/water-reminder",
+    "steps-reminder.html": BASE + "/steps-reminder",
+    "remindme.html": BASE + "/remindme",
+    "arabic-clock.html": BASE + "/arabic-clock",
     "privacy.html": BASE + "/privacy",
 }
+
+# Every app page, i.e. everything except the collection home and privacy.
+APP_PAGES = [f for f in INDEXABLE
+             if f not in ("index.html", "privacy.html")]
 
 problems = []
 notes = []
@@ -369,8 +377,7 @@ def check_itemlist_parity(index_graphs):
         item = entry.get("item") or {}
         if item.get("url"):
             home[item["url"]] = item
-    for fname in ("namaaz-reminder.html", "screen-time-reminder.html",
-                  "subscription-tracker.html", "vaccine-routine.html"):
+    for fname in APP_PAGES:
         _, text, _ = parse(DOCS / fname) or (None, "", "")
         try:
             blocks = re.findall(
@@ -394,6 +401,47 @@ def check_itemlist_parity(index_graphs):
             if item.get(key) != app.get(key):
                 fail(f"index.html: ItemList[{app.get('url')}].{key} "
                      f"= {item.get(key)!r} but {fname} has {app.get(key)!r}")
+
+
+def check_discovery():
+    """Each app page is reachable from the hub and from every sibling.
+
+    Internal linking is what turns eight thin pages into one crawlable
+    cluster, and E-E-A-T metadata (author, publication date, speakable
+    passages) is what an answer engine quotes. Both are easy to lose in a
+    hand edit, so they are checked here.
+    """
+    hub, _, _ = parse(DOCS / "index.html")
+    for fname in APP_PAGES:
+        path = "/" + fname[:-5]
+        if path not in hub.hrefs:
+            fail(f"index.html: no internal link to {path}")
+    for fname in APP_PAGES:
+        page, text, _ = parse(DOCS / fname)
+        siblings = {"/" + f[:-5] for f in APP_PAGES if f != fname}
+        linked = siblings & set(page.hrefs)
+        if linked != siblings:
+            fail(f"{fname}: links to {len(linked)} of {len(siblings)} "
+                 f"sibling app pages (missing "
+                 f"{', '.join(sorted(siblings - linked))})")
+        if meta_content(page, name="author") != "Owais Khan":
+            fail(f"{fname}: missing <meta name=author content='Owais Khan'>")
+        graphs = []
+        for block in page.schema_blocks:
+            try:
+                graphs.extend(json.loads(block).get("@graph", []))
+            except json.JSONDecodeError:
+                pass
+        web = next((n for n in graphs if n.get("@type") == "WebPage"), None)
+        if web is None:
+            fail(f"{fname}: no WebPage node")
+            continue
+        for key in ("datePublished", "dateModified"):
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(web.get(key, ""))):
+                fail(f"{fname}: WebPage.{key} missing or malformed "
+                     f"({web.get(key)!r})")
+        if "speakable" not in web:
+            fail(f"{fname}: WebPage has no speakable passages")
 
 
 def check_typography():
@@ -430,6 +478,7 @@ def main():
     check_llms()
     check_entity_consistency(index_graphs)
     check_itemlist_parity(index_graphs)
+    check_discovery()
     check_typography()
 
     if problems:
