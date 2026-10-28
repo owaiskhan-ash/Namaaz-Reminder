@@ -422,7 +422,7 @@ def _build_social_card(ja_icon_512: Image.Image) -> None:
     )
     draw.text(
         (tx, 405),
-        "Water, subscriptions, and vaccine records.",
+        "Water, subscriptions, vaccines, and Arabic clock.",
         font=f_sub,
         fill=(216, 194, 160, 240),
     )

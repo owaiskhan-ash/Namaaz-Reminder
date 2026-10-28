@@ -19,7 +19,7 @@ STAGES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generate
 
 # Bump whenever any copy in this file changes; it feeds WebPage.dateModified
 # and should agree with the <lastmod> for the same URL in docs/sitemap.xml.
-DATE_MODIFIED = "2026-10-25"
+DATE_MODIFIED = "2026-10-28"
 
 # The publisher entity, defined here so every app page resolves it on its own.
 # The same @ids and field values are used on docs/index.html; keep them equal.
@@ -29,7 +29,7 @@ ORGANIZATION = {
     "name": "Just Apps",
     "alternateName": "Just Simple Apps",
     "url": BASE + "/",
-    "description": "A small studio making free, quiet Android apps for everyday life: prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions and childhood vaccine records.",
+    "description": "A small studio making free, quiet Android apps for everyday life: prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions, childhood vaccine records and a transparent Arabic-Indic clock widget.",
     "slogan": "Free apps for everyday life, quietly.",
     "foundingLocation": {"@type": "Place", "name": "Mumbai, India"},
     "logo": {
@@ -49,12 +49,14 @@ ORGANIZATION = {
     },
     "sameAs": [
         "https://github.com/owaiskhan-ash",
+        "https://github.com/owaiskhan-ash/Namaaz-Reminder",
         "https://github.com/owaiskhan-ash/ScreenTime-Reminder",
         "https://github.com/owaiskhan-ash/Subscription-Tracker",
         "https://github.com/owaiskhan-ash/vaccine-Tracker",
         "https://github.com/owaiskhan-ash/Steps-Reminder",
         "https://github.com/owaiskhan-ash/Water-Reminder",
         "https://github.com/owaiskhan-ash/RemindME",
+        "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-",
     ],
 }
 WEBSITE = {
@@ -63,7 +65,7 @@ WEBSITE = {
     "url": BASE + "/",
     "name": "Just Apps",
     "alternateName": "Just Simple Apps",
-    "description": "Free, ad-free apps for prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions and vaccine records.",
+    "description": "Free, ad-free apps for prayer times, screen breaks, step goals, water reminders, conversational reminders, subscriptions, vaccine records and an Arabic-Indic clock widget.",
     "publisher": {"@id": BASE + "/#organization"},
     "inLanguage": "en",
 }
@@ -95,9 +97,9 @@ APPS = [
         "h1": "Namaaz Reminder: prayer times and a countdown to the next salah.",
         "lede": "Namaaz Reminder shows today’s Fajr, Dhuhr, Asr, Maghrib and Isha times for your city in India, counts down to the next prayer, and can remind you at adhan. It is free, has no ads, and asks for no account.",
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders, with no ads, accounts or location permission.</p>",
-        "cta": """          <span class="pill"><span class="dot"></span>Coming to Google Play</span>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk">Download the APK</a>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
-        "cta_note": "Version 1.6.2 for Android 7.0 and later. There is no public download while the app is being prepared for the Play Store.",
+        "cta_note": "Version 1.7.2 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases; Google Play listing in preparation.",
         "shots": [
             shot("/assets/namaaz/today-400.webp",
                  "Namaaz Reminder showing the next prayer countdown and today's five prayer times on black leather",
@@ -169,9 +171,10 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
-          <dt>Version</dt><dd>1.6.2 (versionCode 10).</dd>
+          <dt>Version</dt><dd>1.7.2 (versionCode 13).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
+          <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Namaaz-Reminder">Namaaz-Reminder repository on GitHub</a></dd>
           <dt>Made by</dt><dd>Owais Khan (Just Apps), an independent studio in Mumbai, India. <a href="https://github.com/owaiskhan-ash">github.com/owaiskhan-ash</a>.</dd>
         </dl>
         """,
@@ -189,13 +192,13 @@ APPS = [
             ("Which cities are supported?",
              "Any city you can name, with Delhi as the default. The request is made against India as the country and the API returns the city’s own time zone."),
             ("Is Namaaz Reminder on Google Play?",
-             "Not yet. The app is being prepared for the Play Store, and this page shows the current status. It will be free when the listing goes live, with no ads and no account."),
+             "Not yet. While the Play Store listing is being prepared, you can download the free signed APK directly from the project’s GitHub releases."),
         ],
         "software": {
             "name": "Namaaz Reminder",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Android 7.0 and later",
-            "softwareVersion": "1.6.2",
+            "softwareVersion": "1.7.2",
             "description": "Daily prayer times for cities in India, a live countdown to the next salah, optional adhan reminders and an offline copy of the last schedule. Free, no ads, no account, no location permission.",
             "image": BASE + "/assets/nr-mark-512.png",
             "screenshot": [
@@ -213,8 +216,10 @@ APPS = [
                 "Light, dark and system themes",
                 "No ads, accounts, analytics or location permission",
             ],
+            "downloadUrl": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk",
+            "sameAs": ["https://github.com/owaiskhan-ash/Namaaz-Reminder"],
         },
-        "cta_primary": None,
+        "cta_primary": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk",
     },
     {
         "slug": "screen-time-reminder",
@@ -227,9 +232,9 @@ APPS = [
         "h1": "Screen Time Reminder: a gentle nudge to look up from your phone.",
         "lede": "Screen Time Reminder counts how long you have been using your phone in one stretch, and sends a single calm reminder when a session runs long. There are no streaks, no scores and no guilt, just one honest number and a reason to put the phone down for a minute.",
         "answer": "<p><strong>In one line:</strong> Screen Time Reminder is a free Android app that tracks continuous phone use and sends one gentle break reminder when a session runs long, keeping a seven-day history and asking for no account, no ads and no internet access.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/latest">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/ScreenTime-Reminder">Source on GitHub</a>""",
-        "cta_note": "Version 1.2.3 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
+        "cta_note": "Version 1.2.6 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
         "shots": [
             shot("/assets/screentime/today-400.webp",
                  "Screen Time Reminder today view with stitched cyan leather card and live screen-time count",
@@ -302,7 +307,7 @@ APPS = [
             "applicationCategory": "HealthApplication",
             "operatingSystem": "Android 8.0 and later",
             "description": "Counts continuous phone use and sends one gentle break reminder when a session runs long, with a seven-day history. Free, ad-free, and without the internet permission.",
-            "softwareVersion": "1.2.3",
+            "softwareVersion": "1.2.6",
             "image": BASE + "/assets/screentime/icon-512.png",
             "screenshot": [
                 BASE + "/assets/screentime/today-780.webp",
@@ -317,10 +322,10 @@ APPS = [
                 "No internet permission",
                 "No ads, accounts or analytics",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/latest",
+            "downloadUrl": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/ScreenTime-Reminder"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/latest",
+        "cta_primary": "https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk",
     },
     {
         "slug": "subscription-tracker",
@@ -333,7 +338,7 @@ APPS = [
         "h1": "Subscription Tracker: every subscription and recurring bill in one place.",
         "lede": "Subscription Tracker is a free Android app for keeping track of what renews, when, and what it really costs. Add subscriptions and bills by hand, see a monthly and yearly total you can compare, and get a reminder before each renewal.",
         "answer": "<p><strong>In one line:</strong> Subscription Tracker is a free, offline Android app that records your recurring bills, converts them into comparable monthly and yearly totals, and reminds you before a renewal, without connecting to your bank.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Subscription-Tracker/releases/download/v1.2.0/subscription-tracker-v1.2.0.apk">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Subscription-Tracker">Source on GitHub</a>""",
         "cta_note": "Version 1.2.0, free, Android 8.0 and later. Distributed as a signed APK from the project’s GitHub releases.",
         "shots": [
@@ -425,10 +430,10 @@ APPS = [
                 "Works offline",
                 "No bank connection, no account, no ads",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/download/v1.2.0/subscription-tracker-v1.2.0.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/Subscription-Tracker"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/latest",
+        "cta_primary": "https://github.com/owaiskhan-ash/Subscription-Tracker/releases/download/v1.2.0/subscription-tracker-v1.2.0.apk",
     },
     {
         "slug": "vaccine-routine",
@@ -441,9 +446,9 @@ APPS = [
         "h1": "Vaccine Routine: a calm, offline vaccine log for little ones.",
         "lede": "Vaccine Routine keeps a child’s vaccination record on your phone, helps you plan the next dose and reminds you when it is due. India’s National Immunization Schedule is offered as a suggestion, never a prescription.",
         "answer": "<p><strong>In one line:</strong> Vaccine Routine is a free, offline-first vaccine log and reminder for babies and children, with India’s National Immunization Schedule available as optional suggestions rather than medical advice.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest">Download the app</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/vaccine-Tracker">Source on GitHub</a>""",
-        "cta_note": "Free. Available for Android and on the web. Distributed from the project’s GitHub releases.",
+        "cta_note": "Version 1.0, free. Available for Android and on the web; signed APK distributed from the project’s GitHub releases.",
         "shots": [
             shot("/assets/vaccine/today-400.webp",
                  "Today: a child's vaccine record with given and planned doses",
@@ -524,10 +529,10 @@ APPS = [
                 "No account, no sync, no ads",
             ],
             "softwareVersion": "1.0",
-            "downloadUrl": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest",
+            "downloadUrl": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/vaccine-Tracker"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/latest",
+        "cta_primary": "https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk",
     },
 ]
 
@@ -653,7 +658,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="related">
 {related}
   </div>
-  <p style="margin-top:26px"><a href="/">← Back to all seven apps</a></p>
+  <p style="margin-top:26px"><a href="/">← Back to all eight apps</a></p>
 
   </div>
 </main>
