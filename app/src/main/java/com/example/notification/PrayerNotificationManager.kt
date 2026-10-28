@@ -18,15 +18,24 @@ import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerScheduleData
 import com.example.data.model.UserSettings
 import com.example.receiver.PrayerAlarmReceiver
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 object PrayerNotificationManager {
     /**
-     * Channel v3 delegates audio + alarm vibration directly to [AzaanAlarmPlayer]
+     * Channel v4 delegates audio + alarm vibration directly to [AzaanAlarmPlayer]
      * on [android.media.AudioAttributes.USAGE_ALARM] ([android.media.AudioManager.STREAM_ALARM])
      * so the full Madinah Azaan plays even when the phone is on Silent or Vibrate mode,
      * without Android's notification service muting or truncating it.
+     *
+     * This version is intentionally new: Android does not let an app silence an
+     * existing notification channel whose sound a user/device had enabled. A
+     * fresh silent channel prevents that channel sound from echoing the direct
+     * Azaan playback.
      */
-    private const val CHANNEL_ID_PREFIX = "namaz_prayer_alarms_v3"
+    private const val CHANNEL_ID_PREFIX = "namaz_prayer_alarms_v4"
     const val ACTION_PRAYER_REMINDER = "com.example.namaztimes.ACTION_PRAYER_REMINDER"
     const val ACTION_STOP_AZAAN = "com.example.namaztimes.ACTION_STOP_AZAAN"
 
@@ -34,6 +43,7 @@ object PrayerNotificationManager {
     const val EXTRA_PRAYER_TIME = "extra_prayer_time"
     const val EXTRA_CITY = "extra_city"
     const val EXTRA_OFFSET = "extra_offset"
+    const val EXTRA_REMINDER_ID = "extra_reminder_id"
     const val EXTRA_CANCEL_NOTIFICATION_ID = "extra_cancel_notification_id"
     const val EXTRA_STOP_AZAAN_ON_OPEN = "extra_stop_azaan_on_open"
 
@@ -77,6 +87,7 @@ object PrayerNotificationManager {
             .map { it.id }
             .filter {
                 (it.startsWith("${CHANNEL_ID_PREFIX}_") ||
+                    it.startsWith("namaz_prayer_alarms_v3_") ||
                     it.startsWith("namaz_prayer_alarms_v2_") ||
                     it.startsWith("namaz_prayer_reminders_")) &&
                     it != channelId
@@ -89,6 +100,23 @@ object PrayerNotificationManager {
     fun ensureDefaultChannel(context: Context): String {
         val settings = PreferencesManager(context.applicationContext).loadSettings()
         return createNotificationChannel(context, settings)
+    }
+
+    /**
+     * Stable identity for one prayer on one local India date. It is deliberately
+     * independent of reminder offset and display format so an old pending alarm
+     * cannot play alongside a rescheduled copy after the user changes settings.
+     */
+    fun reminderId(
+        prayerName: String,
+        city: String,
+        eventMillis: Long = System.currentTimeMillis(),
+        timezone: TimeZone = TimeZone.getTimeZone("Asia/Kolkata")
+    ): String {
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = timezone
+        }.format(Date(eventMillis))
+        return "${city.trim().lowercase(Locale.ROOT)}|${prayerName.trim().lowercase(Locale.ROOT)}|$date"
     }
 
     private fun channelIdFor(settings: UserSettings): String {
@@ -137,12 +165,19 @@ object PrayerNotificationManager {
                 val triggerAt = prayer.targetEpochMillis + offsetMillis
 
                 if (triggerAt > now) {
+                    val reminderId = reminderId(
+                        prayerName = prayer.type.englishName,
+                        city = schedule.city,
+                        eventMillis = prayer.targetEpochMillis,
+                        timezone = TimeZone.getTimeZone(schedule.timezone)
+                    )
                     val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
                         action = ACTION_PRAYER_REMINDER
                         putExtra(EXTRA_PRAYER_NAME, prayer.type.englishName)
                         putExtra(EXTRA_PRAYER_TIME, prayer.displayTime(settings.is24HourFormat))
                         putExtra(EXTRA_CITY, schedule.city)
                         putExtra(EXTRA_OFFSET, settings.reminderOffsetMinutes)
+                        putExtra(EXTRA_REMINDER_ID, reminderId)
                     }
 
                     val pendingIntent = PendingIntent.getBroadcast(
@@ -242,6 +277,9 @@ object PrayerNotificationManager {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(contentPendingIntent)
             .setDeleteIntent(dismissPendingIntent)
+            // The foreground service updates this same notification when audio
+            // ends; updates must never make the notification channel alert again.
+            .setOnlyAlertOnce(true)
             .setAutoCancel(true)
 
         if (includeStopAction) {
@@ -268,7 +306,8 @@ object PrayerNotificationManager {
         city: String,
         offsetMinutes: Int,
         settings: UserSettings,
-        isTest: Boolean = false
+        isTest: Boolean = false,
+        reminderId: String? = null
     ) {
         val appContext = context.applicationContext
         val channelId = createNotificationChannel(appContext, settings)
@@ -302,6 +341,7 @@ object PrayerNotificationManager {
                 putExtra(AzaanPlaybackService.EXTRA_CHANNEL_ID, channelId)
                 putExtra(AzaanPlaybackService.EXTRA_SOUND_URI, soundUri.toString())
                 putExtra(AzaanPlaybackService.EXTRA_VIBRATE, settings.vibrationEnabled)
+                reminderId?.let { putExtra(AzaanPlaybackService.EXTRA_REMINDER_ID, it) }
             }
             val startedService = runCatching {
                 ContextCompat.startForegroundService(appContext, serviceIntent)

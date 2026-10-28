@@ -16,8 +16,8 @@ android {
     applicationId = "com.aistudio.namaztimes.vxqpl"
     minSdk = 24
     targetSdk = 36
-    versionCode = 10
-    versionName = "1.6.2"
+    versionCode = 14
+    versionName = "1.7.3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

@@ -18,11 +18,14 @@ import androidx.core.app.ServiceCompat
  */
 class AzaanPlaybackService : Service() {
 
+    private var activeReminderId: String? = null
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == PrayerNotificationManager.ACTION_STOP_AZAAN) {
             val cancelId = intent.getIntExtra(EXTRA_NOTIFICATION_ID, 0)
+            activeReminderId = null
             AzaanAlarmPlayer.stop(applicationContext)
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             if (cancelId != 0) {
@@ -40,6 +43,16 @@ class AzaanPlaybackService : Service() {
             ?: PrayerNotificationManager.ensureDefaultChannel(applicationContext)
         val soundUri = intent?.getStringExtra(EXTRA_SOUND_URI)?.let { runCatching { Uri.parse(it) }.getOrNull() }
         val vibrate = intent?.getBooleanExtra(EXTRA_VIBRATE, true) ?: true
+        val reminderId = intent?.getStringExtra(EXTRA_REMINDER_ID)
+
+        // The receiver has a persistent delivery gate, but keep a second guard
+        // here in case Android starts this service twice before a duplicate
+        // broadcast has been observed. Restarting MediaPlayer would make the
+        // Azaan sound as though it played twice.
+        if (reminderId != null && reminderId == activeReminderId && AzaanAlarmPlayer.isPlaying) {
+            return START_NOT_STICKY
+        }
+        activeReminderId = reminderId
 
         val activeNotification = PrayerNotificationManager.buildNotification(
             context = applicationContext,
@@ -72,6 +85,9 @@ class AzaanPlaybackService : Service() {
             soundUri = soundUri,
             vibrate = vibrate
         ) {
+            if (activeReminderId == reminderId) {
+                activeReminderId = null
+            }
             // Detach the reminder notification without removing it so the user still
             // sees which prayer fired if they return to their phone after the Azaan ends.
             val completedNotification = PrayerNotificationManager.buildNotification(
@@ -92,6 +108,7 @@ class AzaanPlaybackService : Service() {
     }
 
     override fun onDestroy() {
+        activeReminderId = null
         AzaanAlarmPlayer.stop(applicationContext)
         super.onDestroy()
     }
@@ -104,5 +121,6 @@ class AzaanPlaybackService : Service() {
         const val EXTRA_CHANNEL_ID = "extra_channel_id"
         const val EXTRA_SOUND_URI = "extra_sound_uri"
         const val EXTRA_VIBRATE = "extra_vibrate"
+        const val EXTRA_REMINDER_ID = "extra_reminder_id"
     }
 }
