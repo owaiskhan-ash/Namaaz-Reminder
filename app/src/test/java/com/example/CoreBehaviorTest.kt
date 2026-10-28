@@ -8,6 +8,7 @@ import com.example.data.model.PrayerType
 import com.example.data.model.UserSettings
 import com.example.data.repository.PrayerRepository
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -61,6 +62,21 @@ class CoreBehaviorTest {
         assertEquals("custom", loaded.azaanSoundId)
         assertEquals("My Azaan", loaded.customAzaanName)
         assertEquals("content://media/audio/42", loaded.customAzaanUri)
+    }
+
+    @Test
+    fun `reminder delivery claim prevents a duplicate broadcast from playing twice`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val prefs = PreferencesManager(context)
+        val eventId = "mumbai|fajr|delivery-gate-${System.nanoTime()}"
+        val deliveredAt = 1_000L
+
+        assertTrue(prefs.claimReminderDelivery(eventId, deliveredAt))
+        assertFalse(prefs.claimReminderDelivery(eventId, deliveredAt + 1L))
+        assertTrue(prefs.claimReminderDelivery("$eventId-next", deliveredAt + 1L))
+        // The same prayer may be delivered again after the short retention
+        // window has elapsed; in normal use its id includes a new date.
+        assertTrue(prefs.claimReminderDelivery(eventId, deliveredAt + 3L * 24L * 60L * 60L * 1000L))
     }
 
     @Test
@@ -153,7 +169,7 @@ class CoreBehaviorTest {
             context,
             settings
         )
-        assertTrue(channelId.contains("madinah"))
+        assertTrue(channelId.contains("v4_madinah"))
 
         val notif = com.example.notification.PrayerNotificationManager.buildNotification(
             context = context,

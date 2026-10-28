@@ -31,13 +31,19 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
         if (intent.action != PrayerNotificationManager.ACTION_PRAYER_REMINDER) return
 
-        val settings = PreferencesManager(appContext).loadSettings()
+        val preferences = PreferencesManager(appContext)
+        val settings = preferences.loadSettings()
         val prayerName = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_NAME) ?: "Prayer"
         val prayerTime = intent.getStringExtra(PrayerNotificationManager.EXTRA_PRAYER_TIME) ?: ""
         val city = intent.getStringExtra(PrayerNotificationManager.EXTRA_CITY) ?: "India"
         val offset = intent.getIntExtra(PrayerNotificationManager.EXTRA_OFFSET, settings.reminderOffsetMinutes)
+        // Old alarms created before this release do not contain an ID. The
+        // fallback still gives those broadcasts an idempotency key, so an app
+        // update cannot leave a user hearing the same reminder twice.
+        val reminderId = intent.getStringExtra(PrayerNotificationManager.EXTRA_REMINDER_ID)
+            ?: PrayerNotificationManager.reminderId(prayerName, city)
 
-        if (settings.notificationsEnabled) {
+        if (settings.notificationsEnabled && preferences.claimReminderDelivery(reminderId)) {
             PrayerNotificationManager.showPrayerNotification(
                 context = appContext,
                 prayerName = prayerName,
@@ -45,7 +51,8 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 city = city,
                 offsetMinutes = offset,
                 settings = settings,
-                isTest = false
+                isTest = false,
+                reminderId = reminderId
             )
         }
 

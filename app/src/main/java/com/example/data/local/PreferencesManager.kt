@@ -25,8 +25,15 @@ class PreferencesManager(context: Context) {
         private const val KEY_CUSTOM_AZAAN_NAME = "key_custom_azaan_name"
         private const val KEY_CUSTOM_AZAAN_URI = "key_custom_azaan_uri"
         private const val KEY_MADINAH_AZAAN_URI = "key_madinah_azaan_uri"
+        private const val KEY_DELIVERED_REMINDERS = "key_delivered_reminders"
         private const val KEY_CACHED_PAYLOAD = "key_cached_payload_"
         private const val KEY_LAST_CACHED_TIME = "key_last_cached_time_"
+
+        // A prayer reminder is a one-time event. Persisting recently delivered
+        // IDs protects against an AlarmManager/OEM re-delivery after the app
+        // process has been restarted, not only duplicate broadcasts in memory.
+        private const val DELIVERED_REMINDER_RETENTION_MILLIS = 3L * 24L * 60L * 60L * 1000L
+        private val deliveredReminderLock = Any()
     }
 
     fun loadSettings(): UserSettings {
@@ -95,6 +102,53 @@ class PreferencesManager(context: Context) {
 
     fun clearMadinahAzaanUri() {
         prefs.edit().remove(KEY_MADINAH_AZAAN_URI).apply()
+    }
+
+    /**
+     * Claims a scheduled reminder before its notification/audio is started.
+     *
+     * Alarm broadcasts can occasionally be redelivered by Android or device
+     * vendors. The claim is synchronous and shared by all [PreferencesManager]
+     * instances in this process, so exactly one delivery of a prayer event may
+     * start the Azaan. Old entries are kept only long enough to cover a delayed
+     * re-delivery and are then pruned.
+     */
+    fun claimReminderDelivery(reminderId: String, deliveredAtMillis: Long = System.currentTimeMillis()): Boolean {
+        if (reminderId.isBlank()) return true
+
+        synchronized(deliveredReminderLock) {
+            val delivered = runCatching {
+                JSONObject(prefs.getString(KEY_DELIVERED_REMINDERS, "{}") ?: "{}")
+            }.getOrElse { JSONObject() }
+
+            val existingDelivery = delivered.optLong(reminderId, 0L)
+            if (existingDelivery > 0L &&
+                deliveredAtMillis >= existingDelivery &&
+                deliveredAtMillis - existingDelivery < DELIVERED_REMINDER_RETENTION_MILLIS
+            ) {
+                return false
+            }
+
+            val keys = delivered.keys()
+            val expiredKeys = mutableListOf<String>()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                val deliveredAt = delivered.optLong(key, 0L)
+                if (deliveredAt <= 0L ||
+                    deliveredAtMillis - deliveredAt >= DELIVERED_REMINDER_RETENTION_MILLIS
+                ) {
+                    expiredKeys += key
+                }
+            }
+            expiredKeys.forEach { delivered.remove(it) }
+            delivered.put(reminderId, deliveredAtMillis)
+
+            // `commit` makes the claim visible before this receiver can return
+            // and another copy of the broadcast is dispatched.
+            return prefs.edit()
+                .putString(KEY_DELIVERED_REMINDERS, delivered.toString())
+                .commit()
+        }
     }
 
     private fun loadCustomPrayerTimes(): Map<String, String> {
