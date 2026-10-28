@@ -626,8 +626,8 @@ suffix - it is already good):
 | `ScreenTime-Reminder` | `https://www.justsimpleapps.online/screen-time-reminder` | Screen-time break reminders: a live count of continuous use and one gentle nudge when a session runs long. Free Android app by Just Apps. |
 | `Subscription-Tracker` | `https://www.justsimpleapps.online/subscription-tracker` | *(existing text)* + ` Free Android app by Just Apps.` |
 | `vaccine-Tracker` | `https://www.justsimpleapps.online/vaccine-routine` | Child vaccine records and reminders with India's National Immunization Schedule as optional suggestions. Free Android app by Just Apps. |
-| `Steps-Reminder` | `https://www.justsimpleapps.online/#steps-reminder` | Daily step target, seven-day history, and one reminder at the hour you choose. Free Android app by Just Apps. |
-| `Water-Reminder` | `https://www.justsimpleapps.online/#water-reminder` | Water intake reminder at the interval you choose, with optional overnight quiet hours. Free Android app by Just Apps. |
+| `Steps-Reminder` | `https://www.justsimpleapps.online/steps-reminder` | Daily step target, seven-day history, and one reminder at the hour you choose. Free Android app by Just Apps. |
+| `Water-Reminder` | `https://www.justsimpleapps.online/water-reminder` | Water intake reminder at the interval you choose, with optional overnight quiet hours. Free Android app by Just Apps. |
 
 The Namaaz repo's homepage is currently the stale `namaaz-reminder.vercel.app` alias; the
 `vercel.json` redirect already points that host at the canonical domain, but the repo field
@@ -654,7 +654,114 @@ links, 0 dead anchors, 0 JSON-LD parse errors and 0 dangling `@id`s.
 
 ---
 
-## 11. Sources
+## 11. Round 5: every app gets its own page (2026-10-28)
+
+The split that mattered was structural, not cosmetic. Four of the eight apps (Water Reminder,
+Step Reminder, RemindME and Arabic Clock) were only ever cards on the home page: one long URL,
+one title, one description and one entity covering eight different search intents. Round 5 gives
+each of them a page of its own, generated from the same `APPS` list as the first four, and
+rebuilds the internal linking around that.
+
+| Change | What it does |
+| --- | --- |
+| `docs/water-reminder.html` | 700-word page: the two-hour default, clock-aligned slots, quiet hours, exact alarms and Doze, why there is no intake log, 6 FAQs |
+| `docs/steps-reminder.html` | 800-word page: where the phone's step counter comes from, the midnight baseline and the restart case, one plain-spoken reminder, the web build's limits, 6 FAQs |
+| `docs/remindme.html` | 780-word page: how a phrase becomes an alarm in seven languages, why it refuses to guess a missing time, the alarm audio stream, DND and exact-alarm permissions, 6 FAQs |
+| `docs/arabic-clock.html` | 800-word page: why the numerals are rendered to a bitmap inside the app, the six bundled fonts, the HUGE/stacked/outline controls, what lock-screen support really means, 6 FAQs |
+| `ItemList` and `hasPart` rewritten | The home page's eight `SoftwareApplication` entries now point at `…/<slug>#software` and their `url` at the page, so the collection and the app pages describe one entity each instead of an anchor on the landing page |
+| Landing cards | The four cards' previews link to the new pages and each card gained a "Read more" button next to the download, so both the crawler and a scanning visitor see a page behind the card |
+| Sibling links | Every app page's "Other apps in the collection" now lists all seven siblings (it listed three), which is what makes the eight pages a cluster rather than eight orphans |
+| Social cards | `design/build_app_og_cards.py` renders the four missing 1200x630 cards (Water, Steps, RemindME, Arabic Clock) in the existing house style, so a shared app link is never the generic studio card |
+| E-E-A-T and AISO metadata | Every app page gained `<meta name="author">`, `article:published_time`/`article:modified_time`, `WebPage.datePublished`, and a `speakable` selector list naming the H1, the lede and the one-line answer |
+| `sitemap.xml` and `llms.txt` | Four new URLs at priority 0.9; the `llms.txt` entries for those apps point at their pages instead of `/#anchor` |
+| `design/seo_check.py` | `INDEXABLE` covers 10 pages; `check_itemlist_parity()` now runs over all eight app pages; new `check_discovery()` fails the build if the hub stops linking an app page, if a page stops linking all seven siblings, or if an app page loses its author, publication date or `speakable` passages |
+
+Why this is the strongest available move for both classic search and answer engines:
+
+- **One URL per intent.** "water reminder app android" and "arabic indic clock widget" no longer
+  share a title, a canonical and a description. Each page can rank for its own query and is the
+  obvious landing page for it.
+- **Quotable structure per page.** Each page carries a bolded one-line answer, a `FAQPage` that
+  is generated from the visible `<details>` (so schema and copy cannot drift), a
+  `SoftwareApplication` with `featureList`/`screenshots`/`downloadUrl`, a `BreadcrumbList` and a
+  self-contained `Organization` + `WebSite` graph, so a crawler that fetches one URL resolves the
+  publisher without needing the home page.
+- **Honest copy, no padding.** Every claim on the new pages is checkable in the app's own
+  repository or README (permissions, intervals, quota-free fonts, versions). Answer engines
+  quote passages that survive verification; invented feature lists do not.
+
+---
+
+## 12. Round 6: typography sweep and technical tidy (2026-10-28)
+
+### 12.1 The em dash question
+
+Every text file in the repository was scanned for U+2014 EM DASH, U+2013 EN DASH and their
+HTML entities (`&mdash;`, `&ndash;`, `&#8212;`, `&#x2014;`): HTML, CSS, JS, JSON, XML, SVG,
+`.webmanifest`, `.txt`, `.md`, the Python generators and the Kotlin sources.
+
+**Result: zero occurrences.** The copy already uses plain punctuation, and
+`design/seo_check.py` has enforced that since round 3, which is why nothing was left to remove.
+Two characters that look like a dash at small sizes do exist and were checked deliberately:
+
+| File | Character | What it is | Kept? |
+| --- | --- | --- | --- |
+| `docs/styles.css` (`.faq-list details[open] summary::after`) | `−` U+2212 MINUS SIGN | the collapse glyph of the FAQ accordion, paired with `+` | Yes: a minus is the correct symbol for a collapse control, and it is not an em dash |
+| `SEO_AUDIT.md` (this document) | `−` U+2212 | "−40% image bytes", "−45% screenshot weight" | Yes: a minus sign in a measurement |
+
+The guard now scans `design/**` and `README.md` as well as `docs/**`, so the sweep cannot silently
+drift. Anything with the visual weight of an em dash still fails the build.
+
+### 12.2 Faults found and fixed
+
+| Fault | Fix |
+| --- | --- |
+| `privacy.html` had a **stray `</div>`** before `</main>`, so the document tree was malformed (browsers silently dropped the tag) | Removed; `check_markup()` now fails the build on stray or unclosed block tags |
+| `404.html` had **no meta description and no social metadata** | Description, `og:*` and Twitter card added; `check_404()` enforces a description of at least 70 characters and an `og:image` |
+| The home page and the privacy page had **no `author` meta** (the eight app pages did) | Added, and `check_uniqueness()` now requires it on every indexable page |
+| The privacy page's `WebPage` had **no `speakable`** passages, unlike the other nine | Added (`h1` and the "short version" callout); `check_speakable()` enforces it on every `WebPage`/`CollectionPage` |
+| **Three orphan `woff2` files** (58 KB) in `docs/assets/fonts` | The two that nothing referenced (35.5 KB) were deleted; `cormorant-garamond-latin-600-normal.woff2` stays because the screenshot generators use it |
+| No **font preload**, so the H1 and body text waited for the stylesheet to be parsed before the faces were even requested | The two faces used above the fold are preloaded on all 11 pages |
+| `cursor: none` was applied to **everything**, including prose (the I-beam disappeared, a WCAG 2.4.7-adjacent usability fault the round 4 audit flagged) | The custom dot now replaces the pointer only; prose keeps a text cursor and form fields keep theirs |
+| Four cards had a **"Read more" button and four did not**, and all eight preview links carried the same visible text | All eight cards have the button, and each link has a unique `aria-label` naming its app (WCAG 2.4.4) |
+| The privacy page's footer listed **three apps**, the app pages listed one, and the home page listed eight | Every footer names the full collection; the privacy page's relative `./` links became absolute |
+| `index.html` mixed **relative and absolute asset paths** | All 89 asset references are absolute, matching every other page |
+| The FAQ asked **"Is it free?" on seven pages**, "Does it need an internet connection?" on three, and duplicated two hub questions on the app pages | Every question now names its product ("Is Water Reminder free?", "Does Arabic Clock need an internet connection?") and the two hub questions became collection-level ("Are the Just Apps apps on Google Play?"), so each snippet is attributable to one page |
+
+### 12.3 New regression guards
+
+`design/seo_check.py` grew four checks, each verified by deliberately breaking the page first:
+
+| Check | Proves |
+| --- | --- |
+| `check_uniqueness()` | no two pages share a `<title>` or meta description, and every indexable page names its author (negative test: duplicating the Step Reminder title fails with `duplicate <title>` on both filenames) |
+| `check_speakable()` | every `WebPage`/`CollectionPage` node declares the passages an answer engine may quote |
+| `check_markup()` | no stray or unclosed block tags; tolerates the optional end tags the HTML spec allows (negative test: re-adding the stray `</div>` fails with `<main> left open before </div>`) |
+| `check_404()` | the noindex page still has a usable description and social image |
+| `check_faq_questions()` | no FAQ question is asked twice anywhere on the site (negative test: repeating the Water Reminder question on the Arabic Clock page fails with `FAQ question asked twice`) |
+
+`check_typography()` now scans every text file under `docs/` **and** `design/`, plus `README.md`.
+
+### 12.4 What is still open, and why
+
+These are recorded rather than fixed because they are decisions, not defects:
+
+1. **487 KB of decorative leather and suede texture per page.** Five 512x512 WebP tiles are
+   fetched for the inline SVG stages. Re-encoding at quality 78 saves only about 18% because the
+   grain *is* the information; halving the payload needs an art decision (smaller tiles, fewer
+   materials, or a flat fallback for small screens). LCP is text, so this costs bandwidth rather
+   than a Core Web Vital.
+2. **Desktop scroll inertia.** `motion.js` eases wheel scrolling on fine pointers. It respects
+   `prefers-reduced-motion`, but native precise scrolling is what many users expect; removing it
+   is a look-and-feel call for the owner.
+3. **No `twitter:site`.** There is no X/Twitter handle for Just Apps, and inventing one would be
+   worse than omitting it.
+4. **Off-page work** (Search Console, Play listing, repo homepages) still needs accounts, as
+   listed in §10.2.
+
+---
+
+## 13. Sources
 
 - Google, *Changes to HowTo and FAQ rich results* (8 Aug 2023) -
   <https://developers.google.com/search/blog/2023/08/howto-faq-changes>

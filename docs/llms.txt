@@ -38,20 +38,20 @@ Language: English. Updated: 2026-10-28.
   Immunization Schedule offered as optional suggestions, not medical advice.
   Android and web. Free, private, no account.
   [Vaccine Routine v1.0 APK](https://github.com/owaiskhan-ash/vaccine-Tracker/releases/download/v1.0/Vaccine-Routine-1.0.apk).
-- [Water Reminder](https://www.justsimpleapps.online/#water-reminder): a simple
+- [Water Reminder](https://www.justsimpleapps.online/water-reminder): a simple
   water-drinking nudge, every two hours by default and aligned to the local
   clock. Choose a 1, 2, 3 or 4 hour interval and optional quiet hours (10 PM to 8 AM).
   It has no intake logging, counters or charts, and makes no network requests.
   Android 7.0 and later. Free, no account.
   [Project](https://github.com/owaiskhan-ash/Water-Reminder) and
   [Water Reminder v1.0.0 APK](https://github.com/owaiskhan-ash/Water-Reminder/releases/download/v1.0.0/Water-Reminder-v1.0.0.apk).
-- [Step Reminder](https://www.justsimpleapps.online/#steps-reminder): a daily
+- [Step Reminder](https://www.justsimpleapps.online/steps-reminder): a daily
   step counter with a chosen target (2,000 to 20,000), one reminder at a chosen
   hour, and an on-device seven-day history. Android 6.0+ and web; web reminders
   fire only while the app is open. No account, cloud, analytics, Google Fit or
   Health Connect. [Project](https://github.com/owaiskhan-ash/Steps-Reminder) and
   [Step Reminder v1.4.0 APK](https://github.com/owaiskhan-ash/Steps-Reminder/releases/download/v1.4.0/SC-Step-Reminder-1.4.0.apk).
-- [RemindME](https://www.justsimpleapps.online/#remindme): a conversational
+- [RemindME](https://www.justsimpleapps.online/remindme): a conversational
   reminder app that parses natural-language phrases with an explicit date and
   time and schedules alarms on Android's alarm audio stream so silent or
   vibrate mode never mutes a reminder. Supports seven languages (English,
@@ -62,7 +62,7 @@ Language: English. Updated: 2026-10-28.
   local storage on the phone. Android 8.0 and later. Free, no account.
   [Project](https://github.com/owaiskhan-ash/RemindME) and
   [RemindME v1.0.6 APK](https://github.com/owaiskhan-ash/RemindME/raw/v1.0.6/release/RemindME-v1.0.6.apk).
-- [Arabic Clock](https://www.justsimpleapps.online/#arabic-clock): a 100%
+- [Arabic Clock](https://www.justsimpleapps.online/arabic-clock): a 100%
   transparent Android home-screen (and supported lock-screen) clock widget that
   renders local 24-hour time in Arabic-Indic numerals (٠١٢٣٤٥٦٧٨٩) even when
   your phone language is English. Includes six bundled offline fonts (Amiri,
@@ -107,7 +107,7 @@ Language: English. Updated: 2026-10-28.
 ## Also
 
 - [All eight apps](https://www.justsimpleapps.online/#apps): the collection page
-  links directly to the latest APK download for every app.
+  links to a dedicated page and the latest APK download for every app.
 - [Privacy policy](https://www.justsimpleapps.online/privacy): what Namaaz
   Reminder and this site store, what leaves the device, and what is never collected.
 

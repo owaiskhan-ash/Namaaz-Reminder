@@ -38,8 +38,16 @@ INDEXABLE = {
     "screen-time-reminder.html": BASE + "/screen-time-reminder",
     "subscription-tracker.html": BASE + "/subscription-tracker",
     "vaccine-routine.html": BASE + "/vaccine-routine",
+    "water-reminder.html": BASE + "/water-reminder",
+    "steps-reminder.html": BASE + "/steps-reminder",
+    "remindme.html": BASE + "/remindme",
+    "arabic-clock.html": BASE + "/arabic-clock",
     "privacy.html": BASE + "/privacy",
 }
+
+# Every app page, i.e. everything except the collection home and privacy.
+APP_PAGES = [f for f in INDEXABLE
+             if f not in ("index.html", "privacy.html")]
 
 problems = []
 notes = []
@@ -369,8 +377,7 @@ def check_itemlist_parity(index_graphs):
         item = entry.get("item") or {}
         if item.get("url"):
             home[item["url"]] = item
-    for fname in ("namaaz-reminder.html", "screen-time-reminder.html",
-                  "subscription-tracker.html", "vaccine-routine.html"):
+    for fname in APP_PAGES:
         _, text, _ = parse(DOCS / fname) or (None, "", "")
         try:
             blocks = re.findall(
@@ -396,14 +403,173 @@ def check_itemlist_parity(index_graphs):
                      f"= {item.get(key)!r} but {fname} has {app.get(key)!r}")
 
 
+def check_discovery():
+    """Each app page is reachable from the hub and from every sibling.
+
+    Internal linking is what turns eight thin pages into one crawlable
+    cluster, and E-E-A-T metadata (author, publication date, speakable
+    passages) is what an answer engine quotes. Both are easy to lose in a
+    hand edit, so they are checked here.
+    """
+    hub, _, _ = parse(DOCS / "index.html")
+    for fname in APP_PAGES:
+        path = "/" + fname[:-5]
+        if path not in hub.hrefs:
+            fail(f"index.html: no internal link to {path}")
+    for fname in APP_PAGES:
+        page, text, _ = parse(DOCS / fname)
+        siblings = {"/" + f[:-5] for f in APP_PAGES if f != fname}
+        linked = siblings & set(page.hrefs)
+        if linked != siblings:
+            fail(f"{fname}: links to {len(linked)} of {len(siblings)} "
+                 f"sibling app pages (missing "
+                 f"{', '.join(sorted(siblings - linked))})")
+        if meta_content(page, name="author") != "Owais Khan":
+            fail(f"{fname}: missing <meta name=author content='Owais Khan'>")
+        graphs = []
+        for block in page.schema_blocks:
+            try:
+                graphs.extend(json.loads(block).get("@graph", []))
+            except json.JSONDecodeError:
+                pass
+        web = next((n for n in graphs if n.get("@type") == "WebPage"), None)
+        if web is None:
+            fail(f"{fname}: no WebPage node")
+            continue
+        for key in ("datePublished", "dateModified"):
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(web.get(key, ""))):
+                fail(f"{fname}: WebPage.{key} missing or malformed "
+                     f"({web.get(key)!r})")
+        if "speakable" not in web:
+            fail(f"{fname}: WebPage has no speakable passages")
+
+
+def check_uniqueness():
+    """No two pages may share a <title> or a meta description.
+
+    Eight near-identical app pages make it easy to copy a title and forget to
+    change it, which is exactly the duplicate-content fault this site exists
+    to avoid.
+    """
+    titles, descs = {}, {}
+    for fname in INDEXABLE:
+        p, _, title = parse(DOCS / fname)
+        titles.setdefault(title, []).append(fname)
+        descs.setdefault(meta_content(p, name="description") or "", []).append(fname)
+        if fname != "index.html" and meta_content(p, name="author") != "Owais Khan":
+            fail(f"{fname}: missing <meta name=author content='Owais Khan'>")
+    for title, pages in titles.items():
+        if len(pages) > 1:
+            fail(f"duplicate <title> {title!r} on {', '.join(pages)}")
+    for desc, pages in descs.items():
+        if len(pages) > 1:
+            fail(f"duplicate meta description on {', '.join(pages)}")
+
+
+def check_speakable():
+    """Every WebPage node must say which passages may be quoted or read out."""
+    for fname in INDEXABLE:
+        p, _, _ = parse(DOCS / fname)
+        graphs = []
+        for block in p.schema_blocks:
+            try:
+                graphs.extend(json.loads(block).get("@graph", []))
+            except json.JSONDecodeError:
+                return  # reported by check_page
+        pages = [n for n in graphs
+                 if n.get("@type") in ("WebPage", "CollectionPage")]
+        if not pages:
+            fail(f"{fname}: no WebPage/CollectionPage node")
+            continue
+        for node in pages:
+            if "speakable" not in node:
+                fail(f"{fname}: {node.get('@type')} has no speakable passages")
+
+
+HTML_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+             "link", "meta", "param", "source", "track", "wbr"}
+# Elements whose end tag may be omitted, per the HTML spec.
+HTML_OPTIONAL = {"li", "p", "dt", "dd", "tr", "td", "th", "option", "thead",
+                 "tbody", "tfoot", "colgroup", "caption", "rt", "rp"}
+
+
+def check_faq_questions():
+    """No two pages may ask the same FAQ question.
+
+    A question like "Is it free?" repeated on eight pages is ambiguous to an
+    answer engine: it cannot tell which product the snippet is about. Each
+    question therefore names its app, and this check keeps it that way.
+    """
+    seen = {}
+    for fname in INDEXABLE:
+        page, _, _ = parse(DOCS / fname)
+        for question, _answer in page.details:
+            if question in seen:
+                fail(f"FAQ question asked twice: {question!r} "
+                     f"on {seen[question]} and {fname}")
+            seen[question] = fname
+
+
+def check_markup():
+    """Catch stray or unclosed block tags (a misplaced </div> once shipped)."""
+    from html.parser import HTMLParser as _HP
+
+    class Stack(_HP):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack = []
+            self.errs = []
+
+        def handle_starttag(self, tag, attrs):
+            if tag in HTML_VOID:
+                return
+            if tag in HTML_OPTIONAL and self.stack and self.stack[-1] == tag:
+                self.stack.pop()
+            self.stack.append(tag)
+
+        def handle_endtag(self, tag):
+            if tag in HTML_VOID:
+                return
+            if tag in self.stack:
+                while self.stack and self.stack[-1] != tag:
+                    open_tag = self.stack.pop()
+                    if open_tag not in HTML_OPTIONAL:
+                        self.errs.append(f"<{open_tag}> left open before </{tag}>")
+                if self.stack:
+                    self.stack.pop()
+            elif tag not in HTML_OPTIONAL:
+                self.errs.append(f"stray </{tag}>")
+
+    for path in sorted(DOCS.glob("*.html")):
+        parser = Stack()
+        parser.feed(path.read_text(encoding="utf-8"))
+        leftovers = [t for t in parser.stack if t not in HTML_OPTIONAL]
+        errs = parser.errs + [f"<{t}> never closed" for t in leftovers]
+        for err in errs:
+            fail(f"{path.name}: {err}")
+
+
+def check_404():
+    """The branded not-found page is noindex but still worth a real description."""
+    path = DOCS / "404.html"
+    if not path.exists():
+        fail("404.html missing")
+        return
+    p, _, _ = parse(path)
+    desc = meta_content(p, name="description")
+    if not desc or len(desc) < 70:
+        fail("404.html: missing or too-short meta description")
+    if not meta_content(p, prop="og:image"):
+        fail("404.html: missing og:image")
+
+
 def check_typography():
     """Page copy, metadata and generated assets must not contain em dashes."""
     paths = [p for p in DOCS.rglob("*")
              if p.is_file() and p.suffix.lower() in SITE_TEXT_SUFFIXES]
-    paths.extend([
-        ROOT / "design" / "build_app_pages.py",
-        ROOT / "design" / "mobile_viewport" / "index.html",
-    ])
+    paths.extend([p for p in (ROOT / "design").rglob("*")
+                  if p.is_file() and p.suffix.lower() in SITE_TEXT_SUFFIXES])
+    paths.append(ROOT / "README.md")
     for path in paths:
         text = path.read_text(encoding="utf-8")
         match = EM_DASH_RE.search(text)
@@ -430,6 +596,12 @@ def main():
     check_llms()
     check_entity_consistency(index_graphs)
     check_itemlist_parity(index_graphs)
+    check_discovery()
+    check_uniqueness()
+    check_speakable()
+    check_faq_questions()
+    check_markup()
+    check_404()
     check_typography()
 
     if problems:

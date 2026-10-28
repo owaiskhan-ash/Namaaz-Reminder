@@ -27,23 +27,39 @@ sitemap and JSON-LD URL must use that host: `owaiskhan-ash.github.io` does not s
 | Screen Time Reminder | `docs/screen-time-reminder.html` | `/screen-time-reminder` |
 | Subscription Tracker | `docs/subscription-tracker.html` | `/subscription-tracker` |
 | Vaccine Routine | `docs/vaccine-routine.html` | `/vaccine-routine` |
+| Water Reminder | `docs/water-reminder.html` | `/water-reminder` |
+| Step Reminder | `docs/steps-reminder.html` | `/steps-reminder` |
+| RemindME | `docs/remindme.html` | `/remindme` |
+| Arabic Clock | `docs/arabic-clock.html` | `/arabic-clock` |
 | Privacy policy | `docs/privacy.html` | `/privacy` |
 
 The extensions are stripped by `cleanUrls` in `docs/vercel.json`, which also sets the asset
 cache headers, the security headers and the 308 from the `vercel.app` alias to the custom
 domain. `docs/404.html` is the branded not-found page.
 
-The four app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
+All eight app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
 facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML by hand:
 
 ```bash
 python3 design/build_app_pages.py
 ```
 
+Every app therefore owns a page of its own (`/namaaz-reminder`, `/water-reminder` and so on)
+rather than a card on the home page: one URL per search intent, with its own title, meta
+description, canonical, 1200x630 social card, `SoftwareApplication` + `FAQPage` +
+`BreadcrumbList` graph, a one-line answer paragraph, a visible FAQ mirrored in schema, and
+links to all seven sibling apps. The landing page keeps the `ItemList` of all eight, so the
+collection and the individual apps reinforce each other instead of competing for one title.
+
 After changing anything under `docs/`, run the SEO/AISO validator. It checks canonical host,
-title/description lengths, `og:url`/canonical agreement, social-image existence, JSON-LD
-parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
-`robots.txt`, `llms.txt` URLs and that every page resolves the same `Organization` node:
+title/description lengths and uniqueness, `og:url`/canonical agreement, social-image existence,
+JSON-LD parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
+`robots.txt`, `llms.txt` URLs, that every page resolves the same `Organization` node, that the
+home `ItemList` matches each app page's `SoftwareApplication` node, that every app page is linked
+from the hub and from all seven siblings and carries an author, a publication date and
+`speakable` passages, that no page has stray or unclosed block tags, that the 404 page has a real
+description and social image, that no FAQ question is asked on two pages, and that no em dash or
+en dash has crept into the copy:
 
 ```bash
 python3 design/seo_check.py
@@ -69,14 +85,21 @@ for width in (400, 585):
 EOF
 ```
 
-`docs/assets/og/` holds the 1200×630 social cards, one per app. The `-400.webp` and `-780.webp`
+`docs/assets/og/` holds the 1200×630 social cards, one per app. The four newer cards are
+rendered by one shared script, which carries a single copy of the layout:
+
+```bash
+python3 design/build_app_og_cards.py
+``` The `-400.webp` and `-780.webp`
 files next to each screenshot are the responsive variants referenced from the pages; the
 original PNG/JPG files next to them are kept as the source for regenerating those variants.
 
-Adding a fifth app means one more entry in `APPS`, its screenshots and social card under
-`docs/assets/`, a card on the landing page, a URL in `docs/sitemap.xml` and an app entry in
-`docs/llms.txt`, then bump `DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap
-and run `python3 design/seo_check.py`. Page copy uses plain punctuation; the check rejects
+Adding an app means one more entry in `APPS`, its screenshots and social card under
+`docs/assets/`, a card on the landing page (linking to the new page), a URL in
+`docs/sitemap.xml`, an app entry in `docs/llms.txt`, a matching `ItemList` item in the
+`index.html` JSON-LD, and the new filename in `INDEXABLE` in `design/seo_check.py`; then bump
+`DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap and run
+`python3 design/seo_check.py`. Page copy uses plain punctuation; the check rejects
 em dashes and their HTML entities in the site files and generator.
 
 ## The other apps
