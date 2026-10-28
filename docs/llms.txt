@@ -22,12 +22,12 @@ Language: English. Updated: 2026-10-28.
   optional adhan reminders. Works offline from the last saved schedule. No
   location permission is requested; the chosen city name is the only location
   data. Android 7.0 and later. Free, no ads, no account.
-  [Namaaz Reminder v1.7.2 APK](https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.2/NamaazReminder-1.7.2-release.apk).
+  [Namaaz Reminder v1.7.3 APK](https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk).
 - [Screen Time Reminder](https://www.justsimpleapps.online/screen-time-reminder): counts
   continuous phone use and sends one gentle break reminder when a session runs
   long, with a 7-day history. No streaks or scores, and no internet permission.
   Android 8.0 and later. Free and ad-free.
-  [Screen Time Reminder v1.2.6 APK](https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.6/ScreenTimeReminder.apk).
+  [Screen Time Reminder v1.2.7 APK](https://github.com/owaiskhan-ash/ScreenTime-Reminder/releases/download/v1.2.7/ScreenTimeReminder.apk).
 - [Subscription Tracker](https://www.justsimpleapps.online/subscription-tracker):
   manually record subscriptions and recurring bills, see normalized monthly and
   yearly totals, and get on-device reminders before a renewal. It does not
