@@ -37,6 +37,15 @@ The extensions are stripped by `cleanUrls` in `docs/vercel.json`, which also set
 cache headers, the security headers and the 308 from the `vercel.app` alias to the custom
 domain. `docs/404.html` is the branded not-found page.
 
+Every page declares the same Just Apps search icon at the stable URL
+`/favicon-96x96.png`, with `/favicon.ico` containing 16, 32 and 48px fallbacks.
+The square 96px PNG meets Google's size guidance. Keep these URLs
+stable and crawlable; an SVG alone is not a Google Search favicon format.
+After deployment, use Search Console's URL Inspection tool to request indexing
+of the **home page**. Google can take days or weeks to refresh its search icon;
+a globe in a recent result does not necessarily mean the browser favicon is
+missing. See [Google's favicon guidelines](https://developers.google.com/search/docs/appearance/favicon-in-search).
+
 All eight app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
 facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML by hand:
 

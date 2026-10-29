@@ -20,7 +20,7 @@ STAGES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generate
 
 # Bump whenever any copy in this file changes; it feeds WebPage.dateModified
 # and should agree with the <lastmod> for the same URL in docs/sitemap.xml.
-DATE_MODIFIED = "2026-10-28"
+DATE_MODIFIED = "2026-10-29"
 
 # First publication date of the app pages. The original four went live
 # together; the four newer pages were added later, so a page-level
@@ -1051,10 +1051,9 @@ TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{description}">
 <meta name="twitter:image" content="{base}/assets/og/{og}">
 <meta name="twitter:image:alt" content="{name} | Just Apps">
-<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/assets/just-apps-icon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="/assets/just-apps-icon-32.png">
-<link rel="icon" type="image/png" sizes="64x64" href="/assets/just-apps-icon-64.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/just-apps-icon-180.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/assets/fonts/plus-jakarta-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
