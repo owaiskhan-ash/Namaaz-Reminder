@@ -11,10 +11,14 @@ corner matte and derives every website size from that single source.
 The procedural renderer below remains for the monochrome NR privacy-page mark.
 
 Outputs (docs/assets):
-  just-apps-icon-{32,64,128,256,512}.png   favicon, header logo, apple-touch
-  just-apps-icon.svg                       favicon (vector copy of
-                                           design/source/just-apps-icon-vector.svg)
-  nr-mark-header-{64,128}.png, .svg        the privacy page header mark
+  just-apps-icon-{32,64,96,128,180,256,512}.png  icons and header logo
+  just-apps-icon.svg                           vector browser icon (copy of
+                                              design/source/just-apps-icon-vector.svg)
+  nr-mark-header-{64,128}.png, .svg             the privacy page header mark
+
+Also writes stable root URLs for search crawlers and legacy browsers:
+  docs/favicon-96x96.png                  square, high-resolution search icon
+  docs/favicon.ico                       embedded 16, 32 and 48px sizes
 
 Run:  python3 design/build_site_icons.py
 """
@@ -24,6 +28,7 @@ from __future__ import annotations
 import base64
 import io
 import os
+import shutil
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -54,7 +59,7 @@ JA_SOURCE = os.path.join(ROOT, "design", "source", "JA-icon.png")
 NR_SOURCE = os.path.join(ROOT, "design", "source", "NR-icon.png")
 
 MARKS = [
-    ("JA", "just-apps-icon", [32, 64, 128, 180, 256, 512]),
+    ("JA", "just-apps-icon", [32, 64, 96, 128, 180, 256, 512]),
     ("NR", "nr-mark", [64, 128, 256, 512]),
     ("NR", "nr-mark-header", [64, 128]),
 ]
@@ -318,6 +323,12 @@ def main() -> None:
             path = os.path.join(ASSETS, f"{prefix}-{size}.png")
             img.save(path, "PNG", optimize=True)
             print("wrote", os.path.relpath(path, ROOT))
+            if prefix == "just-apps-icon" and size == 96:
+                # Google needs a crawlable raster icon. Keep its URL stable;
+                # never add a content hash or change it on every deployment.
+                search_path = os.path.join(ROOT, "docs", "favicon-96x96.png")
+                shutil.copyfile(path, search_path)
+                print("wrote", os.path.relpath(search_path, ROOT))
 
         svg_path = os.path.join(ASSETS, f"{prefix}.svg")
         if prefix == "just-apps-icon":

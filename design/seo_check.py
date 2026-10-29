@@ -10,22 +10,31 @@ already follows, so a future edit cannot quietly reintroduce the faults the
 SEO audit found: wrong canonical host, a noindex directive slipping onto an
 indexable page, titles/descriptions out of range, FAQ schema drifting from the
 visible questions, stale or invalid sitemap entries, dead links in llms.txt,
-or em dashes returning to the page copy.
+missing or inaccessible search favicons, or em dashes returning to the copy.
 """
 
 import json
 import re
+import struct
 import sys
 from datetime import date, datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.robotparser import RobotFileParser
 from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 BASE = "https://www.justsimpleapps.online"
 ROBOTS_META_NAMES = {"robots", "googlebot", "bingbot"}
+# Stable, root-level raster icons. SVG is a browser enhancement, not a
+# supported Google Search favicon format. The ICO advertises every embedded size.
+FAVICON_SIZES = {
+    "/favicon-96x96.png": {(96, 96)},
+    "/favicon.ico": {(16, 16), (32, 32), (48, 48)},
+}
+ICON_RELS = {"icon", "shortcut", "apple-touch-icon", "apple-touch-icon-precomposed"}
 
 # Matches the em dash itself plus the named/numeric HTML entities that render
 # as one. chr() keeps this guard file free of the character it looks for.
@@ -115,6 +124,105 @@ def meta_blocks_indexing(meta_tags):
     )
 
 
+def favicon_link_errors(links):
+    """Require stable, correctly sized raster icons in addition to any SVG."""
+    errors = []
+    icons = {}
+    for link in links:
+        rels = set((link.get("rel") or "").lower().split())
+        if not rels & ICON_RELS:
+            continue
+        href = link.get("href") or ""
+        parsed = urlparse(href)
+        if (not href.startswith("/") or href.startswith("//") or parsed.scheme
+                or parsed.netloc or parsed.query or parsed.fragment):
+            errors.append(f"icon URL must be stable and root-relative: {href!r}")
+        if href in icons:
+            errors.append(f"duplicate icon declaration: {href}")
+            continue
+        icons[href] = rels
+        if Path(href).suffix.lower() == ".svg":
+            continue
+        sizes = set()
+        for token in (link.get("sizes") or "").lower().split():
+            match = re.fullmatch(r"([1-9]\d*)x([1-9]\d*)", token)
+            if match:
+                sizes.add(tuple(map(int, match.groups())))
+        if not sizes:
+            errors.append(f"raster icon has no valid sizes: {href}")
+        elif href in FAVICON_SIZES and sizes != FAVICON_SIZES[href]:
+            errors.append(f"incorrect declared sizes for {href}: {sorted(sizes)}")
+        elif any(w != h or w < 8 for w, h in sizes):
+            errors.append(f"icon must be square and at least 8px: {href}")
+        if href == "/favicon-96x96.png" and link.get("type") != "image/png":
+            errors.append("the 96px search icon must have type=image/png")
+    for href in FAVICON_SIZES:
+        if not icons.get(href, set()) & {"icon", "shortcut"}:
+            errors.append(f"missing rel=icon declaration for {href}")
+    return errors
+
+
+def favicon_file_errors(path):
+    """Read PNG/ICO headers without adding an image-library dependency to CI."""
+    if not path.is_file():
+        return [f"icon file is missing: {path.name}"]
+    data = path.read_bytes()
+    if path.suffix.lower() == ".svg":
+        return []
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24 and data[12:16] == b"IHDR":
+        sizes = {struct.unpack(">II", data[16:24])}
+    elif data.startswith(b"\x00\x00\x01\x00") and len(data) >= 6:
+        count = struct.unpack("<H", data[4:6])[0]
+        if not count or len(data) < 6 + count * 16:
+            return [f"truncated or empty ICO: {path.name}"]
+        sizes = {(data[6 + i * 16] or 256, data[7 + i * 16] or 256)
+                 for i in range(count)}
+    else:
+        return [f"not a valid PNG or ICO header: {path.name}"]
+    errors = []
+    expected = FAVICON_SIZES.get("/" + path.name)
+    if expected is not None and sizes != expected:
+        errors.append(f"incorrect actual sizes for {path.name}: {sorted(sizes)}")
+    if any(w != h or w < 8 for w, h in sizes):
+        errors.append(f"icon must be square and at least 8px: {path.name}")
+    return errors
+
+
+def favicon_crawl_errors(robots_text, urls):
+    """Google needs both the page and its icon, not just ordinary Googlebot."""
+    robots = RobotFileParser()
+    robots.parse(robots_text.splitlines())
+    return [f"{agent}: robots.txt blocks {url}"
+            for agent in ("Googlebot", "Googlebot-Image")
+            for url in sorted(set(urls)) if not robots.can_fetch(agent, url)]
+
+
+def check_favicons():
+    robots_text = (DOCS / "robots.txt").read_text(encoding="utf-8")
+    urls = {BASE + "/"}
+    for page in sorted(DOCS.glob("*.html")):
+        parsed, _, _ = parse(page)
+        errors = favicon_link_errors(parsed.head_links)
+        for link in parsed.head_links:
+            if not set((link.get("rel") or "").lower().split()) & ICON_RELS:
+                continue
+            href = link.get("href") or ""
+            parsed_url = urlparse(href)
+            if not href.startswith("/") or href.startswith("//"):
+                continue
+            icon = (DOCS / parsed_url.path.lstrip("/")).resolve()
+            if not icon.is_relative_to(DOCS.resolve()):
+                errors.append(f"icon escapes the site directory: {href}")
+                continue
+            errors.extend(favicon_file_errors(icon))
+            if not parsed_url.query and not parsed_url.fragment:
+                urls.add(BASE + parsed_url.path)
+        for error in errors:
+            fail(f"{page.name}: favicon: {error}")
+    for error in favicon_crawl_errors(robots_text, urls):
+        fail(f"favicon: {error}")
+
+
 class PageParser(HTMLParser):
     """Collects the handful of facts each check needs."""
 
@@ -122,6 +230,8 @@ class PageParser(HTMLParser):
         super().__init__()
         self.meta = []          # list of dicts
         self.links = []         # <link> dicts
+        self.head_links = []    # icon declarations must be in <head>
+        self._in_head = False
         self.canonical = None
         self.h1_count = 0
         self.html_lang = None
@@ -137,6 +247,10 @@ class PageParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         d = dict(attrs)
+        if tag == "head":
+            self._in_head = True
+        if self._in_head and tag == "link":
+            self.head_links.append(d)
         if tag == "html" and d.get("lang"):
             self.html_lang = d["lang"]
         elif tag == "meta":
@@ -162,6 +276,8 @@ class PageParser(HTMLParser):
             self.hrefs.append(d["href"])
 
     def handle_endtag(self, tag):
+        if tag == "head":
+            self._in_head = False
         if tag == "script" and self._in_schema:
             self._in_schema = False
             self.schema_blocks.append("".join(self._schema_buf))
@@ -706,6 +822,7 @@ def main():
     # 404: check_404() requires an exact noindex/none robots directive.
     check_sitemap()
     check_robots()
+    check_favicons()
     check_llms()
     check_entity_consistency(index_graphs)
     check_itemlist_parity(index_graphs)
