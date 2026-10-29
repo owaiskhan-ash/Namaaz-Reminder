@@ -71,7 +71,7 @@ Language: English. Updated: 2026-10-28.
   full-range opacity, and hollow or solid font outlines. Requests no internet
   permission and stores settings locally. Android 8.0 and later. Free, no account.
   [Project](https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-) and
-  [Arabic Clock v2.3.0 APK](https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk).
+  [Arabic Clock v2.4.0 APK](https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.4.0/Arabic-Clock-2.4.0.apk).
 
 ## Facts worth quoting
 

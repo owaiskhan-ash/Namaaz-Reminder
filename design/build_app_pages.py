@@ -906,9 +906,9 @@ APPS = [
         "h1": "Arabic Clock: Arabic-Indic numerals on a widget that is 100% transparent.",
         "lede": "Arabic Clock is a free Android home-screen widget that shows local 24-hour time in Arabic-Indic numerals, ٠١٢٣٤٥٦٧٨٩, even when the phone’s language is English. The numerals are drawn by the app itself, so a launcher cannot swap them for Western digits, and the widget has no background at all.",
         "answer": "<p><strong>In one line:</strong> Arabic Clock is a free, fully transparent Android clock widget that renders local 24-hour time in Arabic-Indic numerals using six bundled offline fonts, with controls for numeral width, size, colour, opacity and outline, and no internet permission.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.4.0/Arabic-Clock-2.4.0.apk">Download the APK</a>
           <a class="btn btn-ghost" href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-">Source on GitHub</a>""",
-        "cta_note": "Version 2.3.0 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
+        "cta_note": "Version 2.4.0 for Android 8.0 and later. Free, signed APK from the project’s GitHub releases.",
         "shots": [
             shot("/assets/arabic-clock/widget-400.webp",
                  "Android home screen showing the 100% transparent Arabic Clock widget displaying 12:42 in Arabic-Indic numerals",
@@ -972,7 +972,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 8.0 (API 26) and later, on a launcher that supports Android app widgets.</dd>
-          <dt>Version</dt><dd>2.3.0.</dd>
+          <dt>Version</dt><dd>2.4.0.</dd>
           <dt>Price</dt><dd>Free, with no ads and no in-app purchases.</dd>
           <dt>Lock screen</dt><dd>Supported only where the device offers a third-party lock-screen widget picker.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-">Arabic-Clock-For-Android repository on GitHub</a></dd>
@@ -1013,11 +1013,11 @@ APPS = [
                 "No internet permission, no ads, no accounts and local-only settings",
             ],
             "inLanguage": ["en", "ar"],
-            "softwareVersion": "2.3.0",
-            "downloadUrl": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk",
+            "softwareVersion": "2.4.0",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.4.0/Arabic-Clock-2.4.0.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.3.0/Arabic-Clock-2.3.0.apk",
+        "cta_primary": "https://github.com/owaiskhan-ash/Arabic-Clock-For-Android-/releases/download/v2.4.0/Arabic-Clock-2.4.0.apk",
     },
 ]
 
