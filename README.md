@@ -11,108 +11,15 @@ A clean, minimal, monochrome **prayer times & reminder app for India**.
   calculation method. Reminders fire **at or shortly after** the prayer time (5 minutes after by
   default), which is when the adhan ends and the salah begins.
 
-Current version: **1.7.3** (`versionCode` 14).
+Current version: **1.7.4** (`versionCode` 15).
 
-## The website
+## Privacy
 
-`docs/` is the static site for the whole collection, published at
-<https://www.justsimpleapps.online/> from the `docs` directory. Every canonical, Open Graph,
-sitemap and JSON-LD URL must use that host: `owaiskhan-ash.github.io` does not serve this site
-(GitHub Pages is off), so a `github.io` URL in the markup is a dead link.
+There is no website, no analytics and no account. The full policy ships with the
+code in [`PRIVACY.md`](PRIVACY.md); Play accepts that file's URL as the listing's
+privacy policy:
 
-| Page | File | URL |
-| --- | --- | --- |
-| Collection landing page | `docs/index.html` | `/` |
-| Namaaz Reminder | `docs/namaaz-reminder.html` | `/namaaz-reminder` |
-| Screen Time Reminder | `docs/screen-time-reminder.html` | `/screen-time-reminder` |
-| Subscription Tracker | `docs/subscription-tracker.html` | `/subscription-tracker` |
-| Vaccine Routine | `docs/vaccine-routine.html` | `/vaccine-routine` |
-| Water Reminder | `docs/water-reminder.html` | `/water-reminder` |
-| Step Reminder | `docs/steps-reminder.html` | `/steps-reminder` |
-| RemindME | `docs/remindme.html` | `/remindme` |
-| Arabic Clock | `docs/arabic-clock.html` | `/arabic-clock` |
-| Privacy policy | `docs/privacy.html` | `/privacy` |
-
-The extensions are stripped by `cleanUrls` in `docs/vercel.json`, which also sets the asset
-cache headers, the security headers and the 308 from the `vercel.app` alias to the custom
-domain. `docs/404.html` is the branded not-found page.
-
-Every page declares the same Just Apps search icon at the stable URL
-`/favicon-96x96.png`, with `/favicon.ico` containing 16, 32 and 48px fallbacks.
-The square 96px PNG meets Google's size guidance. Keep these URLs
-stable and crawlable; an SVG alone is not a Google Search favicon format.
-After deployment, use Search Console's URL Inspection tool to request indexing
-of the **home page**. Google can take days or weeks to refresh its search icon;
-a globe in a recent result does not necessarily mean the browser favicon is
-missing. See [Google's favicon guidelines](https://developers.google.com/search/docs/appearance/favicon-in-search).
-
-All eight app pages are **generated**; edit `design/build_app_pages.py` (copy, screenshots,
-facts and FAQ live in its `APPS` list) and rebuild rather than editing the HTML by hand:
-
-```bash
-python3 design/build_app_pages.py
-```
-
-Every app therefore owns a page of its own (`/namaaz-reminder`, `/water-reminder` and so on)
-rather than a card on the home page: one URL per search intent, with its own title, meta
-description, canonical, 1200x630 social card, `SoftwareApplication` + `FAQPage` +
-`BreadcrumbList` graph, a one-line answer paragraph, a visible FAQ mirrored in schema, and
-links to all seven sibling apps. The landing page keeps the `ItemList` of all eight, so the
-collection and the individual apps reinforce each other instead of competing for one title.
-
-After changing anything under `docs/`, run the SEO/AISO validator. It checks canonical host,
-title/description lengths and uniqueness, `og:url`/canonical agreement, social-image existence,
-JSON-LD parsing, FAQ schema ≡ visible `<details>`, internal links and anchors, sitemap ↔ pages,
-`robots.txt`, `llms.txt` URLs, that every page resolves the same `Organization` node, that the
-home `ItemList` matches each app page's `SoftwareApplication` node, that every app page is linked
-from the hub and from all seven siblings and carries an author, a publication date and
-`speakable` passages, that no page has stray or unclosed block tags, that the 404 page has a real
-description and social image, that no FAQ question is asked on two pages, and that no em dash or
-en dash has crept into the copy. It tokenizes robots directives (so `noindex` can never be
-mistaken for `index`) and checks each sitemap `lastmod` against the page's JSON-LD `dateModified`.
-Run the SEO check and its indexability regression tests with:
-
-```bash
-python3 design/seo_check.py
-python3 -m unittest discover -s design -p 'test_*.py'
-```
-
-CI runs both checks on any push or PR that touches the site
-(`.github/workflows/seo-check.yml`), so a metadata regression fails the build instead of
-reaching production. `SEO_AUDIT.md` records the full audit history.
-
-Screenshots come from the other apps' repositories. Each one is also written as two WebP
-variants (400 px and 780 px wide) that the pages reference through `srcset`; regenerate them
-with Pillow (`pip install pillow`) whenever a screenshot changes:
-
-```bash
-python3 - <<'EOF'
-from PIL import Image
-src = 'docs/assets/vaccine/today.jpg'
-im = Image.open(src).convert('RGB')
-for width in (400, 585):
-    height = round(im.height * width / im.width)
-    im.resize((width, height), Image.LANCZOS).save(
-        src.rsplit('.', 1)[0] + f'-{width}.webp', 'WEBP', quality=82, method=6)
-EOF
-```
-
-`docs/assets/og/` holds the 1200×630 social cards, one per app. The four newer cards are
-rendered by one shared script, which carries a single copy of the layout:
-
-```bash
-python3 design/build_app_og_cards.py
-``` The `-400.webp` and `-780.webp`
-files next to each screenshot are the responsive variants referenced from the pages; the
-original PNG/JPG files next to them are kept as the source for regenerating those variants.
-
-Adding an app means one more entry in `APPS`, its screenshots and social card under
-`docs/assets/`, a card on the landing page (linking to the new page), a URL in
-`docs/sitemap.xml`, an app entry in `docs/llms.txt`, a matching `ItemList` item in the
-`index.html` JSON-LD, and the new filename in `INDEXABLE` in `design/seo_check.py`; then bump
-`DATE_MODIFIED` in the generator and `<lastmod>` in the sitemap and run
-`python3 design/seo_check.py`. Page copy uses plain punctuation; the check rejects
-em dashes and their HTML entities in the site files and generator.
+<https://github.com/owaiskhan-ash/Namaaz-Reminder/blob/main/PRIVACY.md>
 
 ## The other apps
 
@@ -190,29 +97,21 @@ own upload key instead.
 ## Brand
 
 The app icon is the approved **NR** artwork, a rounded block monogram in vivid
-coral and pink, set inside a matching neon frame on charcoal (`design/source/NR-icon.png`).
+coral and pink, set inside a matching neon frame on charcoal. The 1024 px source
+lives in `store-listing/icon-1024.png`, and the generated Android assets live in
+`app/src/main/res`:
 
-`design/build_icons.py` derives every icon from that one file, so the launcher
-icon, the themed icon and the in-app header can never drift apart:
-
-| Asset | How it is made |
+| Asset | What it is |
 | --- | --- |
 | `mipmap-*/ic_launcher.png` | the artwork, tightly cropped to the plate |
 | `mipmap-*/ic_launcher_round.png` | circular crop of the artwork |
 | `drawable/ic_app_icon.png` | the header badge |
-| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon: the monogram's furthest corner sits at ~47% of the tile, inside every launcher mask |
+| `drawable/ic_launcher_foreground_mark.png` | the artwork full-bleed for the adaptive icon |
 | `drawable/ic_launcher_background.xml` | the plate edge tone, for the margin a wide mask exposes |
-| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons; the launcher tints this layer, so the artwork's 3D shading cannot be used |
+| `drawable/ic_launcher_monochrome.xml` | a flat NR silhouette for themed icons |
 
-Regenerate after replacing the source artwork:
-
-```bash
-pip install pillow numpy
-python3 design/build_icons.py     # rewrites the res/ assets + design/preview/
-```
-
-The source artwork can be refreshed from its public URL with the *Fetch brand
-asset* workflow (GitHub runners can reach hosts that some sandboxes cannot).
+`app/src/main/ic_launcher-playstore.png` is the 512×512 icon the Play listing
+needs, and `store-listing/screenshots/` holds three 1080×1920 phone screenshots.
 
 ## Project layout
 
@@ -231,6 +130,16 @@ app/src/main/java/com/example/
 │   └── PrayerNotificationManager.kt # Channels, reminders, permission prompts
 ├── receiver/                        # Boot + prayer alarm broadcast receivers
 └── ui/                              # Screen, view model, components, theme
+```
+
+Around it:
+
+```
+app/src/main/res/            # icons, strings, notification icon, backup rules
+app/src/test/                # JVM unit tests (Robolectric)
+store-listing/               # Play listing icon + phone screenshots
+.github/workflows/           # Android CI (APKs), Play bundle (.aab), lint audit
+PRIVACY.md                   # privacy policy, also used as the Play listing URL
 ```
 
 ## Notifications

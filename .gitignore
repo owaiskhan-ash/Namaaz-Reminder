@@ -26,7 +26,7 @@ local.properties
 # Generated reports (Android CI uploads these as workflow artifacts).
 audit/output/
 
-# Python bytecode from design/*.py helpers
+# Python bytecode, in case a helper script is added back
 __pycache__/
 *.pyc
 

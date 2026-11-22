@@ -2,7 +2,7 @@
 <!--
     Adaptive-icon background: the artwork's plate lighting. The foreground uses
     the real tile, so this only shows in the narrow margin around it.
-    Tones sampled from design/source/NR-icon.png by design/build_icons.py.
+    Tones sampled from the NR artwork in store-listing/icon-1024.png.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
