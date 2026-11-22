@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Re-arms prayer alarms after a device reboot (AlarmManager alarms do not
- * survive reboots).
+ * survive reboots), after the clock/timezone changes (absolute RTC alarms
+ * would otherwise fire at the wrong wall-clock time), and after an app
+ * update (so a new build re-arms with its own logic immediately).
  *
  * Uses [goAsync] so the process is kept alive while the (potentially slow)
  * schedule fetch/reschedule runs; a bare coroutine scope returned from
@@ -20,7 +22,12 @@ import kotlinx.coroutines.launch
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if (intent?.action != Intent.ACTION_BOOT_COMPLETED) return
+        val action = intent?.action
+        if (action != Intent.ACTION_BOOT_COMPLETED &&
+            action != Intent.ACTION_TIME_SET &&
+            action != Intent.ACTION_TIMEZONE_CHANGED &&
+            action != Intent.ACTION_MY_PACKAGE_REPLACED
+        ) return
 
         val appContext = context.applicationContext
         val pendingResult = goAsync()

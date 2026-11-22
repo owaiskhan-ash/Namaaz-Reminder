@@ -58,6 +58,7 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<NamazUiState> = _uiState.asStateFlow()
 
     private var countdownJob: Job? = null
+    private var loadJob: Job? = null
     private var madinahDownloadJob: Job? = null
     private var madinahSoundReady = false
     private var loadedScheduleDateKey: String? = null
@@ -72,7 +73,10 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadTimings(city: String, methodId: Int) {
-        viewModelScope.launch {
+        // Cancel any in-flight load so a slow response for a previous
+        // city/method cannot overwrite the schedule the user just picked.
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val requestSettings = _uiState.value.settings
             val result = repository.getPrayerSchedule(
@@ -476,6 +480,11 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         val diffMillis = next.targetEpochMillis - now
 
         if (diffMillis <= 0) {
+            // Show zero instead of freezing on the last positive value while
+            // the refresh below is in flight (or if it fails offline).
+            if (_uiState.value.countdownText != "00h 00m 00s") {
+                _uiState.update { it.copy(countdownText = "00h 00m 00s", countdownSecondsRemaining = 0L) }
+            }
             // The ticker runs every second; request a refresh only once for this
             // expired prayer so a slow or failed request cannot spawn a request storm.
             if (lastExpiredPrayerRefreshMillis != next.targetEpochMillis) {

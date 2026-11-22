@@ -50,7 +50,7 @@ class PrayerRepository(
 
             val request = Request.Builder()
                 .url(url)
-                .header("User-Agent", "NamazTimesAndroidApp/1.0")
+                .header("User-Agent", "NamaazReminder/1.7.4")
                 .build()
 
             client.newCall(request).execute().use { response ->
@@ -247,7 +247,11 @@ class PrayerRepository(
     private fun parseHoursMinutes(timeStr: String): Pair<Int, Int> {
         return try {
             val parts = timeStr.split(":")
-            Pair(parts[0].trim().toInt(), parts[1].trim().toInt())
+            val hour = parts[0].trim().toInt()
+            val minute = parts[1].trim().toInt()
+            // Calendar.set() silently rolls out-of-range values over (25:99
+            // becomes 01:39 the next day), so reject them instead.
+            if (hour !in 0..23 || minute !in 0..59) Pair(12, 0) else Pair(hour, minute)
         } catch (e: Exception) {
             Pair(12, 0)
         }

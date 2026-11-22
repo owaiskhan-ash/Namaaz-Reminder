@@ -53,9 +53,13 @@ object PrayerScheduleCustomizer {
             )
         }
 
-        val nextPrayerIndex = todayPrayers.indexOfFirst {
-            it.type.isPrimaryPrayer && it.targetEpochMillis > nowMillis
-        }
+        // Pick the earliest future primary prayer by target time, not the
+        // first in list order: a custom time can move a prayer past another
+        // one (e.g. Fajr corrected to the evening), and list order would then
+        // crown the wrong prayer as "next".
+        val nextPrayerIndex = todayPrayers.indices
+            .filter { todayPrayers[it].type.isPrimaryPrayer && todayPrayers[it].targetEpochMillis > nowMillis }
+            .minByOrNull { todayPrayers[it].targetEpochMillis } ?: -1
         val resolvedPrayers = if (nextPrayerIndex >= 0) {
             todayPrayers.mapIndexed { index, prayer ->
                 prayer.copy(isNext = index == nextPrayerIndex)

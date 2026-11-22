@@ -478,7 +478,7 @@ fun NamazScreen(
 
                         // 5 Main Prayers
                         val primaryPrayers = schedule?.prayers?.filter { it.type.isPrimaryPrayer } ?: emptyList()
-                        items(primaryPrayers) { prayer ->
+                        items(primaryPrayers, key = { it.type.name }) { prayer ->
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -547,7 +547,7 @@ fun NamazScreen(
                             }
 
                             if (isAstronomicalExpanded) {
-                                items(secondaryPrayers) { prayer ->
+                                items(secondaryPrayers, key = { it.type.name }) { prayer ->
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()

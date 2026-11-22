@@ -59,3 +59,56 @@ suggestions, 9 KTX style hints, 1 target-SDK notice.
 - All UI strings are inline in Compose, so the app is English-only.
 - `metadata.json` and `.env.example` still carry AI Studio/Gemini scaffolding
   that this app does not use.
+
+---
+
+# Audit of 1.7.4 (`versionCode` 15) — 22 November 2026
+
+Second full read of the app before the first Play upload: every Kotlin file, the
+manifest, resources, Gradle/version catalog, CI workflow, tests and the landing
+pages. Version bumped to **1.7.4 / 15** so this build can be uploaded over
+1.7.3.
+
+## Fixed in this pass
+
+| Area | Problem | Fix |
+| --- | --- | --- |
+| Next prayer | `PrayerScheduleCustomizer` picked the first future prayer **in list order**. A custom time that moved a prayer past another (e.g. Dhuhr edited to 23:50) made the countdown target the wrong prayer | The earliest future primary prayer by target time is chosen; test added |
+| Alarms after clock change | Alarms are absolute `RTC_WAKEUP` times. Changing the clock or time zone (including DST) left every reminder at the old wall-clock time until the app was opened | `BootReceiver` now also re-arms on `TIME_SET`, `TIMEZONE_CHANGED` and `MY_PACKAGE_REPLACED` |
+| Azaan playback | A failed `MediaPlayer` setup (bad custom file, unsupported codec) leaked an unreleased native player on every reminder | The half-initialised player is released before falling back |
+| City switching | A slow in-flight schedule request could land after the user picked another city and overwrite it | `loadTimings` cancels the previous load |
+| Countdown | After the last prayer the countdown could sit frozen on a stale positive value while the refresh was in flight | Shows `00h 00m 00s` immediately and refreshes |
+| Settings robustness | A corrupted/hand-edited preference (empty city, unknown theme, negative offset) went straight into API calls and alarm maths | Values are validated/clamped on load (offset 0–120, known theme, non-empty city) |
+| API parsing | `Calendar.set()` silently rolls over invalid times (`25:99` became the next day), producing a bogus alarm | Out-of-range hours/minutes are rejected and fall back to 12:00 |
+| Test reminder | The test notification always claimed the Madinah Azaan stream was active, even with sound off or no sound selected | Message reflects the actual state |
+| Prayer list | `LazyColumn` used positional keys while the list changes with the schedule | Stable `PrayerType` keys |
+| Build/CI | The versioned release did not attach the `.aab`; release notes always claimed the release APK is debug-key signed | `.aab` attached when built; notes now describe the real signing key and state when no upload key is configured |
+| Repo hygiene | `*.jks`/`*.keystore` and the CI-downloaded `res/raw/` MP3 could be committed | Ignored (the debug key stays tracked) |
+| Version strings | README, landing page, privacy page, `llms.txt`, sitemap and JSON-LD still pointed at 1.7.3 | All at 1.7.4 / `versionCode` 15, dates moved to 2026-11-22 |
+| Dependencies | `okhttp` 4.10.0 (2022) | 4.12.0 |
+
+## Still required in the Play Console (cannot be done from the repo)
+
+1. **Upload key**: the repository has **no** `KEYSTORE_BASE64` secret (CI keeps
+   building debug-key APKs and no `.aab`). Create the key once, keep the `.jks`
+   somewhere safe and add three secrets:
+
+   ```bash
+   keytool -genkeypair -v -keystore namaaz-upload-key.jks -storetype PKCS12 \
+     -storepass <STORE_PASSWORD> -keypass <KEY_PASSWORD> -alias upload \
+     -keyalg RSA -keysize 4096 -validity 10000 \
+     -dname "CN=Namaaz Reminder, O=Namaaz, L=Mumbai, ST=Maharashtra, C=IN"
+   base64 -w0 namaaz-upload-key.jks   # -> KEYSTORE_BASE64
+   ```
+
+   Then `Settings → Secrets and variables → Actions`: `KEYSTORE_BASE64`,
+   `STORE_PASSWORD`, `KEY_PASSWORD`. The next CI run publishes
+   `NamaazReminder-1.7.4-release.aab`; enrol in **Play App Signing** with it.
+2. **App content**: Alarms & reminders declaration (`SCHEDULE_EXACT_ALARM`),
+   Data safety (city name to `api.aladhan.com`, Azaan MP3 from the public
+   Supabase bucket, no accounts/analytics/ads/location), privacy policy URL
+   (`https://www.justsimpleapps.online/privacy`), content rating, target
+   audience, ads = none.
+3. **Store listing**: 512×512 icon, feature graphic, at least two phone
+   screenshots (the landing page already has 400 px webp shots — export PNG at
+   1080 px for the listing).

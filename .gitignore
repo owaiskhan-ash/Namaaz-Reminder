@@ -17,6 +17,11 @@ local.properties
 .env
 # NOTE: debug.keystore is intentionally committed. It is the standard,
 # publicly-known Android debug signing key required by the debug build type.
+# The Play upload key must never be committed: it lives only in the
+# KEYSTORE_BASE64 repository secret (see PRE_PUBLISH_CHECKLIST.md).
+*.jks
+*.keystore
+!debug.keystore
 
 # Generated reports (Android CI uploads these as workflow artifacts).
 audit/output/
@@ -24,3 +29,7 @@ audit/output/
 # Python bytecode from design/*.py helpers
 __pycache__/
 *.pyc
+
+# CI downloads the Madinah Azaan MP3 into res/raw before building; it is a
+# build input, not source (see .github/workflows/android-ci.yml).
+/app/src/main/res/raw/

@@ -256,10 +256,18 @@ jobs:
             echo "Namaaz Reminder APKs."
             echo
             echo "* \`-debug.apk\`: debug build, signed with the standard Android debug key."
-            echo "* \`-release.apk\`: release build (minification off), signed with the same"
-            echo "  certificate so it can upgrade the debug build in place."
             if ls apk/*.aab >/dev/null 2>&1; then
-              echo "* \`-release.aab\`: Play bundle, signed with the upload key."
+              echo "* \`-release.apk\`: release build (minification off), signed with the Play"
+              echo "  upload key. Uninstall the debug build before installing this one."
+              echo "* \`-release.aab\`: Play bundle, signed with the upload key. This is the"
+              echo "  file to upload to the Play Console."
+            else
+              echo "* \`-release.apk\`: release build (minification off), signed with the same"
+              echo "  certificate so it can upgrade the debug build in place."
+              echo
+              echo "> No upload key is configured in this repository, so no Play bundle"
+              echo "> (\`.aab\`) was built. Add the \`KEYSTORE_BASE64\`, \`STORE_PASSWORD\` and"
+              echo "> \`KEY_PASSWORD\` repository secrets to build a Play-ready bundle."
             fi
             echo
             echo "Install with: \`adb install -r <file>.apk\`"
@@ -347,4 +355,6 @@ jobs:
       - name: Attach APK to release
         uses: softprops/action-gh-release@v2
         with:
-          files: apk/*.apk
+          files: |
+            apk/*.apk
+            apk/*.aab

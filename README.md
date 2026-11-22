@@ -150,10 +150,10 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.7.3-release.apk
+adb install -r NamaazReminder-1.7.4-release.apk
 ```
 
-Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
+Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs and, when the upload key is configured, the Play bundle (`.aab`).
 
 ## Building locally
 
