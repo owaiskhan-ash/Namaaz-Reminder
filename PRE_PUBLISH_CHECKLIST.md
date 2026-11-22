@@ -41,9 +41,10 @@ suggestions, 9 KTX style hints, 1 target-SDK notice.
 5. **Data safety**: the app sends the selected city name to
    `api.aladhan.com`, and downloads the Azaan audio from a public bucket.
    Declare this, and add a privacy policy URL.
-6. **Azaan auto-download**: the Madinah Azaan (public Supabase bucket) is
-   downloaded on first launch and saved to the public Ringtones collection.
-   Decide whether that should stay automatic or wait for a tap.
+6. **Azaan audio**: *resolved in 1.7.4*: the audio now ships inside the APK
+   and is never downloaded. The public Supabase bucket that used to serve it
+   has been deleted (its hostname no longer resolves), which previously broke
+   the CI build outright.
 7. **Reminder default**: reminders fire 5 minutes *after* the prayer by
    default (0 = at adhan). Confirm that is the intended behaviour.
 
@@ -86,6 +87,7 @@ pages. Version bumped to **1.7.4 / 15** so this build can be uploaded over
 | Repo hygiene | `*.jks`/`*.keystore` and the CI-downloaded `res/raw/` MP3 could be committed | Ignored (the debug key stays tracked) |
 | Version strings | README, landing page, privacy page, `llms.txt`, sitemap and JSON-LD still pointed at 1.7.3 | All at 1.7.4 / `versionCode` 15, dates moved to 2026-11-22 |
 | Dependencies | `okhttp` 4.10.0 (2022) | 4.12.0 |
+| Azaan audio (blocker) | The default Madinah Azaan was downloaded at runtime and fetched by CI from `oxtqzqynhtybrgushmjp.supabase.co`. That project has been deleted, so **the CI build failed outright** and a fresh install could not get the audio | The app no longer makes that request (audio is APK-bundled, playback already fell back to the device alarm tone); CI recovers the same file from the previous release APK and warns instead of failing when it cannot |
 
 ## Still required in the Play Console (cannot be done from the repo)
 
@@ -105,8 +107,8 @@ pages. Version bumped to **1.7.4 / 15** so this build can be uploaded over
    `STORE_PASSWORD`, `KEY_PASSWORD`. The next CI run publishes
    `NamaazReminder-1.7.4-release.aab`; enrol in **Play App Signing** with it.
 2. **App content**: Alarms & reminders declaration (`SCHEDULE_EXACT_ALARM`),
-   Data safety (city name to `api.aladhan.com`, Azaan MP3 from the public
-   Supabase bucket, no accounts/analytics/ads/location), privacy policy URL
+   Data safety (city name to `api.aladhan.com`, no audio download, no
+   accounts/analytics/ads/location), privacy policy URL
    (`https://www.justsimpleapps.online/privacy`), content rating, target
    audience, ads = none.
 3. **Store listing**: 512×512 icon, feature graphic, at least two phone

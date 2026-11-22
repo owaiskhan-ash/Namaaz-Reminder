@@ -320,22 +320,26 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Downloads the supplied Madinah Azaan automatically and retries on resume if offline. */
+    /**
+     * Resolves the Madinah Azaan that ships inside the APK. There is no download
+     * any more (the old storage bucket is gone), so this only refreshes the
+     * notification channel and the pending alarms when the bundled file becomes
+     * available, and otherwise leaves the device alarm sound in place.
+     */
     fun ensureMadinahAzaanDownloaded() {
         if (madinahDownloadJob?.isActive == true || madinahSoundReady) return
         madinahDownloadJob = viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    AzaanSoundStore.ensureMadinahAzaanDownloaded(getApplication(), preferencesManager)
+                    AzaanSoundStore.ensureMadinahAzaanAvailable(getApplication(), preferencesManager)
                 }
             }
-            if (result.isSuccess) {
+            if (result.getOrNull() != null) {
                 madinahSoundReady = true
                 val latestSettings = _uiState.value.settings
                 PrayerNotificationManager.createNotificationChannel(getApplication(), latestSettings)
                 rescheduleAlarms()
             } else {
-                // Keep the normal device notification sound as a fallback and retry later.
                 madinahDownloadJob = null
             }
         }

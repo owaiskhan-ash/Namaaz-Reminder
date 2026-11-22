@@ -45,18 +45,48 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Bundle Madinah Azaan into APK raw resources
-        # Bundling Madinah Azaan directly into res/raw/madinah_azaan.mp3 ensures
-        # the full Madinah Azaan plays immediately offline (and in Silent/Vibrate
-        # mode via STREAM_ALARM) without waiting for a post-install download.
+        # The audio ships inside the APK (res/raw/madinah_azaan.mp3) so the azaan
+        # plays offline and on the alarm stream. Sources, in order:
+        #   1. a file already in the tree (developer build),
+        #   2. the storage bucket URL below,
+        #   3. the last published release APK, which already contains the same
+        #      file - the bucket this project used has been deleted, so the
+        #      pipeline must not depend on it.
+        # If none of them yields the file the build goes on without it: the app
+        # falls back to the device alarm sound instead of failing every reminder.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AZAAN_URL: "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3"
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          TARGET="app/src/main/res/raw/madinah_azaan.mp3"
           mkdir -p app/src/main/res/raw
-          if [ ! -s app/src/main/res/raw/madinah_azaan.mp3 ]; then
-            curl -fsSL --retry 3 --retry-delay 2 \
-              "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3" \
-              -o app/src/main/res/raw/madinah_azaan.mp3
+
+          if [ ! -s "$TARGET" ]; then
+            curl -fsSL --retry 2 --retry-delay 2 "$AZAAN_URL" -o "$TARGET" || rm -f "$TARGET"
           fi
-          ls -lh app/src/main/res/raw/madinah_azaan.mp3
+
+          if [ ! -s "$TARGET" ]; then
+            echo "::warning::Azaan bucket unavailable; trying to recover the file from the last release APK."
+            for TAG in v1.7.3 v1.7.2 v1.7.1 v1.7.0; do
+              rm -rf /tmp/azaan
+              mkdir -p /tmp/azaan
+              if gh release download "$TAG" --pattern '*-release.apk' --dir /tmp/azaan --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+                unzip -o -j /tmp/azaan/*.apk "res/raw/madinah_azaan.mp3" -d /tmp/azaan/out >/dev/null 2>&1 || true
+                if [ -s /tmp/azaan/out/madinah_azaan.mp3 ]; then
+                  cp /tmp/azaan/out/madinah_azaan.mp3 "$TARGET"
+                  echo "Recovered the Azaan audio from $TAG."
+                  break
+                fi
+              fi
+            done
+          fi
+
+          if [ -s "$TARGET" ]; then
+            ls -lh "$TARGET"
+          else
+            echo "::warning::Building without bundled Azaan audio; the app will use the device alarm sound."
+          fi
 
       - name: Run unit tests
         # The output is kept in a file, so a compile error can be published on

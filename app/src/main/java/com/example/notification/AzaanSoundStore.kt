@@ -14,12 +14,9 @@ import androidx.core.content.FileProvider
 import com.example.data.local.PreferencesManager
 import com.example.data.model.AzaanSoundIds
 import com.example.data.model.UserSettings
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
 import java.io.InputStream
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 /**
  * Downloads and stores the default Azaan in the device's public Ringtones folder,
@@ -27,17 +24,8 @@ import java.util.concurrent.TimeUnit
  * available to Android's notification service after the app process is gone.
  */
 object AzaanSoundStore {
-    private const val MADINAH_AZAAN_URL =
-        "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3"
     private const val SOUND_FOLDER = "Namaaz Reminder"
     private const val MAX_AUDIO_BYTES = 40L * 1024L * 1024L
-
-    private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(45, TimeUnit.SECONDS)
-        .followRedirects(true)
-        .followSslRedirects(true)
-        .build()
 
     data class ImportedAzaan(val name: String, val uri: Uri)
 
@@ -86,11 +74,20 @@ object AzaanSoundStore {
         return selected
     }
 
-    /** Downloads the Madinah audio once if not already bundled in APK raw resources. */
-    fun ensureMadinahAzaanDownloaded(
+    /**
+     * Returns a usable Madinah Azaan URI. The audio ships inside the APK as
+     * `res/raw/madinah_azaan.mp3`, so there is no network call and nothing to
+     * download: the old storage bucket that served this file has been deleted,
+     * and an unavailable bucket must never leave the user with silent alarms.
+     *
+     * Playback ([selectedSoundUri]) already falls back to the device alarm
+     * sound when this returns null, so a build without the bundled file still
+     * makes a sound.
+     */
+    fun ensureMadinahAzaanAvailable(
         context: Context,
         preferencesManager: PreferencesManager
-    ): Uri {
+    ): Uri? {
         val appContext = context.applicationContext
         bundledMadinahUri(appContext)?.let { return it }
 
@@ -102,27 +99,7 @@ object AzaanSoundStore {
             }
             preferencesManager.clearMadinahAzaanUri()
         }
-
-        val request = Request.Builder()
-            .url(MADINAH_AZAAN_URL)
-            .header("User-Agent", "NamaazReminder/1.0")
-            .build()
-
-        httpClient.newCall(request).execute().use { response ->
-            check(response.isSuccessful) { "Could not download the Madinah Azaan (${response.code})." }
-            val body = response.body ?: error("The Madinah Azaan download was empty.")
-            require(body.contentLength() <= MAX_AUDIO_BYTES || body.contentLength() == -1L) {
-                "The Madinah Azaan file is too large to save."
-            }
-            val audioUri = saveAudioToDevice(
-                context = appContext,
-                input = body.byteStream(),
-                displayName = "Madinah Azaan.mp3",
-                mimeType = "audio/mpeg"
-            )
-            preferencesManager.saveMadinahAzaanUri(audioUri.toString())
-            return audioUri
-        }
+        return null
     }
 
     /** Copies an audio document into local device storage for notification playback. */
