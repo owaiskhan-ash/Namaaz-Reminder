@@ -152,7 +152,10 @@ jobs:
               echo "## Build errors"
               echo
               echo '```'
-              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following" gradle-test.log | head -40 || true
+              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following|Could not|Execution failed for task|Caused by:" gradle-test.log | head -60 || true
+              echo
+              echo "--- last 40 log lines ---"
+              tail -40 gradle-test.log || true
               echo '```'
             fi
           } > test-summary.md
