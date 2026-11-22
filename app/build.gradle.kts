@@ -1,11 +1,7 @@
-import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
-
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   // alias(libs.plugins.google.devtools.ksp) // unused: no annotation processors left
-  alias(libs.plugins.secrets)
-  alias(libs.plugins.google.services)
 }
 
 android {
@@ -70,15 +66,9 @@ android {
   }
 }
 
-// Configure the Secrets Gradle Plugin to use .env and .env.example files
-// to match the convention used in Web projects.
-secrets {
-  propertiesFileName = ".env"
-  defaultPropertiesFileName = ".env.example"
-  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
-}
-
-googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+// No Google Services / Secrets plugin: this app has no Firebase, GMS or .env
+// backed code, and the google-services plugin only warned that
+// google-services.json was missing on every build.
 
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
