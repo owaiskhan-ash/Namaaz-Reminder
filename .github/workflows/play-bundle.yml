@@ -100,8 +100,12 @@ jobs:
           # upload is rejected with "signed with the wrong key".
           FP="$(keytool -list -v -keystore "$KS" -storepass "$STORE_PW" -alias upload \
                 | awk '/SHA256:/{print $2; exit}')"
+          FP1="$(keytool -list -v -keystore "$KS" -storepass "$STORE_PW" -alias upload \
+                 | awk '/SHA1:/{print $2; exit}')"
           echo "UPLOAD_KEY_SHA256=$FP" >> "$GITHUB_ENV"
+          echo "UPLOAD_KEY_SHA1=$FP1" >> "$GITHUB_ENV"
           echo "Upload key SHA-256: $FP"
+          echo "Upload key SHA-1:   $FP1"
 
       - name: Build the Play bundle
         env:
@@ -131,6 +135,20 @@ jobs:
           echo "BUNDLE_CODE=$BUNDLE_CODE" >> "$GITHUB_ENV"
           echo "versionName $VERSION / versionCode $BUNDLE_CODE"
 
+      - name: Export the upload certificate
+        # The PEM certificate holds only the public half. Play Console asks for
+        # exactly this file when an upload key reset is requested, so it is
+        # published next to the bundle.
+        run: |
+          set -euo pipefail
+          keytool -exportcert -rfc -alias upload -keystore "$KEYSTORE_PATH" \
+            -storepass "$STORE_PW" -file dist/namaaz-upload-key.pem
+          cat dist/namaaz-upload-key.pem
+          openssl x509 -in dist/namaaz-upload-key.pem -noout -fingerprint -sha256 \
+            | sed 's/^/sha256 /' || true
+          openssl x509 -in dist/namaaz-upload-key.pem -noout -fingerprint -sha1 \
+            | sed 's/^/sha1 /' || true
+
       - name: Collect the generated upload key
         if: env.GENERATED == '1'
         run: |
@@ -153,7 +171,11 @@ jobs:
             echo
             echo "Upload \`NamaazReminder-${VERSION}-release.aab\` to the Play Console (Test and release -> Production -> Create new release)."
             echo
+            echo "**Upload key SHA-1:** \`${UPLOAD_KEY_SHA1}\`"
+            echo
             echo "**Upload key SHA-256:** \`${UPLOAD_KEY_SHA256}\`"
+            echo
+            echo "\`namaaz-upload-key.pem\` is this key's public certificate - the file Play Console asks for when you request an upload key reset."
             echo
             echo "Play only accepts a bundle signed with the upload key registered for this app. Compare this fingerprint with *Play Console -> Test and release -> App signing -> Upload key*; if they differ, either add the registered key as the \`KEYSTORE_BASE64\` secret or request an upload key reset and then upload this bundle."
             echo
@@ -185,7 +207,7 @@ jobs:
             echo '```'
           } > notes.md
 
-          mapfile -t FILES < <(ls dist/*.aab dist/*.jks 2>/dev/null || true)
+          mapfile -t FILES < <(ls dist/*.aab dist/*.jks dist/*.pem 2>/dev/null || true)
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "${FILES[@]}" --clobber --repo "$GITHUB_REPOSITORY"
           else
