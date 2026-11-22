@@ -13,6 +13,11 @@ on:
         description: "Release to attach the bundle to"
         required: false
         default: "play-bundle"
+  # Pushing a tag that starts with "play-" builds a bundle for that commit. This
+  # is the trigger to use when the workflow token cannot dispatch workflows.
+  push:
+    tags:
+      - "play-*"
 
 permissions:
   contents: write
@@ -115,7 +120,7 @@ jobs:
       - name: Publish the bundle
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.release_tag }}
+          TAG: ${{ inputs.release_tag || 'play-bundle' }}
         run: |
           set -uo pipefail
           cd dist
