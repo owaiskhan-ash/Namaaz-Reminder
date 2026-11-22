@@ -109,8 +109,7 @@ pages. Version bumped to **1.7.4 / 15** so this build can be uploaded over
 2. **App content**: Alarms & reminders declaration (`SCHEDULE_EXACT_ALARM`),
    Data safety (city name to `api.aladhan.com`, no audio download, no
    accounts/analytics/ads/location), privacy policy URL
-   (`https://www.justsimpleapps.online/privacy`), content rating, target
-   audience, ads = none.
-3. **Store listing**: 512×512 icon, feature graphic, at least two phone
-   screenshots (the landing page already has 400 px webp shots — export PNG at
-   1080 px for the listing).
+   (`https://github.com/owaiskhan-ash/Namaaz-Reminder/blob/main/PRIVACY.md`),
+   content rating, target audience, ads = none.
+3. **Store listing**: the 512×512 icon and three 1080×1920 phone screenshots
+   are in `store-listing/`; a feature graphic (1024×500) still has to be made.
