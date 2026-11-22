@@ -314,6 +314,8 @@ object PrayerNotificationManager {
         val notificationManager =
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
 
+        val soundUri = AzaanSoundStore.selectedSoundUri(appContext, settings)
+
         val title = if (isTest) {
             "Test Reminder: $prayerName Prayer"
         } else if (offsetMinutes > 0) {
@@ -323,7 +325,11 @@ object PrayerNotificationManager {
         }
 
         val message = if (isTest) {
-            "Notification & Madinah Azaan alarm stream are active. Scheduled time: $prayerTime in $city."
+            if (settings.soundEnabled && soundUri != null) {
+                "Notification & Azaan alarm stream are active. Scheduled time: $prayerTime in $city."
+            } else {
+                "Notification is active (sound is off). Scheduled time: $prayerTime in $city."
+            }
         } else if (offsetMinutes > 0) {
             "$prayerName prayer in $city started $offsetMinutes minutes ago ($prayerTime). It is time for your Salah."
         } else {
@@ -331,7 +337,6 @@ object PrayerNotificationManager {
         }
 
         val notifId = if (isTest) 9999 else (prayerName.hashCode() and 0x7FFFFFFF).coerceAtLeast(1001)
-        val soundUri = AzaanSoundStore.selectedSoundUri(appContext, settings)
 
         if (settings.soundEnabled && soundUri != null) {
             val serviceIntent = Intent(appContext, AzaanPlaybackService::class.java).apply {

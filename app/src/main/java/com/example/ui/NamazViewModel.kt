@@ -58,6 +58,7 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<NamazUiState> = _uiState.asStateFlow()
 
     private var countdownJob: Job? = null
+    private var loadJob: Job? = null
     private var madinahDownloadJob: Job? = null
     private var madinahSoundReady = false
     private var loadedScheduleDateKey: String? = null
@@ -72,7 +73,10 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadTimings(city: String, methodId: Int) {
-        viewModelScope.launch {
+        // Cancel any in-flight load so a slow response for a previous
+        // city/method cannot overwrite the schedule the user just picked.
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val requestSettings = _uiState.value.settings
             val result = repository.getPrayerSchedule(
@@ -316,22 +320,26 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** Downloads the supplied Madinah Azaan automatically and retries on resume if offline. */
+    /**
+     * Resolves the Madinah Azaan that ships inside the APK. There is no download
+     * any more (the old storage bucket is gone), so this only refreshes the
+     * notification channel and the pending alarms when the bundled file becomes
+     * available, and otherwise leaves the device alarm sound in place.
+     */
     fun ensureMadinahAzaanDownloaded() {
         if (madinahDownloadJob?.isActive == true || madinahSoundReady) return
         madinahDownloadJob = viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    AzaanSoundStore.ensureMadinahAzaanDownloaded(getApplication(), preferencesManager)
+                    AzaanSoundStore.ensureMadinahAzaanAvailable(getApplication(), preferencesManager)
                 }
             }
-            if (result.isSuccess) {
+            if (result.getOrNull() != null) {
                 madinahSoundReady = true
                 val latestSettings = _uiState.value.settings
                 PrayerNotificationManager.createNotificationChannel(getApplication(), latestSettings)
                 rescheduleAlarms()
             } else {
-                // Keep the normal device notification sound as a fallback and retry later.
                 madinahDownloadJob = null
             }
         }
@@ -476,6 +484,11 @@ class NamazViewModel(application: Application) : AndroidViewModel(application) {
         val diffMillis = next.targetEpochMillis - now
 
         if (diffMillis <= 0) {
+            // Show zero instead of freezing on the last positive value while
+            // the refresh below is in flight (or if it fails offline).
+            if (_uiState.value.countdownText != "00h 00m 00s") {
+                _uiState.update { it.copy(countdownText = "00h 00m 00s", countdownSecondsRemaining = 0L) }
+            }
             // The ticker runs every second; request a refresh only once for this
             // expired prayer so a slow or failed request cannot spawn a request storm.
             if (lastExpiredPrayerRefreshMillis != next.targetEpochMillis) {

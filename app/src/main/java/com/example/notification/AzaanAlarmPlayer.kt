@@ -95,43 +95,51 @@ object AzaanAlarmPlayer {
         alarmAttrs: AudioAttributes,
         generation: Long,
         onFinished: (() -> Unit)?
-    ): Boolean = runCatching {
-        val player = MediaPlayer()
-        player.setAudioAttributes(alarmAttrs)
-        player.setDataSource(appContext, uri)
-        player.isLooping = false
-        player.setOnCompletionListener {
-            val shouldNotify = synchronized(lock) {
-                if (generation == activeGeneration) {
-                    stopLocked(appContext)
-                    true
-                } else {
-                    false
+    ): Boolean {
+        var player: MediaPlayer? = null
+        return try {
+            player = MediaPlayer()
+            player.setAudioAttributes(alarmAttrs)
+            player.setDataSource(appContext, uri)
+            player.isLooping = false
+            player.setOnCompletionListener {
+                val shouldNotify = synchronized(lock) {
+                    if (generation == activeGeneration) {
+                        stopLocked(appContext)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                if (shouldNotify) {
+                    onFinished?.let { mainHandler.post(it) }
                 }
             }
-            if (shouldNotify) {
-                onFinished?.let { mainHandler.post(it) }
-            }
-        }
-        player.setOnErrorListener { _, _, _ ->
-            val shouldNotify = synchronized(lock) {
-                if (generation == activeGeneration) {
-                    stopLocked(appContext)
-                    true
-                } else {
-                    false
+            player.setOnErrorListener { _, _, _ ->
+                val shouldNotify = synchronized(lock) {
+                    if (generation == activeGeneration) {
+                        stopLocked(appContext)
+                        true
+                    } else {
+                        false
+                    }
                 }
+                if (shouldNotify) {
+                    onFinished?.let { mainHandler.post(it) }
+                }
+                true
             }
-            if (shouldNotify) {
-                onFinished?.let { mainHandler.post(it) }
-            }
+            player.prepare()
+            player.start()
+            mediaPlayer = player
             true
+        } catch (e: Exception) {
+            // Release the half-initialised player so a bad URI cannot leak
+            // native MediaPlayer resources on every failed reminder.
+            runCatching { player?.release() }
+            false
         }
-        player.prepare()
-        player.start()
-        mediaPlayer = player
-        true
-    }.getOrDefault(false)
+    }
 
     private fun fallbackAlarmUri(context: Context, failedUri: Uri): Uri? {
         val candidate = AzaanSoundStore.bundledMadinahUri(context)?.takeIf { it != failedUri }

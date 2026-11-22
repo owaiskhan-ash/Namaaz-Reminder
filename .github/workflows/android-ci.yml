@@ -45,18 +45,60 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Bundle Madinah Azaan into APK raw resources
-        # Bundling Madinah Azaan directly into res/raw/madinah_azaan.mp3 ensures
-        # the full Madinah Azaan plays immediately offline (and in Silent/Vibrate
-        # mode via STREAM_ALARM) without waiting for a post-install download.
+        # The audio ships inside the APK (res/raw/madinah_azaan.mp3) so the azaan
+        # plays offline and on the alarm stream. Sources, in order:
+        #   1. a file already in the tree (developer build),
+        #   2. the storage bucket URL below,
+        #   3. the last published release APK, which already contains the same
+        #      file - the bucket this project used has been deleted, so the
+        #      pipeline must not depend on it.
+        # If none of them yields the file the build goes on without it: the app
+        # falls back to the device alarm sound instead of failing every reminder.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AZAAN_URL: "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3"
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          TARGET="app/src/main/res/raw/madinah_azaan.mp3"
           mkdir -p app/src/main/res/raw
-          if [ ! -s app/src/main/res/raw/madinah_azaan.mp3 ]; then
-            curl -fsSL --retry 3 --retry-delay 2 \
-              "https://oxtqzqynhtybrgushmjp.supabase.co/storage/v1/object/public/Just%20Apps/Namaaz%20reminder/Madinah%20Azaan.mp3" \
-              -o app/src/main/res/raw/madinah_azaan.mp3
+
+          if [ ! -s "$TARGET" ]; then
+            curl -fsSL --retry 2 --retry-delay 2 "$AZAAN_URL" -o "$TARGET" || rm -f "$TARGET"
           fi
-          ls -lh app/src/main/res/raw/madinah_azaan.mp3
+
+          if [ ! -s "$TARGET" ]; then
+            echo "::warning::Azaan bucket unavailable; trying to recover the file from the last release APK."
+            for TAG in v1.7.3 v1.7.2 v1.7.1 v1.7.0; do
+              rm -rf /tmp/azaan
+              mkdir -p /tmp/azaan/out
+              echo "Trying $TAG ..."
+              if ! gh release download "$TAG" --pattern '*-release.apk' --dir /tmp/azaan --repo "$GITHUB_REPOSITORY"; then
+                echo "$TAG: download failed."
+                continue
+              fi
+              APK="$(ls /tmp/azaan/*.apk 2>/dev/null | head -1)"
+              echo "$TAG: $(ls -lh "$APK" | awk '{print $5}')"
+              # Release builds can rename raw resources, so look at res/raw/*
+              # first and then at any .mp3 in the archive, and keep the biggest.
+              unzip -o -j -q "$APK" 'res/raw/*' -d /tmp/azaan/out >/dev/null 2>&1 || true
+              unzip -o -j -q "$APK" '*.mp3' -d /tmp/azaan/out >/dev/null 2>&1 || true
+              unzip -l "$APK" | grep -i "mp3" | head -5 || true
+              CANDIDATE="$(ls -S /tmp/azaan/out 2>/dev/null | head -1)"
+              if [ -n "$CANDIDATE" ] && [ -s "/tmp/azaan/out/$CANDIDATE" ] && \
+                 [ "$(stat -c%s "/tmp/azaan/out/$CANDIDATE")" -gt 100000 ]; then
+                cp "/tmp/azaan/out/$CANDIDATE" "$TARGET"
+                echo "Recovered $CANDIDATE from $TAG."
+                break
+              fi
+              echo "$TAG: no usable audio found."
+            done
+          fi
+
+          if [ -s "$TARGET" ]; then
+            ls -lh "$TARGET"
+          else
+            echo "::warning::Building without bundled Azaan audio; the app will use the device alarm sound."
+          fi
 
       - name: Run unit tests
         # The output is kept in a file, so a compile error can be published on
@@ -110,7 +152,10 @@ jobs:
               echo "## Build errors"
               echo
               echo '```'
-              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following" gradle-test.log | head -40 || true
+              grep -E "^e: |error: |FAILURE:|What went wrong|> Task .* FAILED|Unresolved reference|Cannot access|None of the following|Could not|Execution failed for task|Caused by:" gradle-test.log | head -60 || true
+              echo
+              echo "--- last 40 log lines ---"
+              tail -40 gradle-test.log || true
               echo '```'
             fi
           } > test-summary.md
@@ -256,10 +301,18 @@ jobs:
             echo "Namaaz Reminder APKs."
             echo
             echo "* \`-debug.apk\`: debug build, signed with the standard Android debug key."
-            echo "* \`-release.apk\`: release build (minification off), signed with the same"
-            echo "  certificate so it can upgrade the debug build in place."
             if ls apk/*.aab >/dev/null 2>&1; then
-              echo "* \`-release.aab\`: Play bundle, signed with the upload key."
+              echo "* \`-release.apk\`: release build (minification off), signed with the Play"
+              echo "  upload key. Uninstall the debug build before installing this one."
+              echo "* \`-release.aab\`: Play bundle, signed with the upload key. This is the"
+              echo "  file to upload to the Play Console."
+            else
+              echo "* \`-release.apk\`: release build (minification off), signed with the same"
+              echo "  certificate so it can upgrade the debug build in place."
+              echo
+              echo "> No upload key is configured in this repository, so no Play bundle"
+              echo "> (\`.aab\`) was built. Add the \`KEYSTORE_BASE64\`, \`STORE_PASSWORD\` and"
+              echo "> \`KEY_PASSWORD\` repository secrets to build a Play-ready bundle."
             fi
             echo
             echo "Install with: \`adb install -r <file>.apk\`"
@@ -347,4 +400,6 @@ jobs:
       - name: Attach APK to release
         uses: softprops/action-gh-release@v2
         with:
-          files: apk/*.apk
+          files: |
+            apk/*.apk
+            apk/*.aab

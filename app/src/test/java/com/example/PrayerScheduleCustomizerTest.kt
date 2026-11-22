@@ -59,6 +59,28 @@ class PrayerScheduleCustomizerTest {
         assertTrue(dhuhr.isNext)
     }
 
+    @Test
+    fun `next prayer is the earliest future one after a custom reorder`() {
+        val timezone = TimeZone.getTimeZone("Asia/Kolkata")
+        val now = Calendar.getInstance(timezone).apply {
+            set(2026, Calendar.OCTOBER, 18, 14, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        // Dhuhr pushed to 23:50, so list order (Fajr, Dhuhr, Asr...) would call
+        // the far-away Dhuhr "next" even though Asr at 15:00 comes first.
+        val settings = UserSettings(
+            customPrayerTimes = mapOf("2026-10-18|mumbai|DHUHR" to "23:50")
+        )
+
+        val customized = PrayerScheduleCustomizer.apply(sampleSchedule(), settings, now)
+        val asr = customized.prayers.first { it.type == PrayerType.ASR }
+        val dhuhr = customized.prayers.first { it.type == PrayerType.DHUHR }
+
+        assertTrue(asr.isNext)
+        assertFalse(dhuhr.isNext)
+        assertTrue(customized.nextPrayer?.type == PrayerType.ASR)
+    }
+
     private fun sampleSchedule() = PrayerScheduleData(
         city = "Mumbai",
         methodId = 1,

@@ -101,6 +101,9 @@ APPS = [
     {
         "slug": "namaaz-reminder",
         "name": "Namaaz Reminder",
+        # Only this page changed in 1.7.4, so only this page's WebPage
+        # dateModified (and its sitemap <lastmod>) moves.
+        "date_modified": "2026-11-22",
         "kicker": "01 · Prayer",
         "nav_cta": "See the app",
         "title": "Namaaz Reminder: Prayer Times for India | Just Apps",
@@ -109,9 +112,9 @@ APPS = [
         "h1": "Namaaz Reminder: prayer times and a countdown to the next salah.",
         "lede": "Namaaz Reminder shows today’s Fajr, Dhuhr, Asr, Maghrib and Isha times for your city in India, counts down to the next prayer, and can remind you at adhan. It is free, has no ads, and asks for no account.",
         "answer": "<p><strong>In one line:</strong> Namaaz Reminder is a free Android prayer-times app for India that shows daily salah times, a live countdown and optional adhan reminders, with no ads, accounts or location permission.</p>",
-        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk">Download the APK</a>
+        "cta": """          <a class="btn btn-primary" href="https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.4/NamaazReminder-1.7.4-release.apk">Download the APK</a>
           <a class="btn btn-ghost" href="/privacy">Privacy policy</a>""",
-        "cta_note": "Version 1.7.3 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases; Google Play listing in preparation.",
+        "cta_note": "Version 1.7.4 for Android 7.0 and later. Free, signed APK from the project’s GitHub releases; Google Play listing in preparation.",
         "shots": [
             shot("/assets/namaaz/today-400.webp",
                  "Namaaz Reminder showing the next prayer countdown and today's five prayer times on black leather",
@@ -183,7 +186,7 @@ APPS = [
         <h2>Compatibility and version</h2>
         <dl class="facts">
           <dt>Platform</dt><dd>Android 7.0 (API 24) and later, targeting Android 16.</dd>
-          <dt>Version</dt><dd>1.7.3 (versionCode 14).</dd>
+          <dt>Version</dt><dd>1.7.4 (versionCode 15).</dd>
           <dt>Price</dt><dd>Free, with no in-app purchases.</dd>
           <dt>Account</dt><dd>Not required, and not possible; there is no sign-in.</dd>
           <dt>Source</dt><dd><a href="https://github.com/owaiskhan-ash/Namaaz-Reminder">Namaaz-Reminder repository on GitHub</a></dd>
@@ -210,7 +213,7 @@ APPS = [
             "name": "Namaaz Reminder",
             "applicationCategory": "LifestyleApplication",
             "operatingSystem": "Android 7.0 and later",
-            "softwareVersion": "1.7.3",
+            "softwareVersion": "1.7.4",
             "description": "Daily prayer times for cities in India, a live countdown to the next salah, optional adhan reminders and an offline copy of the last schedule. Free, no ads, no account, no location permission.",
             "image": BASE + "/assets/nr-mark-512.png",
             "screenshot": [
@@ -228,10 +231,10 @@ APPS = [
                 "Light, dark and system themes",
                 "No ads, accounts, analytics or location permission",
             ],
-            "downloadUrl": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk",
+            "downloadUrl": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.4/NamaazReminder-1.7.4-release.apk",
             "sameAs": ["https://github.com/owaiskhan-ash/Namaaz-Reminder"],
         },
-        "cta_primary": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.3/NamaazReminder-1.7.3-release.apk",
+        "cta_primary": "https://github.com/owaiskhan-ash/Namaaz-Reminder/releases/download/v1.7.4/NamaazReminder-1.7.4-release.apk",
     },
     {
         "slug": "screen-time-reminder",
@@ -1208,7 +1211,7 @@ def build_jsonld(app):
             "author": AUTHOR,
             "inLanguage": "en",
             "datePublished": app.get("date_published", DATE_PUBLISHED),
-            "dateModified": DATE_MODIFIED,
+            "dateModified": app.get("date_modified", DATE_MODIFIED),
             "breadcrumb": {"@id": url + "#breadcrumb"},
             # AISO: name the passages an answer engine may quote or read
             # aloud, so the lede and the one-line answer are never the
@@ -1296,7 +1299,7 @@ def main():
             related=build_related(app),
             jsonld=build_jsonld(app),
             date_published=app.get("date_published", DATE_PUBLISHED),
-            date_modified=DATE_MODIFIED,
+            date_modified=app.get("date_modified", DATE_MODIFIED),
             stage_sub=stages["sub"],
             stage_bot=stages["bot"],
         )

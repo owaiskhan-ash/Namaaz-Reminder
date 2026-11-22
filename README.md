@@ -150,10 +150,10 @@ They are available in three places:
 Install over ADB with:
 
 ```bash
-adb install -r NamaazReminder-1.7.3-release.apk
+adb install -r NamaazReminder-1.7.4-release.apk
 ```
 
-Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs.
+Pushing a `v*` tag additionally publishes a versioned GitHub Release containing both APKs and, when the upload key is configured, the Play bundle (`.aab`).
 
 ## Building locally
 
@@ -255,11 +255,13 @@ Each prayer reminder stays a separate notification; the app never groups or bund
 
 The reminder can play a full azaan instead of the short system sound:
 
-- the audio is **not** shipped inside the APK; it is fetched from the public asset bucket the
-  first time it is used and then **saved on the device** (media library on Android 10+, the
-  app's external files folder on older versions), so it also plays when the phone is offline,
-- **Settings → Notifications & reminders → Azaan** lists the available azaans with a
-  *play* and a *download* button, the default system sound stays selectable as well,
+- the Madinah Azaan is **bundled inside the APK** (`app/src/main/res/raw/madinah_azaan.mp3`,
+  downloaded by CI before the build), so it plays offline on first install and nothing is
+  fetched from the network at runtime,
+- if a build ever ships without that file, playback falls back to the device alarm sound, so a
+  reminder is never silent,
+- **Settings → Notifications & reminders → Azaan** offers the Madinah Azaan, the device default
+  and any audio file from the phone (imported by copy, so no storage permission is needed),
 - the picked azaan is stored per device, the reminder plays it through a silent channel and
   the sound is set on the notification itself, so the sound / vibration toggles keep working,
 - **Send Test Reminder Notification** plays the same azaan, so it can be checked right away.

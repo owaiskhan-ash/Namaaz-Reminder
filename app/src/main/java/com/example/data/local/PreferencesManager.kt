@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.example.data.model.AzaanSoundIds
 import com.example.data.model.UserSettings
 import org.json.JSONObject
+import java.util.Locale
 
 class PreferencesManager(context: Context) {
     private val prefs: SharedPreferences =
@@ -37,11 +38,14 @@ class PreferencesManager(context: Context) {
     }
 
     fun loadSettings(): UserSettings {
-        val city = prefs.getString(KEY_CITY, "Delhi") ?: "Delhi"
-        val methodId = prefs.getInt(KEY_METHOD_ID, 1)
-        val themeMode = prefs.getString(KEY_THEME_MODE, "DARK") ?: "DARK"
+        // Clamp/validate on load so a corrupted or hand-edited preference can
+        // never crash the app or schedule an absurd alarm.
+        val city = prefs.getString(KEY_CITY, "Delhi")?.trim()?.ifEmpty { "Delhi" } ?: "Delhi"
+        val methodId = prefs.getInt(KEY_METHOD_ID, 1).takeIf { it > 0 } ?: 1
+        val themeMode = prefs.getString(KEY_THEME_MODE, "DARK")
+            ?.takeIf { it in setOf("DARK", "LIGHT", "SYSTEM") } ?: "DARK"
         val notifsEnabled = prefs.getBoolean(KEY_NOTIFS_ENABLED, true)
-        val offset = prefs.getInt(KEY_OFFSET_MINUTES, 5)
+        val offset = prefs.getInt(KEY_OFFSET_MINUTES, 5).coerceIn(0, 120)
         val sound = prefs.getBoolean(KEY_SOUND_ENABLED, true)
         val vibe = prefs.getBoolean(KEY_VIBE_ENABLED, true)
         val is24h = prefs.getBoolean(KEY_24H_FORMAT, false)
@@ -167,7 +171,7 @@ class PreferencesManager(context: Context) {
     }
 
     fun saveCachedScheduleJson(city: String, methodId: Int, json: String) {
-        val cacheKey = "$city-$methodId".lowercase()
+        val cacheKey = "$city-$methodId".lowercase(Locale.ROOT)
         prefs.edit()
             .putString(KEY_CACHED_PAYLOAD + cacheKey, json)
             .putLong(KEY_LAST_CACHED_TIME + cacheKey, System.currentTimeMillis())
@@ -175,7 +179,7 @@ class PreferencesManager(context: Context) {
     }
 
     fun getCachedScheduleJson(city: String, methodId: Int): Pair<String?, Long> {
-        val cacheKey = "$city-$methodId".lowercase()
+        val cacheKey = "$city-$methodId".lowercase(Locale.ROOT)
         val json = prefs.getString(KEY_CACHED_PAYLOAD + cacheKey, null)
         val timestamp = prefs.getLong(KEY_LAST_CACHED_TIME + cacheKey, 0L)
         return Pair(json, timestamp)
