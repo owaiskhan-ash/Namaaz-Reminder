@@ -56,6 +56,7 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           SECRET_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           KS="$RUNNER_TEMP/my-upload-key.jks"
@@ -66,6 +67,17 @@ jobs:
             KEY_PW="$SECRET_KEY_PASSWORD"
             echo "GENERATED=0" >> "$GITHUB_ENV"
             echo "Using the upload key from repository secrets."
+          elif gh release download play-bundle --pattern 'namaaz-upload-key.jks' \
+                 --dir "$RUNNER_TEMP/key" --clobber --repo "$GITHUB_REPOSITORY"; then
+            # Reuse the key published by the first run. Generating a new one on
+            # every build would make every AAB unuploadable: Play keeps the key
+            # of the first successful upload.
+            cp "$RUNNER_TEMP/key/namaaz-upload-key.jks" "$KS"
+            chmod 600 "$KS"
+            STORE_PW="$FALLBACK_STORE_PASSWORD"
+            KEY_PW="$FALLBACK_STORE_PASSWORD"
+            echo "GENERATED=0" >> "$GITHUB_ENV"
+            echo "Reusing the upload key published on the play-bundle release."
           else
             keytool -genkeypair -v -keystore "$KS" -storetype PKCS12 \
               -storepass "$FALLBACK_STORE_PASSWORD" -keypass "$FALLBACK_STORE_PASSWORD" \
@@ -74,13 +86,19 @@ jobs:
             STORE_PW="$FALLBACK_STORE_PASSWORD"
             KEY_PW="$FALLBACK_STORE_PASSWORD"
             echo "GENERATED=1" >> "$GITHUB_ENV"
-            echo "::warning::No KEYSTORE_BASE64 secret: generated a new upload key for this build."
+            echo "::warning::No KEYSTORE_BASE64 secret and no published key: generated a new upload key."
           fi
           echo "KEYSTORE_PATH=$KS" >> "$GITHUB_ENV"
           echo "STORE_PW=$STORE_PW" >> "$GITHUB_ENV"
           echo "KEY_PW=$KEY_PW" >> "$GITHUB_ENV"
           keytool -list -v -keystore "$KS" -storepass "$STORE_PW" -alias upload \
             | grep -E "Alias|Valid from|SHA256" || true
+          # The fingerprint Play Console shows must match this one, otherwise the
+          # upload is rejected with "signed with the wrong key".
+          FP="$(keytool -list -v -keystore "$KS" -storepass "$STORE_PW" -alias upload \
+                | awk '/SHA256:/{print $2; exit}')"
+          echo "UPLOAD_KEY_SHA256=$FP" >> "$GITHUB_ENV"
+          echo "Upload key SHA-256: $FP"
 
       - name: Build the Play bundle
         env:
@@ -131,6 +149,10 @@ jobs:
             echo "Signed Android App Bundle for Namaaz Reminder ${VERSION} (versionCode ${BUNDLE_CODE})."
             echo
             echo "Upload \`NamaazReminder-${VERSION}-release.aab\` to the Play Console (Test and release -> Production -> Create new release)."
+            echo
+            echo "**Upload key SHA-256:** \`${UPLOAD_KEY_SHA256}\`"
+            echo
+            echo "Play only accepts a bundle signed with the upload key registered for this app. Compare this fingerprint with *Play Console -> Test and release -> App signing -> Upload key*; if they differ, either add the registered key as the \`KEYSTORE_BASE64\` secret or request an upload key reset and then upload this bundle."
             echo
             if [ "${GENERATED}" = "1" ]; then
               echo "### Upload key"
